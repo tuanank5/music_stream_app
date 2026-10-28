@@ -1,0 +1,14 @@
+{
+    "name":"music-stream-admin-tools",
+    "private":true,
+    "scripts":
+    {
+    "admin":"node set-admin.cjs",
+    "seed":"node seed.cjs"
+},
+    "dependencies":
+    {
+        "firebase-admin":"^13.0.0",
+        "firebase-tools":"^14.0.0"
+    }
+}

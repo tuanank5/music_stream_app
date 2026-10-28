@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signed() { return request.auth != null; }
+  function owner(uid) { return signed() && request.auth.uid == uid; }
+  function admin() { return signed() && request.auth.token.admin == true; }
+  function text(v,max) { return v is string && v.size() <= max; }
+  function url(v) { return text(v,2048) && (v == '' || v.matches('https://.+')); }
+  function validSong() {
+   let d=request.resource.data;
+   return d.keys().hasAll(['title','artist','artistId','album','coverUrl','audioUrl','audioKey','durationSeconds','lyrics','active'])
+    && d.keys().hasOnly(['title','artist','artistId','album','coverUrl','audioUrl','audioKey','durationSeconds','lyrics','active'])
+    && text(d.title,150) && d.title.size()>0 && text(d.artist,150) && d.artist.size()>0
+    && text(d.artistId,128) && (d.artistId=='' || exists(/databases/$(database)/documents/artists/$(d.artistId)))
+    && text(d.album,150) && url(d.coverUrl) && url(d.audioUrl)
+    && d.audioKey in ['', 'demo1','demo2','demo3'] && (d.audioUrl!='' || d.audioKey!='')
+    && d.durationSeconds is number && d.durationSeconds >= 0 && d.durationSeconds <= 86400
+    && text(d.lyrics,12000) && d.active is bool;
+  }
+  match /songs/{songId} {
+   allow read: if true;
+   allow create, update: if admin() && validSong();
+   allow delete: if admin();
+  }
+  match /artists/{artistId} {
+   allow read: if true;
+   allow create, update: if admin()
+    && request.resource.data.keys().hasAll(['name','imageUrl','biography','active'])
+    && request.resource.data.keys().hasOnly(['name','imageUrl','biography','active'])
+    && text(request.resource.data.name,150) && request.resource.data.name.size()>0
+    && url(request.resource.data.imageUrl) && text(request.resource.data.biography,4000)
+    && request.resource.data.active is bool;
+   // Artist uses soft deletion to preserve references from songs.
+   allow delete: if false;
+  }
+  match /users/{uid} {
+   allow read: if owner(uid);
+   allow create, update: if owner(uid)
+    && request.resource.data.keys().hasAll(['displayName','email','photoURL'])
+    && request.resource.data.keys().hasOnly(['displayName','email','photoURL','createdAt'])
+    && text(request.resource.data.displayName,80) && request.resource.data.displayName.size()>0
+    && request.resource.data.email == request.auth.token.email
+    && url(request.resource.data.photoURL)
+    && (!request.resource.data.keys().hasAny(['createdAt']) || request.resource.data.createdAt is timestamp);
+   function playlistValid() {
+    let d=request.resource.data;
+    return d.keys().hasAll(['name','description','songIds']) && d.keys().hasOnly(['name','description','songIds'])
+     && text(d.name,80) && d.name.size()>0 && text(d.description,500)
+     && d.songIds is list && d.songIds.size()<=500 && d.songIds.toSet().size()==d.songIds.size();
+   }
+   function validSongAddition() {
+    let added=request.resource.data.songIds.removeAll(resource.data.songIds);
+    return added.size()==0 || (added.size()==1 && added[0] is string
+     && exists(/databases/$(database)/documents/songs/$(added[0]))
+     && get(/databases/$(database)/documents/songs/$(added[0])).data.active == true);
+   }
+   match /playlists/{playlistId} {
+    allow read, delete: if owner(uid);
+    allow create: if owner(uid) && playlistValid() && request.resource.data.songIds.size()==0;
+    allow update: if owner(uid) && playlistValid() && validSongAddition();
+   }
+   match /favorites/{songId} {
+    allow read, delete: if owner(uid);
+    allow create, update: if owner(uid)
+     && request.resource.data.keys().hasOnly(['songId']) && request.resource.data.songId==songId
+     && exists(/databases/$(database)/documents/songs/$(songId))
+     && get(/databases/$(database)/documents/songs/$(songId)).data.active==true;
+   }
+   match /following/{artistId} {
+    allow read, delete: if owner(uid);
+    allow create, update: if owner(uid)
+     && request.resource.data.keys().hasOnly(['artistId']) && request.resource.data.artistId==artistId
+     && exists(/databases/$(database)/documents/artists/$(artistId))
+     && get(/databases/$(database)/documents/artists/$(artistId)).data.active==true;
+   }
+  }
+  match /posts/{postId} {
+   allow read: if signed();
+   allow create: if signed()
+    && request.resource.data.keys().hasAll(['ownerId','authorName','content','songId','active','createdAt'])
+    && request.resource.data.keys().hasOnly(['ownerId','authorName','content','songId','active','createdAt'])
+    && request.resource.data.ownerId==request.auth.uid
+    && text(request.resource.data.authorName,80) && request.resource.data.authorName.size()>0
+    && text(request.resource.data.content,2000) && request.resource.data.content.size()>0
+    && text(request.resource.data.songId,128)
+    && (request.resource.data.songId=='' || exists(/databases/$(database)/documents/songs/$(request.resource.data.songId)))
+    && request.resource.data.active==true && request.resource.data.createdAt==request.time;
+   allow update: if (owner(resource.data.ownerId) || admin())
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['content','active'])
+    && text(request.resource.data.content,2000) && request.resource.data.content.size()>0
+    && request.resource.data.active is bool;
+   // Soft delete retains comments; archived posts are filtered in UI (not private).
+   allow delete: if false;
+   match /comments/{commentId} {
+    function postActive() { return get(/databases/$(database)/documents/posts/$(postId)).data.active==true; }
+    allow read: if signed() && postActive();
+    allow create: if signed() && postActive()
+     && request.resource.data.keys().hasAll(['ownerId','authorName','content','createdAt'])
+     && request.resource.data.keys().hasOnly(['ownerId','authorName','content','createdAt'])
+     && request.resource.data.ownerId==request.auth.uid
+     && text(request.resource.data.authorName,80) && request.resource.data.authorName.size()>0
+     && text(request.resource.data.content,1000) && request.resource.data.content.size()>0
+     && request.resource.data.createdAt==request.time;
+    allow update: if owner(resource.data.ownerId) && postActive()
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['content'])
+     && text(request.resource.data.content,1000) && request.resource.data.content.size()>0;
+    allow delete: if owner(resource.data.ownerId) || admin();
+   }
+  }
+ }
+}
