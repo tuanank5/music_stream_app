@@ -1,6 +1,6 @@
 import React from "react";
 import Guard from "../components/Guard";
-import { FavoritesScreen } from "../screens/LibraryScreens";
+import { FavoritesScreen } from "../components/LibraryScreens";
 export default function Route() {
   return (
     <Guard>

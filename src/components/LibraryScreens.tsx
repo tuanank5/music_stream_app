@@ -3,8 +3,8 @@ import { Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
-import { Button, ErrorText, Field, Page, ui } from "../components/UI";
-import SongRow from "../components/SongRow";
+import { Button, ErrorText, Field, Page, ui } from "./UI";
+import SongRow from "./SongRow";
 import { useAction } from "../hooks/useAction";
 import {
   changePlaylistSong,

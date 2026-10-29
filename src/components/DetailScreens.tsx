@@ -5,9 +5,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
 import { usePlayer } from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
-import { Page, Button, ErrorText, ui } from "../components/UI";
-import Artwork from "../components/Artwork";
-import SongRow from "../components/SongRow";
+import { Page, Button, ErrorText, ui } from "./UI";
+import Artwork from "./Artwork";
+import SongRow from "./SongRow";
 import { setFollow } from "../services/libraryService";
 import { formatDuration } from "../utils/validation";
 export function ArtistScreen() {
