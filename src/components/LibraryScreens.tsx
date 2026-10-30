@@ -24,6 +24,17 @@ export function LibraryScreen() {
         title={`♫ Playlists (${playlists.length})`}
         onPress={() => router.push("/playlists")}
       />
+      {/* Update 10/30/2026 */}
+      <Button
+        title="↑ Upload bài hát"
+        onPress={() => router.push("/upload")}
+      />
+
+      <Button
+        title="Bài hát tôi đã đăng"
+        secondary
+        onPress={() => router.push("/my-uploads")}
+      />
       <Text style={ui.muted}>
         Đang theo dõi {followingIds.length} nghệ sĩ. Dữ liệu thư viện thuộc tài
         khoản đã đăng nhập.

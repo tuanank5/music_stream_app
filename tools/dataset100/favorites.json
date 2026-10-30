@@ -1,0 +1,242 @@
+[
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-001",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-002",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-003",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-004",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-005",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-006",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-007",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "songKey": "song-008",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-014",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-015",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-016",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-017",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-018",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-019",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-020",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "songKey": "song-021",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-027",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-028",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-029",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-030",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-031",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-032",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-033",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "songKey": "song-034",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-040",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-041",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-042",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-043",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-044",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-045",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-046",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-04",
+    "songKey": "song-047",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-053",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-054",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-055",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-056",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-057",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-058",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-059",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "songKey": "song-060",
+    "songId": "$RESOLVE_SONG_ID",
+    "favoritedAt": "$TIMESTAMP"
+  }
+]

@@ -14,10 +14,18 @@
           "recordAudioAndroid": false,
           "microphonePermission": false
         }
+      ],
+      [
+      "expo-image-picker",
+        {
+          "photosPermission": "Cho phép chọn ảnh bìa bài hát.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "web": {
       "bundler": "metro"
-    }
+    } 
   }
 }

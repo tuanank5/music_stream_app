@@ -1,33 +1,118 @@
-const assert = require('node:assert/strict');
-const artists = require('./artists.json');
-const songs = require('./songs.json');
-function validate() {
-  assert.equal(Object.keys(artists).length, 20, 'Cần đủ 20 nghệ sĩ');
-  assert.equal(Object.keys(songs).length, 100, 'Cần đủ 100 bài hát');
-  const artistKeys = ['name','imageUrl','biography','active'].sort();
-  const songKeys = ['title','artist','artistId','album','coverUrl','audioUrl','audioKey','durationSeconds','lyrics','active'].sort();
-  const counts = {};
-  function str(v, max) { assert.equal(typeof v,'string'); assert.ok(v.length <= max); }
-  function url(v) { str(v,2048); assert.ok(v === '' || /^https:\/\/.+/.test(v)); }
-  for (const [id,a] of Object.entries(artists)) {
-    assert.match(id,/^demo100-artist-\d{3}$/);
-    assert.deepEqual(Object.keys(a).sort(),artistKeys);
-    str(a.name,150); assert.ok(a.name.trim()); url(a.imageUrl);
-    str(a.biography,4000); assert.equal(a.active,true); counts[id]=0;
-  }
-  for (const [id,s] of Object.entries(songs)) {
-    assert.match(id,/^demo100-song-\d{3}$/);
-    assert.deepEqual(Object.keys(s).sort(),songKeys);
-    str(s.title,150); assert.ok(s.title.trim()); str(s.artist,150);
-    str(s.artistId,128); assert.ok(artists[s.artistId],`artistId không tồn tại: ${s.artistId}`);
-    assert.equal(s.artist,artists[s.artistId].name); counts[s.artistId]++;
-    str(s.album,150); url(s.coverUrl); url(s.audioUrl);
-    assert.ok(['demo1','demo2','demo3'].includes(s.audioKey));
-    assert.equal(s.durationSeconds,12); str(s.lyrics,12000); assert.equal(s.active,true);
-  }
-  for (const n of Object.values(counts)) assert.equal(n,5,'Mỗi nghệ sĩ có 5 bài');
-  assert.equal(new Set(Object.values(songs).map(s=>s.title)).size,100);
-  return {artists:20,songs:100,relationships:100,songsPerArtist:5};
+const fs = require("node:fs"),
+  path = require("node:path"),
+  assert = require("node:assert/strict");
+const names = [
+  "users",
+  "songs",
+  "albums",
+  "playlists",
+  "following",
+  "favorites",
+  "history",
+  "media",
+];
+const dataset = Object.fromEntries(
+  names.map((n) => [
+    n,
+    JSON.parse(fs.readFileSync(path.join(__dirname, n + ".json"), "utf8")),
+  ]),
+);
+function unique(items, label) {
+  const keys = items.map((x) => x.key);
+  assert.equal(new Set(keys).size, keys.length, "Trùng key " + label);
+  return new Set(keys);
 }
-if (require.main === module) console.log('Dữ liệu hợp lệ:',validate());
-module.exports = {validate,artists,songs};
+function validate() {
+  const {
+    users,
+    songs,
+    albums,
+    playlists,
+    following,
+    favorites,
+    history,
+    media,
+  } = dataset;
+  assert.equal(users.length, 25);
+  assert.equal(users.filter((x) => x.role === "artist").length, 20);
+  assert.equal(songs.length, 100);
+  assert.equal(albums.length, 20);
+  const us = unique(users, "users"),
+    ss = unique(songs, "songs"),
+    aa = unique(albums, "albums"),
+    mm = unique(media, "media");
+  unique(playlists, "playlist");
+  unique(history, "history");
+  for (const a of albums) {
+    assert.ok(us.has(a.artistKey));
+    assert.ok(mm.has(a.coverMediaKey));
+  }
+  for (const s of songs) {
+    assert.ok(us.has(s.artistKey));
+    assert.ok(aa.has(s.albumKey));
+    assert.equal(
+      albums.find((a) => a.key === s.albumKey).artistKey,
+      s.artistKey,
+    );
+    assert.ok(mm.has(s.coverMediaKey));
+    assert.ok(mm.has(s.audioMediaKey));
+    assert.ok(s.durationSeconds > 60);
+    assert.ok(s.genre.length > 0);
+    assert.equal(s.isPublished, s.visibility === "public" && s.active);
+    assert.ok(Number.isInteger(s.playCount) && s.playCount >= 0);
+  }
+  for (const p of playlists) {
+    assert.ok(us.has(p.ownerKey));
+    assert.ok(p.songKeys.length >= 1 && p.songKeys.length <= 50);
+    assert.equal(p.songKeys.length, p.songCount);
+    assert.equal(new Set(p.songKeys).size, p.songKeys.length);
+    for (const s of p.songKeys) assert.ok(ss.has(s));
+  }
+  const relations = new Set();
+  for (const f of following) {
+    assert.ok(
+      us.has(f.ownerKey) && us.has(f.targetKey) && f.ownerKey !== f.targetKey,
+    );
+    const key = f.ownerKey + "/" + f.targetKey;
+    assert.ok(!relations.has(key));
+    relations.add(key);
+  }
+  const favs = new Set();
+  for (const f of favorites) {
+    assert.ok(us.has(f.ownerKey) && ss.has(f.songKey));
+    const key = f.ownerKey + "/" + f.songKey;
+    assert.ok(!favs.has(key));
+    favs.add(key);
+  }
+  const histories = {};
+  for (const h of history) {
+    assert.ok(us.has(h.ownerKey) && ss.has(h.songKey));
+    assert.ok(h.progressSeconds >= 0 && h.progressSeconds <= h.durationSeconds);
+    assert.equal(
+      h.durationSeconds,
+      songs.find((s) => s.key === h.songKey).durationSeconds,
+    );
+    histories[h.ownerKey] = (histories[h.ownerKey] || 0) + 1;
+    assert.ok(histories[h.ownerKey] <= 100);
+  }
+  assert.equal(histories["listener-01"], 100);
+  assert.ok(!histories["listener-04"]);
+  for (const m of media) {
+    const f = path.resolve(__dirname, m.file);
+    assert.ok(f.startsWith(__dirname + path.sep));
+    assert.ok(fs.statSync(f).isFile());
+  }
+  const counts = Object.fromEntries(names.map((n) => [n, dataset[n].length]));
+  counts.publicSongs = songs.filter((s) => s.isPublished).length;
+  counts.popSongs = songs.filter(
+    (s) => s.isPublished && s.genre.includes("Pop"),
+  ).length;
+  counts.acousticSongs = songs.filter(
+    (s) => s.isPublished && s.genre.includes("Acoustic"),
+  ).length;
+  assert.ok(counts.popSongs >= 50 && counts.acousticSongs >= 50);
+  return counts;
+}
+if (require.main === module)
+  console.log("Dữ liệu schema v2 hợp lệ:", validate());
+module.exports = { validate, dataset };

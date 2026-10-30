@@ -1,0 +1,68 @@
+[
+  {
+    "ownerKey": "listener-01",
+    "targetKey": "artist-01",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "targetKey": "artist-02",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-01",
+    "targetKey": "artist-20",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "targetKey": "artist-03",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-02",
+    "targetKey": "artist-04",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "targetKey": "artist-01",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "targetKey": "artist-05",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "targetKey": "artist-06",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-03",
+    "targetKey": "artist-07",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "targetKey": "artist-10",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  },
+  {
+    "ownerKey": "listener-05",
+    "targetKey": "artist-20",
+    "userId": "$RESOLVE_TARGET_UID",
+    "followedAt": "$TIMESTAMP"
+  }
+]

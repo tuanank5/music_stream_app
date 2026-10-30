@@ -1,0 +1,173 @@
+[
+  {
+    "key": "cover-01",
+    "kind": "image",
+    "file": "media/cover-01.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-02",
+    "kind": "image",
+    "file": "media/cover-02.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-03",
+    "kind": "image",
+    "file": "media/cover-03.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-04",
+    "kind": "image",
+    "file": "media/cover-04.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-05",
+    "kind": "image",
+    "file": "media/cover-05.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-06",
+    "kind": "image",
+    "file": "media/cover-06.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-07",
+    "kind": "image",
+    "file": "media/cover-07.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-08",
+    "kind": "image",
+    "file": "media/cover-08.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-09",
+    "kind": "image",
+    "file": "media/cover-09.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-10",
+    "kind": "image",
+    "file": "media/cover-10.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-11",
+    "kind": "image",
+    "file": "media/cover-11.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-12",
+    "kind": "image",
+    "file": "media/cover-12.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-13",
+    "kind": "image",
+    "file": "media/cover-13.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-14",
+    "kind": "image",
+    "file": "media/cover-14.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-15",
+    "kind": "image",
+    "file": "media/cover-15.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-16",
+    "kind": "image",
+    "file": "media/cover-16.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-17",
+    "kind": "image",
+    "file": "media/cover-17.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-18",
+    "kind": "image",
+    "file": "media/cover-18.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-19",
+    "kind": "image",
+    "file": "media/cover-19.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-20",
+    "kind": "image",
+    "file": "media/cover-20.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-21",
+    "kind": "image",
+    "file": "media/cover-21.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-22",
+    "kind": "image",
+    "file": "media/cover-22.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-23",
+    "kind": "image",
+    "file": "media/cover-23.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-24",
+    "kind": "image",
+    "file": "media/cover-24.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "cover-25",
+    "kind": "image",
+    "file": "media/cover-25.png",
+    "mimeType": "image/png"
+  },
+  {
+    "key": "audio-1",
+    "kind": "video",
+    "file": "media/test-75s.mp3",
+    "mimeType": "audio/mpeg",
+    "durationSeconds": 75
+  },
+  {
+    "key": "audio-2",
+    "kind": "video",
+    "file": "media/test-85s.mp3",
+    "mimeType": "audio/mpeg",
+    "durationSeconds": 85
+  },
+  {
+    "key": "audio-3",
+    "kind": "video",
+    "file": "media/test-95s.mp3",
+    "mimeType": "audio/mpeg",
+    "durationSeconds": 95
+  }
+]

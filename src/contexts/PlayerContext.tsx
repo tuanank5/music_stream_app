@@ -14,6 +14,7 @@ import {
 import { Song } from "../types/domain";
 import { useAuth } from "./AuthContext";
 import { errorMessage } from "../utils/feedback";
+import { usePlaybackHistory } from "../hooks/usePlaybackHistory";
 const demos: Record<string, number> = {
   demo1: require("../../assets/audio/demo1.mp3"),
   demo2: require("../../assets/audio/demo2.mp3"),
@@ -43,8 +44,10 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
   const player = useAudioPlayer(null);
   const status = useAudioPlayerStatus(player);
   const [current, setCurrent] = useState<Song | null>(null),
+    [session, setSession] = useState(0),
     [error, setError] = useState(""),
     [repeat, setRepeat] = useState(false);
+  usePlaybackHistory(current, session, status, setError);
   const queue = useRef<Song[]>([]);
   const now = useRef<Song | null>(null);
   const ended = useRef(false);
@@ -68,6 +71,7 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
           queue.current = [song];
         now.current = song;
         setCurrent(song);
+        setSession(value => value + 1);
         setError("");
         ended.current = false;
         player.replace(source);
@@ -87,20 +91,35 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
     },
     [play],
   );
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (!status.didJustFinish) {
+  //     ended.current = false;
+  //     return;
+  //   }
+  //   if (ended.current) return;
+  //   ended.current = true;
+  //   if (repeat)
+  //     player
+  //       .seekTo(0)
+  //       .then(() => player.play())
+  //       .catch((e) => setError(errorMessage(e)));
+  //   else if (queue.current.length > 1) move(1);
+  // }, [status.didJustFinish, repeat, move, player]);
+  //Update 10/30/2026
+    useEffect(() => {
     if (!status.didJustFinish) {
       ended.current = false;
       return;
     }
     if (ended.current) return;
     ended.current = true;
-    if (repeat)
-      player
-        .seekTo(0)
-        .then(() => player.play())
-        .catch((e) => setError(errorMessage(e)));
-    else if (queue.current.length > 1) move(1);
-  }, [status.didJustFinish, repeat, move, player]);
+    if (repeat && now.current) {
+      play(now.current);
+    } else if (queue.current.length > 1) {
+      move(1);
+    }
+  }, [status.didJustFinish, repeat, move, player, play]);
+
   useEffect(() => {
     if (!current || status.isLoaded) return;
     const timer = setTimeout(

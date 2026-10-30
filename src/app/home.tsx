@@ -4,16 +4,22 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
 import Artwork from "../components/Artwork";
 import SongRow from "../components/SongRow";
-import { Button, Loading, Page, ui } from "../components/UI";
+import { Button, Loading, Page,ErrorText, ui } from "../components/UI";
+import HomeDiscovery from "../components/HomeDiscovery";
 
 export default function Route() {
-  const { user, isAdmin } = useAuth(),
-    data = useData(),
-    player = usePlayer();
-  const songs = data.songs.filter((s) => s.active);
+  const { user, isAdmin } = useAuth();
+  const data = useData();
+
+  const songs = data.songs.filter(
+    song =>
+      song.active &&
+      song.isPublished &&
+      song.visibility === "public",
+  );
+
   return (
     <Guard>
       <Page>
@@ -40,7 +46,7 @@ export default function Route() {
           secondary
           onPress={() => router.push("/search")}
         />
-        <Text style={ui.heading}>Suggestions for you</Text>
+        {/* <Text style={ui.heading}>Suggestions for you</Text>
         {data.loading ? (
           <Loading />
         ) : (
@@ -72,37 +78,60 @@ export default function Route() {
             khoản admin.
           </Text>
         )}
-        <View style={[ui.card, { backgroundColor: "#dcefeb" }]}>
-          <Text style={ui.heading}>Khám phá danh mục</Text>
-          <Text style={ui.muted}>
-            Duyệt các bài hát đang hoạt động. Đây chưa phải bảng xếp hạng theo
-            lượt nghe.
-          </Text>
-          <Button
-            title="Xem danh sách"
-            onPress={() => router.push("/charts")}
-          />
-        </View>
-        <Text style={ui.heading}>Popular artists</Text>
-        <ScrollView horizontal>
-          {data.artists
-            .filter((a) => a.active)
-            .map((artist) => (
-              <Pressable
-                key={artist.id}
-                style={{ alignItems: "center", marginRight: 16, width: 95 }}
-                onPress={() =>
-                  router.push({
-                    pathname: "/artist",
-                    params: { id: artist.id },
-                  })
-                }
+
+        <SectionHeading
+              title="Charts"
+              onPress={() => router.push("/charts")}
+            />
+
+            <ErrorText
+              message={charts.error ? `Charts: ${charts.error}` : ""}
+            />
+
+            {charts.loading ? (
+              <Loading />
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
               >
-                <Artwork uri={artist.imageUrl} size={85} radius={43} />
-                <Text numberOfLines={1}>{artist.name}</Text>
-              </Pressable>
-            ))}
-        </ScrollView>
+                {charts.charts.map((chart) => (
+                  <ChartCard
+                    key={chart.id}
+                    chart={chart}
+                  />
+                ))}
+              </ScrollView>
+            )}
+
+            {!charts.loading &&
+            !charts.error &&
+            charts.charts.length === 0 ? (
+              <Text style={ui.muted}>
+                Chưa có chart. Thêm dữ liệu vào collection charts.
+              </Text>
+            ) : null}
+
+            <SectionHeading title="Popular artists" />
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 6 }}
+            >
+              {artists.map((artist) => (
+                <ArtistCard
+                  key={artist.id}
+                  artist={artist}
+                />
+              ))}
+              </ScrollView>
+            {artists.length === 0 ? (
+              <Text style={ui.muted}>
+                Chưa có nghệ sĩ hoạt động.
+              </Text>
+            ) : null} */}
+            <HomeDiscovery />
         <Text style={ui.heading}>Bài hát</Text>
         {songs.slice(0, 10).map((song) => (
           <SongRow key={song.id} song={song} queue={songs} />

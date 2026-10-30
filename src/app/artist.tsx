@@ -1,10 +1,11 @@
 import React from "react";
 import Guard from "../components/Guard";
-import { ArtistScreen } from "../components/DetailScreens";
+import ArtistProfileScreen from "../components/ArtistProfileScreen";
+// import { ArtistScreen } from "../components/DetailScreens";
 export default function Route() {
   return (
     <Guard>
-      <ArtistScreen />
+      <ArtistProfileScreen />
     </Guard>
   );
 }

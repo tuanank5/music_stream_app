@@ -44,7 +44,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       setLoading(true);
-      u.getIdTokenResult()
+      service
+        .ensureProfile()
+        .then(() => u.getIdTokenResult())
         .then((token) => {
           if (live && id === generation) setAdmin(token.claims.admin === true);
         })
