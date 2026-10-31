@@ -3,77 +3,181 @@ service cloud.firestore {
  match /databases/{database}/documents {
   function signed() { return request.auth != null; }
   function owner(uid) { return signed() && request.auth.uid == uid; }
-  function admin() { return signed() && request.auth.token.admin == true; }
+  function admin() { return signed() && request.auth.token.get('admin', false) == true; }
   function text(v,max) { return v is string && v.size() <= max; }
   function url(v) { return text(v,2048) && (v == '' || v.matches('https://.+')); }
-  function validSong() {
-   let d=request.resource.data;
-   return d.keys().hasAll(['title','artist','artistId','album','coverUrl','audioUrl','audioKey','durationSeconds','lyrics','active'])
-    && d.keys().hasOnly(['title','artist','artistId','album','coverUrl','audioUrl','audioKey','durationSeconds','lyrics','active'])
-    && text(d.title,150) && d.title.size()>0 && text(d.artist,150) && d.artist.size()>0
-    && text(d.artistId,128) && (d.artistId=='' || exists(/databases/$(database)/documents/artists/$(d.artistId)))
-    && text(d.album,150) && url(d.coverUrl) && url(d.audioUrl)
-    && d.audioKey in ['', 'demo1','demo2','demo3'] && (d.audioUrl!='' || d.audioKey!='')
-    && d.durationSeconds is number && d.durationSeconds >= 0 && d.durationSeconds <= 86400
-    && text(d.lyrics,12000) && d.active is bool;
+  function userPath(uid) { return /databases/$(database)/documents/users/$(uid); }
+  function followPath(uid,target) { return /databases/$(database)/documents/users/$(uid)/following/$(target); }
+  function follows(uid,target) { return exists(followPath(uid,target)); }
+  function relationDelta(uid,target) {
+   return !exists(followPath(uid,target)) && existsAfter(followPath(uid,target)) ? 1
+    : exists(followPath(uid,target)) && !existsAfter(followPath(uid,target)) ? -1 : 0;
+  }
+  function readable(d) {
+   return signed() && (admin() || owner(d.artistId) || (d.active == true && (
+    (d.visibility == 'public' && d.isPublished == true) || d.visibility == 'unlisted'
+    || (d.visibility == 'followers' && follows(request.auth.uid,d.artistId)))));
+  }
+  function readableSong(id) { return readable(get(/databases/$(database)/documents/songs/$(id)).data); }
+  function validSong(id) {
+   let d = request.resource.data;
+   return d.keys().hasAll(['songId','title','artistId','artistNames','albumId','coverUrl','audioUrl','audioKey','durationSeconds','genre','lyric','releaseDate','visibility','isPublished','active','playCount','createdAt','updatedAt'])
+    && d.songId == id && text(d.title,150) && d.title.size()>0
+    && text(d.artistId,128) && exists(/databases/$(database)/documents/users/$(d.artistId))
+    && d.artistNames is list && d.artistNames.size()>0 && d.artistNames.size()<=10
+    && text(d.albumId,128) && (d.albumId == '' || get(/databases/$(database)/documents/albums/$(d.albumId)).data.artistId == d.artistId)
+    && url(d.coverUrl) && url(d.audioUrl) && d.audioKey in ['', 'demo1','demo2','demo3']
+    && (d.audioUrl != '' || d.audioKey != '')
+    && d.durationSeconds is number && d.durationSeconds > 0 && d.durationSeconds <= 86400
+    && d.genre is list && d.genre.size()>0 && d.genre.size()<=10
+    && text(d.lyric,12000) && text(d.get('description',''),4000)
+    && d.get('tags',[]) is list && d.get('tags',[]).size()<=20 && d.visibility in ['public','unlisted','private','followers']
+    && d.active is bool && d.isPublished is bool
+    && d.isPublished == (d.visibility == 'public' && d.active == true)
+    && d.playCount is int && d.playCount>=0 && d.createdAt is timestamp && d.releaseDate is timestamp;
+  }
+  function countedPlay(songId) {
+   let d = request.resource.data;
+   let uid = request.auth.uid;
+   let h = /databases/$(database)/documents/users/$(uid)/history/$(d.lastPlayHistoryId);
+   let r = /databases/$(database)/documents/users/$(uid)/playReceipts/$(songId);
+   return signed() && readable(resource.data)
+    && d.diff(resource.data).affectedKeys().hasOnly(['playCount','lastPlayUid','lastPlayHistoryId'])
+    && d.lastPlayUid == uid && d.playCount == resource.data.playCount + 1
+    && exists(h) && get(h).data.counted == false
+    && getAfter(h).data.counted == true && getAfter(h).data.songId == songId
+    && getAfter(r).data.historyId == d.lastPlayHistoryId && getAfter(r).data.countedAt == request.time;
   }
   match /songs/{songId} {
-   allow read: if true;
-   allow create, update: if admin() && validSong();
+   allow get: if readable(resource.data);
+   allow list: if signed() && (admin() || owner(resource.data.artistId) || (resource.data.visibility == 'public' && resource.data.isPublished == true)
+    || (resource.data.visibility == 'followers' && resource.data.active == true && follows(request.auth.uid,resource.data.artistId)));
+   allow create: if signed() && (owner(request.resource.data.artistId) || admin()) && validSong(songId)
+    && request.resource.data.playCount == 0 && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+   allow update: if ((owner(resource.data.artistId) || admin()) && validSong(songId)
+    && request.resource.data.artistId == resource.data.artistId && request.resource.data.createdAt == resource.data.createdAt
+    && request.resource.data.playCount == resource.data.playCount
+    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['lastPlayUid','lastPlayHistoryId'])
+    && request.resource.data.updatedAt == request.time) || countedPlay(songId);
+   allow delete: if owner(resource.data.artistId) || admin();
+  }
+  match /albums/{albumId} {
+   allow get: if signed() && (resource.data.isPublished == true || owner(resource.data.artistId) || admin());
+   allow list: if signed() && (resource.data.isPublished == true || owner(resource.data.artistId) || admin());
+   allow create: if signed() && request.resource.data.albumId == albumId && owner(request.resource.data.artistId)
+    && text(request.resource.data.title,150) && request.resource.data.title.size()>0
+    && url(request.resource.data.coverUrl) && request.resource.data.isPublished is bool
+    && request.resource.data.createdAt == request.time && request.resource.data.releaseDate is timestamp;
+   allow update: if (owner(resource.data.artistId) || admin())
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title','coverUrl','isPublished'])
+    && text(request.resource.data.title,150) && url(request.resource.data.coverUrl) && request.resource.data.isPublished is bool;
    allow delete: if admin();
   }
-  match /artists/{artistId} {
-   allow read: if true;
-   allow create, update: if admin()
-    && request.resource.data.keys().hasAll(['name','imageUrl','biography','active'])
-    && request.resource.data.keys().hasOnly(['name','imageUrl','biography','active'])
-    && text(request.resource.data.name,150) && request.resource.data.name.size()>0
-    && url(request.resource.data.imageUrl) && text(request.resource.data.biography,4000)
-    && request.resource.data.active is bool;
-   // Artist uses soft deletion to preserve references from songs.
-   allow delete: if false;
+  function validUser(uid) {
+   let d = request.resource.data;
+   return d.userId == uid && text(d.displayName,80) && d.displayName.size()>0
+    && text(d.email,320) && url(d.avatarUrl) && text(d.biography,4000)
+    && d.followerCount is int && d.followerCount>=0 && d.followingCount is int && d.followingCount>=0
+    && d.active is bool && d.createdAt is timestamp && d.updatedAt is timestamp;
+  }
+  function followingChange(uid) {
+   let d = request.resource.data;
+   let delta = relationDelta(uid,d.lastFollowingId);
+   return owner(uid) && delta != 0 && uid != d.lastFollowingId
+    && d.diff(resource.data).affectedKeys().hasOnly(['followingCount','lastFollowingId'])
+    && d.followingCount == resource.data.followingCount + delta && d.followingCount >= 0;
+  }
+  function followerChange(uid) {
+   let delta = relationDelta(request.auth.uid,uid);
+   return signed() && uid != request.auth.uid && delta != 0
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followerCount'])
+    && request.resource.data.followerCount == resource.data.followerCount + delta
+    && request.resource.data.followerCount >= 0;
   }
   match /users/{uid} {
-   allow read: if owner(uid);
-   allow create, update: if owner(uid)
-    && request.resource.data.keys().hasAll(['displayName','email','photoURL'])
-    && request.resource.data.keys().hasOnly(['displayName','email','photoURL','createdAt'])
-    && text(request.resource.data.displayName,80) && request.resource.data.displayName.size()>0
-    && request.resource.data.email == request.auth.token.email
-    && url(request.resource.data.photoURL)
-    && (!request.resource.data.keys().hasAny(['createdAt']) || request.resource.data.createdAt is timestamp);
-   function playlistValid() {
-    let d=request.resource.data;
-    return d.keys().hasAll(['name','description','songIds']) && d.keys().hasOnly(['name','description','songIds'])
-     && text(d.name,80) && d.name.size()>0 && text(d.description,500)
-     && d.songIds is list && d.songIds.size()<=500 && d.songIds.toSet().size()==d.songIds.size();
-   }
-   function validSongAddition() {
-    let added=request.resource.data.songIds.removeAll(resource.data.songIds);
-    return added.size()==0 || (added.size()==1 && added[0] is string
-     && exists(/databases/$(database)/documents/songs/$(added[0]))
-     && get(/databases/$(database)/documents/songs/$(added[0])).data.active == true);
-   }
-   match /playlists/{playlistId} {
-    allow read, delete: if owner(uid);
-    allow create: if owner(uid) && playlistValid() && request.resource.data.songIds.size()==0;
-    allow update: if owner(uid) && playlistValid() && validSongAddition();
+   // All signed-in users can read full user documents, INCLUDING email.
+   allow get, list: if signed();
+   allow create: if owner(uid) && validUser(uid) && request.resource.data.email == request.auth.token.email
+    && request.resource.data.followerCount == 0 && request.resource.data.followingCount == 0
+    && request.resource.data.createdAt == request.time;
+   allow update: if (owner(uid) && validUser(uid)
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','avatarUrl','biography','updatedAt'])
+    && request.resource.data.updatedAt == request.time) || followingChange(uid) || followerChange(uid)
+    || (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','avatarUrl','biography','active','updatedAt']));
+   match /following/{target} {
+    allow read: if owner(uid);
+    function counters(delta) {
+     return getAfter(userPath(uid)).data.followingCount == get(userPath(uid)).data.followingCount + delta
+      && getAfter(userPath(target)).data.followerCount == get(userPath(target)).data.followerCount + delta
+      && getAfter(userPath(uid)).data.lastFollowingId == target;
+    }
+    allow create: if owner(uid) && uid != target && exists(userPath(target))
+     && request.resource.data.keys().hasOnly(['userId','followedAt']) && request.resource.data.userId == target
+     && request.resource.data.followedAt == request.time && counters(1);
+    allow delete: if owner(uid) && counters(-1);
    }
    match /favorites/{songId} {
     allow read, delete: if owner(uid);
-    allow create, update: if owner(uid)
-     && request.resource.data.keys().hasOnly(['songId']) && request.resource.data.songId==songId
-     && exists(/databases/$(database)/documents/songs/$(songId))
-     && get(/databases/$(database)/documents/songs/$(songId)).data.active==true;
+    allow create, update: if owner(uid) && readableSong(songId)
+     && request.resource.data.keys().hasOnly(['songId','favoritedAt']) && request.resource.data.songId == songId
+     && request.resource.data.favoritedAt == request.time;
    }
-   match /following/{artistId} {
+   match /playlists/{playlistId} {
     allow read, delete: if owner(uid);
-    allow create, update: if owner(uid)
-     && request.resource.data.keys().hasOnly(['artistId']) && request.resource.data.artistId==artistId
-     && exists(/databases/$(database)/documents/artists/$(artistId))
-     && get(/databases/$(database)/documents/artists/$(artistId)).data.active==true;
+    function valid() {
+     let d = request.resource.data;
+     return d.userId == uid && text(d.name,80) && d.name.size()>0 && text(d.description,500)
+      && d.visibility == 'private' && d.songIds is list && d.songIds.size()<=50
+      && d.songIds.toSet().size()==d.songIds.size() && d.songCount == d.songIds.size()
+      && d.createdAt is timestamp && d.updatedAt == request.time;
+    }
+    allow create: if owner(uid) && valid() && request.resource.data.songIds.size()==0 && request.resource.data.createdAt == request.time;
+    allow update: if owner(uid) && valid() && request.resource.data.createdAt == resource.data.createdAt
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','description','songIds','songCount','updatedAt'])
+     && (request.resource.data.songIds.removeAll(resource.data.songIds).size()==0
+      || (request.resource.data.songIds.removeAll(resource.data.songIds).size()==1
+       && readableSong(request.resource.data.songIds.removeAll(resource.data.songIds)[0])));
+   }
+   match /history/{historyId} {
+    allow read, delete: if owner(uid);
+    function valid() {
+     let d = request.resource.data;
+     return d.keys().hasOnly(['historyId','songId','playedAt','progressSeconds','durationSeconds','listenedSeconds','completed','counted','startedAt'])
+      && d.historyId == historyId && text(d.songId,128) && d.playedAt == request.time
+      && d.durationSeconds is number && d.durationSeconds >= 0 && d.durationSeconds <= 86400
+      && d.progressSeconds is number && d.progressSeconds>=0 && d.progressSeconds<=d.durationSeconds
+      && d.listenedSeconds is number && d.listenedSeconds>=0 && d.completed is bool && d.counted is bool;
+    }
+    allow create: if owner(uid) && valid() && readableSong(request.resource.data.songId)
+     && request.resource.data.startedAt == request.time && request.resource.data.counted == false && request.resource.data.listenedSeconds == 0;
+    allow update: if owner(uid) && valid() && request.resource.data.songId == resource.data.songId
+     && request.resource.data.startedAt == resource.data.startedAt
+     && request.resource.data.listenedSeconds >= resource.data.listenedSeconds
+     && (request.resource.data.counted == resource.data.counted || (resource.data.counted == false
+      && request.resource.data.counted == true && request.resource.data.listenedSeconds>=60
+      && request.time >= resource.data.startedAt + duration.value(60,'s')
+      && getAfter(/databases/$(database)/documents/songs/$(resource.data.songId)).data.playCount == get(/databases/$(database)/documents/songs/$(resource.data.songId)).data.playCount+1
+      && getAfter(/databases/$(database)/documents/songs/$(resource.data.songId)).data.lastPlayHistoryId == historyId
+      && getAfter(/databases/$(database)/documents/songs/$(resource.data.songId)).data.lastPlayUid == uid));
+   }
+   match /playReceipts/{songId} {
+    allow read: if owner(uid);
+    function validReceipt() {
+     let d = request.resource.data;
+     let h = /databases/$(database)/documents/users/$(uid)/history/$(d.historyId);
+     return d.keys().hasOnly(['historyId','countedAt']) && d.countedAt == request.time
+      && exists(h) && get(h).data.counted == false && getAfter(h).data.counted == true
+      && getAfter(h).data.songId == songId
+      && getAfter(/databases/$(database)/documents/songs/$(songId)).data.lastPlayHistoryId == d.historyId
+      && getAfter(/databases/$(database)/documents/songs/$(songId)).data.lastPlayUid == uid;
+    }
+    allow create: if owner(uid) && validReceipt();
+    allow update: if owner(uid) && validReceipt() && request.time >= resource.data.countedAt + duration.value(60,'s');
    }
   }
+  // Old collections remain for rollback only. App v2 does not read/write them.
+  match /artists/{id} { allow read, write: if false; }
+  match /charts/{id} { allow read, write: if false; }
   match /posts/{postId} {
    allow read: if signed();
    allow create: if signed()

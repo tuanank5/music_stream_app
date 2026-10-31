@@ -298,7 +298,7 @@ export async function setFollow(
   await runTransaction(db, async transaction => {
     const [relation, profile] = await Promise.all([
       transaction.get(ref),
-      transaction.get(doc(db, "publicProfiles", target)),
+      transaction.get(doc(db, "users", target)),
     ]);
 
     if (!profile.exists()) {
@@ -327,11 +327,8 @@ export async function setFollow(
       followerCount: increment(delta),
     });
 
-    transaction.update(doc(db, "publicProfiles", uid), {
-      followingCount: increment(delta),
-    });
 
-    transaction.update(doc(db, "publicProfiles", target), {
+    transaction.update(doc(db, "users", target), {
       followerCount: increment(delta),
     });
   });

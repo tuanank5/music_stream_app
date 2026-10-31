@@ -375,7 +375,6 @@ async function main() {
         email: state.accounts[u.key].email,
         createdAt: ts(-30 * 86400000),
       });
-      add("publicProfiles/" + uid, profile);
     }
     for (const a of dataset.albums)
       add("albums/" + ids.albums[a.key], {
@@ -549,18 +548,18 @@ async function verify(db, auth, state) {
       "Seed chưa hoàn tất. Chạy lại --confirm với cùng state để resume.",
     );
   const docs = new Map();
-  for (let i = 0; i < state.paths.length; i += 200)
+  const paths = state.paths.filter(p => !p.startsWith("publicProfiles/"));
+  for (let i = 0; i < paths.length; i += 200)
     for (const s of await db.getAll(
-      ...state.paths.slice(i, i + 200).map((p) => db.doc(p)),
+      ...paths.slice(i, i + 200).map((p) => db.doc(p)),
     )) {
       if (!s.exists) throw new Error("Thiếu document: " + s.ref.path);
       docs.set(s.ref.path, s.data());
     }
   for (const u of dataset.users) {
     const uid = state.ids.users[u.key],
-      privateUser = docs.get("users/" + uid),
-      pub = docs.get("publicProfiles/" + uid);
-    if (privateUser.userId !== uid || "email" in pub)
+      privateUser = docs.get("users/" + uid);
+    if (privateUser.userId !== uid || typeof privateUser.email !== "string")
       throw new Error("Sai user/profile " + u.key);
     await auth.getUser(uid);
   }

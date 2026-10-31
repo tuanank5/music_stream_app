@@ -231,7 +231,7 @@ export function watchArtists(
   fail: (e: Error) => void,
 ) {
   return onSnapshot(
-    collection(getFirebaseDb(), "publicProfiles"),
+    collection(getFirebaseDb(), "users"),
     snap =>
       next(
         snap.docs.map(d => {
@@ -299,7 +299,7 @@ export async function saveSong(
 
   const artistId = v.artistId || auth.uid;
   const profile = await getDoc(
-    doc(db, "publicProfiles", artistId),
+    doc(db, "users", artistId),
   );
 
   if (!profile.exists()) {
@@ -421,7 +421,6 @@ export async function saveArtist(
   };
 
   batch.update(doc(db, "users", id), fields);
-  batch.update(doc(db, "publicProfiles", id), fields);
 
   await batch.commit();
 }
@@ -434,7 +433,7 @@ async function saveArtistActive(id: string) {
   const db = getFirebaseDb();
   const batch = writeBatch(db);
 
-  for (const c of ["users", "publicProfiles"]) {
+  for (const c of ["users"]) {
     batch.update(doc(db, c, id), {
       active: false,
       updatedAt: serverTimestamp(),

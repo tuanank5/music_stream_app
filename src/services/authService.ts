@@ -163,7 +163,6 @@ export async function saveProfile(
   };
 
   batch.update(doc(db, "users", user.uid), fields);
-  batch.update(doc(db, "publicProfiles", user.uid), fields);
 
   await batch.commit();
 }
@@ -198,9 +197,6 @@ export async function ensureProfile() {
       createdAt: serverTimestamp(),
     });
 
-    transaction.set(
-      doc(db, "publicProfiles", user.uid),
-      publicData,
-    );
+
   });
 }

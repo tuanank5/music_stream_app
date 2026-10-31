@@ -24,18 +24,6 @@ const entries = new Map();
 function put(p, data) {
   entries.set(p, { ...(entries.get(p) || {}), ...data });
 }
-function publicOf(uid, u) {
-  return {
-    userId: uid,
-    displayName: u.displayName,
-    avatarUrl: u.avatarUrl,
-    biography: u.biography,
-    followerCount: u.followerCount,
-    followingCount: u.followingCount,
-    active: u.active,
-    updatedAt: ts,
-  };
-}
 function encode(v) {
   if (v instanceof admin.firestore.Timestamp)
     return {
@@ -267,7 +255,6 @@ async function main() {
   }
   for (const [uid, u] of users) {
     put(`users/${uid}`, u);
-    put(`publicProfiles/${uid}`, publicOf(uid, u));
   }
   for (const [id, a] of albums) put(`albums/${id}`, { ...a, albumId: id });
   const marker = await db.doc("migrations/schema-v2").get();
