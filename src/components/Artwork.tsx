@@ -1,36 +1,46 @@
-import React, { useState } from "react";
-import { Image, Text, View } from "react-native";
+import { useState } from "react";
+import { YStack } from "tamagui";
+import { AppIcon, AppImage } from "./UI";
 export default function Artwork({
   uri,
   size = 54,
   radius = 10,
+  height = size,
+  fallback = "musical-notes-outline",
 }: {
   uri: string;
   size?: number;
   radius?: number;
+  height?: number;
+  fallback?: "musical-notes-outline" | "person";
 }) {
   const [failedUri, setFailedUri] = useState("");
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: radius,
-        overflow: "hidden",
-        backgroundColor: "#e6f1ef",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+    <YStack
+      width={size}
+      flexShrink={0}
+      height={height}
+      borderRadius={radius}
+      overflow="hidden"
+      backgroundColor="artworkBackground"
+      alignItems="center"
+      justifyContent="center"
     >
       {uri && failedUri !== uri ? (
-        <Image
+        <AppImage
           source={{ uri }}
-          style={{ width: size, height: size }}
+          width={size}
+          height={height}
+          resizeMode="cover"
           onError={() => setFailedUri(uri)}
         />
       ) : (
-        <Text style={{ fontSize: size / 3, color: "#087e78" }}>♫</Text>
+        <AppIcon
+          name={fallback}
+          size={Math.max(16, size / 3)}
+          color="textMuted"
+        />
       )}
-    </View>
+    </YStack>
   );
 }

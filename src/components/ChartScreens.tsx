@@ -1,20 +1,23 @@
-import React from "react";
-import { Pressable, Share, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useCharts } from "../hooks/useCharts";
+import { Share, useWindowDimensions } from "react-native";
+import { XStack, YStack } from "tamagui";
 import { useData } from "../contexts/DataContext";
 import { usePlayer } from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
+import { useCharts } from "../hooks/useCharts";
 import { chartSongs, shuffleSongs } from "../utils/discovery";
-import { Page, Loading, ErrorText } from "./UI";
 import SongRow from "./SongRow";
 import {
-  BackButton,
-  ChartCard,
-  ChartCover,
-  discoveryStyles as ds,
-} from "./discovery/DiscoveryCards";
+  Action,
+  AppIcon,
+  AppText,
+  ErrorText,
+  IconButton,
+  Loading,
+  Page,
+  SectionTitle,
+} from "./UI";
+import { BackButton, ChartCard, ChartCover } from "./discovery/DiscoveryCards";
 function totalTime(seconds: number) {
   const h = Math.floor(seconds / 3600),
     m = Math.floor((seconds % 3600) / 60);
@@ -24,35 +27,41 @@ function totalTime(seconds: number) {
 }
 export function ChartsListScreen() {
   const state = useCharts();
+  const { width } = useWindowDimensions();
+  const cardSize = Math.floor((width - 60) / 2);
   return (
-    <Page>
-      <View style={ds.content}>
-        <BackButton />
-        <Text style={ds.title}>Charts</Text>
-        <Text style={[ds.muted, { marginTop: 8, marginBottom: 20 }]}>
-          Top 50 bài hát theo từng genre, sắp xếp bằng lượt nghe tích lũy.
-        </Text>
-        <ErrorText message={state.error} />
-        {state.loading ? (
-          <Loading />
-        ) : (
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 20 }}>
-            {state.charts.map((chart) => (
-              <ChartCard key={chart.id} chart={chart} />
-            ))}
-          </View>
-        )}
-        {!state.loading && !state.error && !state.charts.length ? (
-          <Text style={ds.muted}>
-            Chưa có bài hát công khai để tạo bảng xếp hạng theo genre.
-          </Text>
-        ) : null}
-      </View>
+    <Page title="Charts" titleLeading={<BackButton inline />}>
+      <AppText variant="muted" marginTop="2" marginBottom="5">
+        Top 50 bài hát theo từng genre, sắp xếp bằng lượt nghe tích lũy.
+      </AppText>
+      <ErrorText message={state.error} />
+      {state.loading ? (
+        <Loading />
+      ) : (
+        <XStack flexWrap="wrap" gap="5">
+          {state.charts.map((chart) => (
+            <ChartCard
+              key={chart.id}
+              chart={chart}
+              size={cardSize}
+              spacing={0}
+            />
+          ))}
+        </XStack>
+      )}
+      {!state.loading && !state.error && !state.charts.length ? (
+        <AppText variant="muted">
+          Chưa có bài hát công khai để tạo bảng xếp hạng theo genre.
+        </AppText>
+      ) : null}
     </Page>
   );
 }
 export function ChartDetailScreen() {
-  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const { width } = useWindowDimensions();
+  const params = useLocalSearchParams<{
+    id?: string | string[];
+  }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const state = useCharts(),
     data = useData(),
@@ -62,15 +71,13 @@ export function ChartDetailScreen() {
   if (!chart)
     return (
       <Page title="Chart">
-        <View style={ds.content}>
-          <BackButton fallback="/charts" />
-          <ErrorText message={state.error} />
-          {state.loading ? (
-            <Loading />
-          ) : (
-            <Text style={ds.muted}>Chart không tồn tại hoặc đã bị ẩn.</Text>
-          )}
-        </View>
+        <BackButton fallback="/charts" />
+        <ErrorText message={state.error} />
+        {state.loading ? (
+          <Loading />
+        ) : (
+          <AppText variant="muted">Chart không tồn tại hoặc đã bị ẩn.</AppText>
+        )}
       </Page>
     );
   const songs = chartSongs(data.songs, chart);
@@ -83,150 +90,108 @@ export function ChartDetailScreen() {
   );
   function play(shuffle = false) {
     const queue = shuffle ? shuffleSongs(songs) : songs;
-
     if (queue.length) {
       player.play(queue[0], queue);
       router.push("/player");
     }
   }
-
   return (
-    <Page>
-      <View style={[ds.content, { maxWidth: 820 }]}>
-        <BackButton fallback="/charts" />
+    <Page contentWidth="reading">
+      <BackButton fallback="/charts" />
 
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 18,
-            alignItems: "center",
-          }}
-        >
-          <ChartCover chart={chart} size={116} />
+      <XStack gap="4.5" alignItems="center">
+        <ChartCover chart={chart} size={Math.round(width * 0.35)} />
 
-          <View style={{ flex: 1 }}>
-            <Text style={[ds.title, { fontSize: 23 }]}>
-              {chart.title}
-              {chart.subtitle ? ` – ${chart.subtitle}` : ""}
-            </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 6,
-                marginTop: 9,
-                flexWrap: "wrap",
-              }}
-            >
-              <Ionicons
-                name="musical-notes-outline"
-                color="#00bcd4"
-                size={16}
-              />
-              <Text style={ds.muted}>
-                {songs.length} bài · {totalTime(duration)}
-              </Text>
-            </View>
-            <Text style={[ds.muted, { marginTop: 6 }]}>
-              {chart.description || "Danh sách do quản trị viên tuyển chọn."}
-            </Text>
-          </View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: 22,
-            marginBottom: 18,
-          }}
+        <YStack flex={1} minWidth={0}>
+          <SectionTitle marginVertical={0}>
+            {chart.title}
+            {chart.subtitle ? ` – ${chart.subtitle}` : ""}
+          </SectionTitle>
+          <XStack alignItems="center" gap="1.5" marginTop={9} flexWrap="wrap">
+            <AppIcon name="musical-notes-outline" color="accent" size={16} />
+            <AppText variant="muted">
+              {songs.length} bài · {totalTime(duration)}
+            </AppText>
+          </XStack>
+          <AppText variant="muted" marginTop="1.5">
+            {chart.description || "Danh sách do quản trị viên tuyển chọn."}
+          </AppText>
+        </YStack>
+      </XStack>
+      <XStack
+        alignItems="center"
+        justifyContent="space-between"
+        marginTop="5.5"
+        marginBottom="4.5"
+      >
+        <Action
+          role="button"
+          aria-label="Chia sẻ thông tin chart"
+          onPress={() =>
+            void action.run(async () => {
+              await Share.share({
+                message: `${chart?.title} ${chart?.subtitle}\n${songs
+                  .slice(0, 5)
+                  .map((s) => `${s.title} — ${s.artist}`)
+                  .join("\n")}`,
+              });
+            })
+          }
+          padding="2"
         >
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Chia sẻ thông tin chart"
-            onPress={() =>
-              void action.run(async () => {
-                await Share.share({
-                  message: `${chart?.title} ${chart?.subtitle}\n${songs
-                    .slice(0, 5)
-                    .map((s) => `${s.title} — ${s.artist}`)
-                    .join("\n")}`,
-                });
-              })
-            }
-            style={{ padding: 8 }}
+          <AppIcon name="share-outline" size={23} color="textMuted" />
+        </Action>
+        <XStack gap="5" alignItems="center">
+          <Action
+            role="button"
+            aria-label="Phát ngẫu nhiên chart"
+            disabled={!songs.length}
+            onPress={() => play(true)}
+            padding="2"
+            opacity={songs.length ? 1 : 0.35}
           >
-            <Ionicons name="share-outline" size={23} color="#737b87" />
-          </Pressable>
-          <View style={{ flexDirection: "row", gap: 20, alignItems: "center" }}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Phát ngẫu nhiên chart"
-              disabled={!songs.length}
-              onPress={() => play(true)}
-              style={{ padding: 8, opacity: songs.length ? 1 : 0.35 }}
-            >
-              <Ionicons name="shuffle" size={26} color="#737b87" />
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Phát tất cả bài trong chart"
-              disabled={!songs.length}
-              onPress={() => play()}
-              style={[ds.roundPlay, { opacity: songs.length ? 1 : 0.35 }]}
-            >
-              <Ionicons
-                name="play"
-                size={25}
-                color="white"
-                style={{ marginLeft: 3 }}
-              />
-            </Pressable>
-          </View>
-        </View>
-        <ErrorText message={action.error} />
-        {data.loading ? (
-          <Loading />
-        ) : (
-          songs.map((song, index) => (
-            <View
-              key={song.id}
-              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
-            >
-              <Text
-                style={{
-                  width: 20,
-                  textAlign: "center",
-                  fontSize: 12,
-                  color: "#a0a6af",
-                }}
-              >
-                {index + 1}
-              </Text>
-              <View style={{ flex: 1 }}>
-                <SongRow song={song} queue={songs} />
-              </View>
-            </View>
-          ))
-        )}
-        {!data.loading && !songs.length ? (
-          <Text style={ds.muted}>
-            Chart chưa có bài khả dụng. songIds phải chứa đúng ID document trong
-            songs.
-          </Text>
-        ) : null}
-        {!data.loading && unavailable > 0 ? (
-          <Text style={[ds.muted, { marginTop: 16 }]}>
-            {unavailable} bài đã bị ẩn, bị xóa hoặc chưa nằm trong dữ liệu ứng
-            dụng tải được.
-          </Text>
-        ) : null}
-        <Text style={[ds.muted, { fontSize: 11, marginTop: 20 }]}>
-          Xếp hạng theo lượt nghe tích lũy của bài hát trong từng genre.
-          Một lượt nghe được ghi nhận sau ít nhất 60 giây nghe thực tế
-          trong ứng dụng.
-        </Text>
-      </View>
+            <AppIcon name="shuffle" size={26} color="textMuted" />
+          </Action>
+          <IconButton
+            tone="play"
+            role="button"
+            aria-label="Phát tất cả bài trong chart"
+            disabled={!songs.length}
+            onPress={() => play()}
+            width={52}
+            height={52}
+            borderRadius={26}
+            backgroundColor="contrast"
+            alignItems="center"
+            justifyContent="center"
+            opacity={songs.length ? 1 : 0.35}
+          >
+            <AppIcon name="play" size={25} color="white" />
+          </IconButton>
+        </XStack>
+      </XStack>
+      <ErrorText message={action.error} />
+      {data.loading ? (
+        <Loading />
+      ) : (
+        songs.map((song) => <SongRow key={song.id} song={song} queue={songs} />)
+      )}
+      {!data.loading && !songs.length ? (
+        <AppText variant="muted">
+          Chart chưa có bài khả dụng. songIds phải chứa đúng ID document trong
+          songs.
+        </AppText>
+      ) : null}
+      {!data.loading && unavailable > 0 ? (
+        <AppText variant="muted" marginTop="4">
+          {unavailable} bài đã bị ẩn, bị xóa hoặc chưa nằm trong dữ liệu ứng
+          dụng tải được.
+        </AppText>
+      ) : null}
+      <AppText variant="muted" marginTop="5">
+        Xếp hạng theo lượt nghe tích lũy của bài hát trong từng genre. Một lượt
+        nghe được ghi nhận sau ít nhất 60 giây nghe thực tế trong ứng dụng.
+      </AppText>
     </Page>
   );
 }

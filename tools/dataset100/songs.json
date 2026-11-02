@@ -5,9 +5,7 @@
     "title": "[QA] Mây qua hiên nhà",
     "artistKey": "artist-01",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mây Lang Thang (Demo)"
-    ],
+    "artistNames": ["[QA] Mây Lang Thang (Demo)"],
     "albumKey": "album-01",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-01",
@@ -16,13 +14,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B",
-      "Rock",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B", "Rock", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -38,9 +30,7 @@
     "title": "[QA] Chiều nghiêng trên phố",
     "artistKey": "artist-01",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mây Lang Thang (Demo)"
-    ],
+    "artistNames": ["[QA] Mây Lang Thang (Demo)"],
     "albumKey": "album-01",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-01",
@@ -49,9 +39,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -67,9 +55,7 @@
     "title": "[QA] Một khoảng trời xanh",
     "artistKey": "artist-01",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mây Lang Thang (Demo)"
-    ],
+    "artistNames": ["[QA] Mây Lang Thang (Demo)"],
     "albumKey": "album-01",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-01",
@@ -78,10 +64,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -97,9 +80,7 @@
     "title": "[QA] Ngày gió gọi tên",
     "artistKey": "artist-01",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mây Lang Thang (Demo)"
-    ],
+    "artistNames": ["[QA] Mây Lang Thang (Demo)"],
     "albumKey": "album-01",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-01",
@@ -108,9 +89,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -126,9 +105,7 @@
     "title": "[QA] Đi qua miền nhớ",
     "artistKey": "artist-01",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mây Lang Thang (Demo)"
-    ],
+    "artistNames": ["[QA] Mây Lang Thang (Demo)"],
     "albumKey": "album-01",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-01",
@@ -137,11 +114,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -157,9 +130,7 @@
     "title": "[QA] Nắng chạm ô cửa",
     "artistKey": "artist-02",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Nắng Ban Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Nắng Ban Mai (Demo)"],
     "albumKey": "album-02",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-02",
@@ -168,10 +139,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -187,9 +155,7 @@
     "title": "[QA] Buổi sáng dịu dàng",
     "artistKey": "artist-02",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Nắng Ban Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Nắng Ban Mai (Demo)"],
     "albumKey": "album-02",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-02",
@@ -198,10 +164,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -217,9 +180,7 @@
     "title": "[QA] Con đường đầy hoa",
     "artistKey": "artist-02",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Nắng Ban Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Nắng Ban Mai (Demo)"],
     "albumKey": "album-02",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-02",
@@ -228,10 +189,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -247,9 +205,7 @@
     "title": "[QA] Mùa hè trong mắt",
     "artistKey": "artist-02",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Nắng Ban Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Nắng Ban Mai (Demo)"],
     "albumKey": "album-02",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-02",
@@ -258,11 +214,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -278,9 +230,7 @@
     "title": "[QA] Hẹn ngày trời trong",
     "artistKey": "artist-02",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Nắng Ban Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Nắng Ban Mai (Demo)"],
     "albumKey": "album-02",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-02",
@@ -289,9 +239,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -307,9 +255,7 @@
     "title": "[QA] Gió qua đồng lúa",
     "artistKey": "artist-03",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Gió Đồng Nội (Demo)"
-    ],
+    "artistNames": ["[QA] Gió Đồng Nội (Demo)"],
     "albumKey": "album-03",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-03",
@@ -318,11 +264,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "Rock"
-    ],
+    "genre": ["Pop", "Acoustic", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -338,9 +280,7 @@
     "title": "[QA] Tiếng sáo đầu làng",
     "artistKey": "artist-03",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Gió Đồng Nội (Demo)"
-    ],
+    "artistNames": ["[QA] Gió Đồng Nội (Demo)"],
     "albumKey": "album-03",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-03",
@@ -349,9 +289,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -367,9 +305,7 @@
     "title": "[QA] Bờ tre tuổi thơ",
     "artistKey": "artist-03",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Gió Đồng Nội (Demo)"
-    ],
+    "artistNames": ["[QA] Gió Đồng Nội (Demo)"],
     "albumKey": "album-03",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-03",
@@ -378,11 +314,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -398,9 +330,7 @@
     "title": "[QA] Đường về quê nhỏ",
     "artistKey": "artist-03",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Gió Đồng Nội (Demo)"
-    ],
+    "artistNames": ["[QA] Gió Đồng Nội (Demo)"],
     "albumKey": "album-03",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-03",
@@ -409,9 +339,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -427,9 +355,7 @@
     "title": "[QA] Cánh diều cuối chiều",
     "artistKey": "artist-03",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Gió Đồng Nội (Demo)"
-    ],
+    "artistNames": ["[QA] Gió Đồng Nội (Demo)"],
     "albumKey": "album-03",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-03",
@@ -438,11 +364,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Acoustic", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -458,9 +380,7 @@
     "title": "[QA] Trăng trên mặt biển",
     "artistKey": "artist-04",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Trăng Ven Biển (Demo)"
-    ],
+    "artistNames": ["[QA] Trăng Ven Biển (Demo)"],
     "albumKey": "album-04",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-04",
@@ -469,10 +389,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -488,9 +405,7 @@
     "title": "[QA] Đêm nghe sóng vỗ",
     "artistKey": "artist-04",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Trăng Ven Biển (Demo)"
-    ],
+    "artistNames": ["[QA] Trăng Ven Biển (Demo)"],
     "albumKey": "album-04",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-04",
@@ -499,11 +414,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -519,9 +430,7 @@
     "title": "[QA] Bến xa yên lặng",
     "artistKey": "artist-04",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Trăng Ven Biển (Demo)"
-    ],
+    "artistNames": ["[QA] Trăng Ven Biển (Demo)"],
     "albumKey": "album-04",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-04",
@@ -530,9 +439,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -548,9 +455,7 @@
     "title": "[QA] Ánh bạc ngoài khơi",
     "artistKey": "artist-04",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Trăng Ven Biển (Demo)"
-    ],
+    "artistNames": ["[QA] Trăng Ven Biển (Demo)"],
     "albumKey": "album-04",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-04",
@@ -559,10 +464,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -578,9 +480,7 @@
     "title": "[QA] Hẹn dưới trăng tròn",
     "artistKey": "artist-04",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Trăng Ven Biển (Demo)"
-    ],
+    "artistNames": ["[QA] Trăng Ven Biển (Demo)"],
     "albumKey": "album-04",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-04",
@@ -589,9 +489,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -607,9 +505,7 @@
     "title": "[QA] Phố lên đèn",
     "artistKey": "artist-05",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Phố Không Ngủ (Demo)"
-    ],
+    "artistNames": ["[QA] Phố Không Ngủ (Demo)"],
     "albumKey": "album-05",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-05",
@@ -618,12 +514,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B",
-      "Rock"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -639,9 +530,7 @@
     "title": "[QA] Chuyến xe cuối ngày",
     "artistKey": "artist-05",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Phố Không Ngủ (Demo)"
-    ],
+    "artistNames": ["[QA] Phố Không Ngủ (Demo)"],
     "albumKey": "album-05",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-05",
@@ -650,10 +539,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -669,9 +555,7 @@
     "title": "[QA] Cà phê bên cửa kính",
     "artistKey": "artist-05",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Phố Không Ngủ (Demo)"
-    ],
+    "artistNames": ["[QA] Phố Không Ngủ (Demo)"],
     "albumKey": "album-05",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-05",
@@ -680,10 +564,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -699,9 +580,7 @@
     "title": "[QA] Những bước chân vội",
     "artistKey": "artist-05",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Phố Không Ngủ (Demo)"
-    ],
+    "artistNames": ["[QA] Phố Không Ngủ (Demo)"],
     "albumKey": "album-05",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-05",
@@ -710,9 +589,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -728,9 +605,7 @@
     "title": "[QA] Thành phố lúc bình minh",
     "artistKey": "artist-05",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Phố Không Ngủ (Demo)"
-    ],
+    "artistNames": ["[QA] Phố Không Ngủ (Demo)"],
     "albumKey": "album-05",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-05",
@@ -739,11 +614,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -759,9 +630,7 @@
     "title": "[QA] Lá rơi trước ngõ",
     "artistKey": "artist-06",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Lá Mùa Thu (Demo)"
-    ],
+    "artistNames": ["[QA] Lá Mùa Thu (Demo)"],
     "albumKey": "album-06",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-06",
@@ -770,10 +639,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -789,9 +655,7 @@
     "title": "[QA] Tháng chín không lời",
     "artistKey": "artist-06",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Lá Mùa Thu (Demo)"
-    ],
+    "artistNames": ["[QA] Lá Mùa Thu (Demo)"],
     "albumKey": "album-06",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-06",
@@ -800,10 +664,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -819,9 +680,7 @@
     "title": "[QA] Bức thư màu lá",
     "artistKey": "artist-06",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Lá Mùa Thu (Demo)"
-    ],
+    "artistNames": ["[QA] Lá Mùa Thu (Demo)"],
     "albumKey": "album-06",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-06",
@@ -830,9 +689,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -848,9 +705,7 @@
     "title": "[QA] Thu về trên tóc",
     "artistKey": "artist-06",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Lá Mùa Thu (Demo)"
-    ],
+    "artistNames": ["[QA] Lá Mùa Thu (Demo)"],
     "albumKey": "album-06",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-06",
@@ -859,12 +714,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -880,9 +730,7 @@
     "title": "[QA] Góc phố mùa thay",
     "artistKey": "artist-06",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Lá Mùa Thu (Demo)"
-    ],
+    "artistNames": ["[QA] Lá Mùa Thu (Demo)"],
     "albumKey": "album-06",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-06",
@@ -891,9 +739,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -909,9 +755,7 @@
     "title": "[QA] Sóng ôm bờ cát",
     "artistKey": "artist-07",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Sóng Dịu Êm (Demo)"
-    ],
+    "artistNames": ["[QA] Sóng Dịu Êm (Demo)"],
     "albumKey": "album-07",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-07",
@@ -920,11 +764,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "Rock"
-    ],
+    "genre": ["Pop", "Acoustic", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -940,9 +780,7 @@
     "title": "[QA] Biển xanh trong veo",
     "artistKey": "artist-07",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Sóng Dịu Êm (Demo)"
-    ],
+    "artistNames": ["[QA] Sóng Dịu Êm (Demo)"],
     "albumKey": "album-07",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-07",
@@ -951,9 +789,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -969,9 +805,7 @@
     "title": "[QA] Vỏ ốc kể chuyện",
     "artistKey": "artist-07",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Sóng Dịu Êm (Demo)"
-    ],
+    "artistNames": ["[QA] Sóng Dịu Êm (Demo)"],
     "albumKey": "album-07",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-07",
@@ -980,11 +814,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1000,9 +830,7 @@
     "title": "[QA] Gió từ khơi xa",
     "artistKey": "artist-07",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Sóng Dịu Êm (Demo)"
-    ],
+    "artistNames": ["[QA] Sóng Dịu Êm (Demo)"],
     "albumKey": "album-07",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-07",
@@ -1011,9 +839,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1029,9 +855,7 @@
     "title": "[QA] Bình yên sau con sóng",
     "artistKey": "artist-07",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Sóng Dịu Êm (Demo)"
-    ],
+    "artistNames": ["[QA] Sóng Dịu Êm (Demo)"],
     "albumKey": "album-07",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-07",
@@ -1040,10 +864,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1059,9 +880,7 @@
     "title": "[QA] Chào ngày mới",
     "artistKey": "artist-08",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bình Minh Xanh (Demo)"
-    ],
+    "artistNames": ["[QA] Bình Minh Xanh (Demo)"],
     "albumKey": "album-08",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-08",
@@ -1070,11 +889,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Rock",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Rock", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1090,9 +905,7 @@
     "title": "[QA] Bước chân đầu tiên",
     "artistKey": "artist-08",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bình Minh Xanh (Demo)"
-    ],
+    "artistNames": ["[QA] Bình Minh Xanh (Demo)"],
     "albumKey": "album-08",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-08",
@@ -1101,11 +914,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1121,9 +930,7 @@
     "title": "[QA] Mặt trời phía trước",
     "artistKey": "artist-08",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bình Minh Xanh (Demo)"
-    ],
+    "artistNames": ["[QA] Bình Minh Xanh (Demo)"],
     "albumKey": "album-08",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-08",
@@ -1132,9 +939,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1150,9 +955,7 @@
     "title": "[QA] Một ngày để yêu",
     "artistKey": "artist-08",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bình Minh Xanh (Demo)"
-    ],
+    "artistNames": ["[QA] Bình Minh Xanh (Demo)"],
     "albumKey": "album-08",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-08",
@@ -1161,10 +964,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1180,9 +980,7 @@
     "title": "[QA] Vươn về ánh sáng",
     "artistKey": "artist-08",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bình Minh Xanh (Demo)"
-    ],
+    "artistNames": ["[QA] Bình Minh Xanh (Demo)"],
     "albumKey": "album-08",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-08",
@@ -1191,9 +989,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1209,9 +1005,7 @@
     "title": "[QA] Cánh chim buổi sớm",
     "artistKey": "artist-09",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Cánh Chim Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Cánh Chim Nhỏ (Demo)"],
     "albumKey": "album-09",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-09",
@@ -1220,12 +1014,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B",
-      "Rock"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1241,9 +1030,7 @@
     "title": "[QA] Bay qua triền đồi",
     "artistKey": "artist-09",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Cánh Chim Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Cánh Chim Nhỏ (Demo)"],
     "albumKey": "album-09",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-09",
@@ -1252,9 +1039,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1270,9 +1055,7 @@
     "title": "[QA] Khoảng trời tự do",
     "artistKey": "artist-09",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Cánh Chim Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Cánh Chim Nhỏ (Demo)"],
     "albumKey": "album-09",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-09",
@@ -1281,11 +1064,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Acoustic", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1301,9 +1080,7 @@
     "title": "[QA] Đường bay xa lắm",
     "artistKey": "artist-09",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Cánh Chim Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Cánh Chim Nhỏ (Demo)"],
     "albumKey": "album-09",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-09",
@@ -1312,9 +1089,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1330,9 +1105,7 @@
     "title": "[QA] Trở về tổ ấm",
     "artistKey": "artist-09",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Cánh Chim Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Cánh Chim Nhỏ (Demo)"],
     "albumKey": "album-09",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-09",
@@ -1341,11 +1114,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1361,9 +1130,7 @@
     "title": "[QA] Thông reo trên đồi",
     "artistKey": "artist-10",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Đồi Thông Reo (Demo)"
-    ],
+    "artistNames": ["[QA] Đồi Thông Reo (Demo)"],
     "albumKey": "album-10",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-10",
@@ -1372,10 +1139,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1391,9 +1155,7 @@
     "title": "[QA] Sương phủ lối mòn",
     "artistKey": "artist-10",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Đồi Thông Reo (Demo)"
-    ],
+    "artistNames": ["[QA] Đồi Thông Reo (Demo)"],
     "albumKey": "album-10",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-10",
@@ -1402,10 +1164,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1421,9 +1180,7 @@
     "title": "[QA] Căn nhà giữa rừng",
     "artistKey": "artist-10",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Đồi Thông Reo (Demo)"
-    ],
+    "artistNames": ["[QA] Đồi Thông Reo (Demo)"],
     "albumKey": "album-10",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-10",
@@ -1432,9 +1189,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1450,9 +1205,7 @@
     "title": "[QA] Tiếng gió đại ngàn",
     "artistKey": "artist-10",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Đồi Thông Reo (Demo)"
-    ],
+    "artistNames": ["[QA] Đồi Thông Reo (Demo)"],
     "albumKey": "album-10",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-10",
@@ -1461,11 +1214,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1481,9 +1230,7 @@
     "title": "[QA] Ngồi nghe lá hát",
     "artistKey": "artist-10",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Đồi Thông Reo (Demo)"
-    ],
+    "artistNames": ["[QA] Đồi Thông Reo (Demo)"],
     "albumKey": "album-10",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-10",
@@ -1492,10 +1239,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1511,9 +1255,7 @@
     "title": "[QA] Mưa trên mái tôn",
     "artistKey": "artist-11",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mưa Tháng Sáu (Demo)"
-    ],
+    "artistNames": ["[QA] Mưa Tháng Sáu (Demo)"],
     "albumKey": "album-11",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-11",
@@ -1522,11 +1264,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "Rock"
-    ],
+    "genre": ["Pop", "Acoustic", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1542,9 +1280,7 @@
     "title": "[QA] Chiếc ô màu xanh",
     "artistKey": "artist-11",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mưa Tháng Sáu (Demo)"
-    ],
+    "artistNames": ["[QA] Mưa Tháng Sáu (Demo)"],
     "albumKey": "album-11",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-11",
@@ -1553,9 +1289,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1571,9 +1305,7 @@
     "title": "[QA] Ngày mưa đi ngang",
     "artistKey": "artist-11",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mưa Tháng Sáu (Demo)"
-    ],
+    "artistNames": ["[QA] Mưa Tháng Sáu (Demo)"],
     "albumKey": "album-11",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-11",
@@ -1582,11 +1314,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1602,9 +1330,7 @@
     "title": "[QA] Giọt nước bên thềm",
     "artistKey": "artist-11",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mưa Tháng Sáu (Demo)"
-    ],
+    "artistNames": ["[QA] Mưa Tháng Sáu (Demo)"],
     "albumKey": "album-11",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-11",
@@ -1613,9 +1339,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1631,9 +1355,7 @@
     "title": "[QA] Sau cơn mưa nhỏ",
     "artistKey": "artist-11",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Mưa Tháng Sáu (Demo)"
-    ],
+    "artistNames": ["[QA] Mưa Tháng Sáu (Demo)"],
     "albumKey": "album-11",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-11",
@@ -1642,10 +1364,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1661,9 +1380,7 @@
     "title": "[QA] Dòng sông mùa cũ",
     "artistKey": "artist-12",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Dòng Sông Nhớ (Demo)"
-    ],
+    "artistNames": ["[QA] Dòng Sông Nhớ (Demo)"],
     "albumKey": "album-12",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-12",
@@ -1672,10 +1389,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1691,9 +1405,7 @@
     "title": "[QA] Con thuyền giấy",
     "artistKey": "artist-12",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Dòng Sông Nhớ (Demo)"
-    ],
+    "artistNames": ["[QA] Dòng Sông Nhớ (Demo)"],
     "albumKey": "album-12",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-12",
@@ -1702,12 +1414,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Acoustic",
-      "R&B",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Acoustic", "R&B", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1723,9 +1430,7 @@
     "title": "[QA] Bến đò tuổi nhỏ",
     "artistKey": "artist-12",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Dòng Sông Nhớ (Demo)"
-    ],
+    "artistNames": ["[QA] Dòng Sông Nhớ (Demo)"],
     "albumKey": "album-12",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-12",
@@ -1734,9 +1439,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1752,9 +1455,7 @@
     "title": "[QA] Nước trôi qua cầu",
     "artistKey": "artist-12",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Dòng Sông Nhớ (Demo)"
-    ],
+    "artistNames": ["[QA] Dòng Sông Nhớ (Demo)"],
     "albumKey": "album-12",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-12",
@@ -1763,10 +1464,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Acoustic"
-    ],
+    "genre": ["Pop", "Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1782,9 +1480,7 @@
     "title": "[QA] Nghe sông kể chuyện",
     "artistKey": "artist-12",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Dòng Sông Nhớ (Demo)"
-    ],
+    "artistNames": ["[QA] Dòng Sông Nhớ (Demo)"],
     "albumKey": "album-12",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-12",
@@ -1793,9 +1489,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1811,9 +1505,7 @@
     "title": "[QA] Hoa nở trước sân",
     "artistKey": "artist-13",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hoa Bên Thềm (Demo)"
-    ],
+    "artistNames": ["[QA] Hoa Bên Thềm (Demo)"],
     "albumKey": "album-13",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-13",
@@ -1822,11 +1514,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic",
-      "R&B",
-      "Rock"
-    ],
+    "genre": ["Acoustic", "R&B", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1842,9 +1530,7 @@
     "title": "[QA] Mùi hương sáng sớm",
     "artistKey": "artist-13",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hoa Bên Thềm (Demo)"
-    ],
+    "artistNames": ["[QA] Hoa Bên Thềm (Demo)"],
     "albumKey": "album-13",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-13",
@@ -1853,9 +1539,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1871,9 +1555,7 @@
     "title": "[QA] Cánh hoa theo gió",
     "artistKey": "artist-13",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hoa Bên Thềm (Demo)"
-    ],
+    "artistNames": ["[QA] Hoa Bên Thềm (Demo)"],
     "albumKey": "album-13",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-13",
@@ -1882,9 +1564,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1900,9 +1580,7 @@
     "title": "[QA] Khu vườn tháng tư",
     "artistKey": "artist-13",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hoa Bên Thềm (Demo)"
-    ],
+    "artistNames": ["[QA] Hoa Bên Thềm (Demo)"],
     "albumKey": "album-13",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-13",
@@ -1911,10 +1589,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic",
-      "Electronic"
-    ],
+    "genre": ["Acoustic", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1930,9 +1605,7 @@
     "title": "[QA] Một nhành thương nhớ",
     "artistKey": "artist-13",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hoa Bên Thềm (Demo)"
-    ],
+    "artistNames": ["[QA] Hoa Bên Thềm (Demo)"],
     "albumKey": "album-13",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-13",
@@ -1941,10 +1614,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1960,9 +1630,7 @@
     "title": "[QA] Đèn khuya còn sáng",
     "artistKey": "artist-14",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Ngọn Đèn Khuya (Demo)"
-    ],
+    "artistNames": ["[QA] Ngọn Đèn Khuya (Demo)"],
     "albumKey": "album-14",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-14",
@@ -1971,10 +1639,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic",
-      "Rock"
-    ],
+    "genre": ["Acoustic", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -1990,9 +1655,7 @@
     "title": "[QA] Trang sách chưa khép",
     "artistKey": "artist-14",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Ngọn Đèn Khuya (Demo)"
-    ],
+    "artistNames": ["[QA] Ngọn Đèn Khuya (Demo)"],
     "albumKey": "album-14",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-14",
@@ -2001,9 +1664,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2019,9 +1680,7 @@
     "title": "[QA] Lặng im lúc nửa đêm",
     "artistKey": "artist-14",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Ngọn Đèn Khuya (Demo)"
-    ],
+    "artistNames": ["[QA] Ngọn Đèn Khuya (Demo)"],
     "albumKey": "album-14",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-14",
@@ -2030,9 +1689,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2048,9 +1705,7 @@
     "title": "[QA] Bản nhạc bên cửa sổ",
     "artistKey": "artist-14",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Ngọn Đèn Khuya (Demo)"
-    ],
+    "artistNames": ["[QA] Ngọn Đèn Khuya (Demo)"],
     "albumKey": "album-14",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-14",
@@ -2059,10 +1714,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2078,9 +1730,7 @@
     "title": "[QA] Ngày mai rồi sẽ tới",
     "artistKey": "artist-14",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Ngọn Đèn Khuya (Demo)"
-    ],
+    "artistNames": ["[QA] Ngọn Đèn Khuya (Demo)"],
     "albumKey": "album-14",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-14",
@@ -2089,9 +1739,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2107,9 +1755,7 @@
     "title": "[QA] Hạt sương trên lá",
     "artistKey": "artist-15",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hạt Sương Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Hạt Sương Mai (Demo)"],
     "albumKey": "album-15",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-15",
@@ -2118,11 +1764,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic",
-      "Rock",
-      "Electronic"
-    ],
+    "genre": ["Acoustic", "Rock", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2138,9 +1780,7 @@
     "title": "[QA] Điều nhỏ xinh",
     "artistKey": "artist-15",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hạt Sương Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Hạt Sương Mai (Demo)"],
     "albumKey": "album-15",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-15",
@@ -2149,9 +1789,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2167,9 +1805,7 @@
     "title": "[QA] Một tách trà ấm",
     "artistKey": "artist-15",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hạt Sương Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Hạt Sương Mai (Demo)"],
     "albumKey": "album-15",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-15",
@@ -2178,10 +1814,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2197,9 +1830,7 @@
     "title": "[QA] Nụ cười đầu ngày",
     "artistKey": "artist-15",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hạt Sương Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Hạt Sương Mai (Demo)"],
     "albumKey": "album-15",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-15",
@@ -2208,9 +1839,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2226,9 +1855,7 @@
     "title": "[QA] Chậm lại một chút",
     "artistKey": "artist-15",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hạt Sương Mai (Demo)"
-    ],
+    "artistNames": ["[QA] Hạt Sương Mai (Demo)"],
     "albumKey": "album-15",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-15",
@@ -2237,9 +1864,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2255,9 +1880,7 @@
     "title": "[QA] Hoàng hôn tím nhạt",
     "artistKey": "artist-16",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Chân Trời Tím (Demo)"
-    ],
+    "artistNames": ["[QA] Chân Trời Tím (Demo)"],
     "albumKey": "album-16",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-16",
@@ -2266,10 +1889,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic",
-      "Rock"
-    ],
+    "genre": ["Acoustic", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2285,9 +1905,7 @@
     "title": "[QA] Mặt trời sau núi",
     "artistKey": "artist-16",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Chân Trời Tím (Demo)"
-    ],
+    "artistNames": ["[QA] Chân Trời Tím (Demo)"],
     "albumKey": "album-16",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-16",
@@ -2296,10 +1914,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2315,9 +1930,7 @@
     "title": "[QA] Chiều rơi thật khẽ",
     "artistKey": "artist-16",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Chân Trời Tím (Demo)"
-    ],
+    "artistNames": ["[QA] Chân Trời Tím (Demo)"],
     "albumKey": "album-16",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-16",
@@ -2326,10 +1939,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic",
-      "Electronic"
-    ],
+    "genre": ["Acoustic", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2345,9 +1955,7 @@
     "title": "[QA] Đường chân trời xa",
     "artistKey": "artist-16",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Chân Trời Tím (Demo)"
-    ],
+    "artistNames": ["[QA] Chân Trời Tím (Demo)"],
     "albumKey": "album-16",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-16",
@@ -2356,9 +1964,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2374,9 +1980,7 @@
     "title": "[QA] Khoảnh khắc cuối ngày",
     "artistKey": "artist-16",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Chân Trời Tím (Demo)"
-    ],
+    "artistNames": ["[QA] Chân Trời Tím (Demo)"],
     "albumKey": "album-16",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-16",
@@ -2385,9 +1989,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2403,9 +2005,7 @@
     "title": "[QA] Dây đàn rung nhẹ",
     "artistKey": "artist-17",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Tiếng Đàn Mộc (Demo)"
-    ],
+    "artistNames": ["[QA] Tiếng Đàn Mộc (Demo)"],
     "albumKey": "album-17",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-17",
@@ -2414,11 +2014,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic",
-      "R&B",
-      "Rock"
-    ],
+    "genre": ["Acoustic", "R&B", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2434,9 +2030,7 @@
     "title": "[QA] Bản hòa âm giản dị",
     "artistKey": "artist-17",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Tiếng Đàn Mộc (Demo)"
-    ],
+    "artistNames": ["[QA] Tiếng Đàn Mộc (Demo)"],
     "albumKey": "album-17",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-17",
@@ -2445,9 +2039,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2463,9 +2055,7 @@
     "title": "[QA] Giai điệu không lời",
     "artistKey": "artist-17",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Tiếng Đàn Mộc (Demo)"
-    ],
+    "artistNames": ["[QA] Tiếng Đàn Mộc (Demo)"],
     "albumKey": "album-17",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-17",
@@ -2474,9 +2064,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2492,9 +2080,7 @@
     "title": "[QA] Ngồi bên tiếng đàn",
     "artistKey": "artist-17",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Tiếng Đàn Mộc (Demo)"
-    ],
+    "artistNames": ["[QA] Tiếng Đàn Mộc (Demo)"],
     "albumKey": "album-17",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-17",
@@ -2503,9 +2089,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2521,9 +2105,7 @@
     "title": "[QA] Thanh âm của gỗ",
     "artistKey": "artist-17",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Tiếng Đàn Mộc (Demo)"
-    ],
+    "artistNames": ["[QA] Tiếng Đàn Mộc (Demo)"],
     "albumKey": "album-17",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-17",
@@ -2532,11 +2114,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic",
-      "R&B",
-      "Electronic"
-    ],
+    "genre": ["Acoustic", "R&B", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2552,9 +2130,7 @@
     "title": "[QA] Vườn nhà bình yên",
     "artistKey": "artist-18",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Vườn Sau Nhà (Demo)"
-    ],
+    "artistNames": ["[QA] Vườn Sau Nhà (Demo)"],
     "albumKey": "album-18",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-18",
@@ -2563,10 +2139,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic",
-      "Rock"
-    ],
+    "genre": ["Acoustic", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2582,9 +2155,7 @@
     "title": "[QA] Tiếng chim sau cửa",
     "artistKey": "artist-18",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Vườn Sau Nhà (Demo)"
-    ],
+    "artistNames": ["[QA] Vườn Sau Nhà (Demo)"],
     "albumKey": "album-18",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-18",
@@ -2593,9 +2164,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2611,9 +2180,7 @@
     "title": "[QA] Ngày trở về nhà",
     "artistKey": "artist-18",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Vườn Sau Nhà (Demo)"
-    ],
+    "artistNames": ["[QA] Vườn Sau Nhà (Demo)"],
     "albumKey": "album-18",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-18",
@@ -2622,9 +2189,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2640,9 +2205,7 @@
     "title": "[QA] Giàn hoa trong nắng",
     "artistKey": "artist-18",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Vườn Sau Nhà (Demo)"
-    ],
+    "artistNames": ["[QA] Vườn Sau Nhà (Demo)"],
     "albumKey": "album-18",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-18",
@@ -2651,10 +2214,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Acoustic",
-      "R&B"
-    ],
+    "genre": ["Acoustic", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2670,9 +2230,7 @@
     "title": "[QA] Bữa cơm chiều ấm",
     "artistKey": "artist-18",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Vườn Sau Nhà (Demo)"
-    ],
+    "artistNames": ["[QA] Vườn Sau Nhà (Demo)"],
     "albumKey": "album-18",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-18",
@@ -2681,9 +2239,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Acoustic"
-    ],
+    "genre": ["Acoustic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": true,
@@ -2699,9 +2255,7 @@
     "title": "[QA] Dấu chân trên cát",
     "artistKey": "artist-19",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bờ Cát Trắng (Demo)"
-    ],
+    "artistNames": ["[QA] Bờ Cát Trắng (Demo)"],
     "albumKey": "album-19",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-19",
@@ -2710,10 +2264,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2729,9 +2280,7 @@
     "title": "[QA] Lời thì thầm của biển",
     "artistKey": "artist-19",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bờ Cát Trắng (Demo)"
-    ],
+    "artistNames": ["[QA] Bờ Cát Trắng (Demo)"],
     "albumKey": "album-19",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-19",
@@ -2740,10 +2289,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2759,9 +2305,7 @@
     "title": "[QA] Mùa gió ngoài đảo",
     "artistKey": "artist-19",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bờ Cát Trắng (Demo)"
-    ],
+    "artistNames": ["[QA] Bờ Cát Trắng (Demo)"],
     "albumKey": "album-19",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-19",
@@ -2770,10 +2314,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "R&B"
-    ],
+    "genre": ["Pop", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2789,9 +2330,7 @@
     "title": "[QA] Chuyến đi ven bờ",
     "artistKey": "artist-19",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bờ Cát Trắng (Demo)"
-    ],
+    "artistNames": ["[QA] Bờ Cát Trắng (Demo)"],
     "albumKey": "album-19",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-19",
@@ -2800,9 +2339,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2818,9 +2355,7 @@
     "title": "[QA] Đợi sóng mang về",
     "artistKey": "artist-19",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Bờ Cát Trắng (Demo)"
-    ],
+    "artistNames": ["[QA] Bờ Cát Trắng (Demo)"],
     "albumKey": "album-19",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-19",
@@ -2829,9 +2364,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2847,9 +2380,7 @@
     "title": "[QA] Hành tinh của chúng ta",
     "artistKey": "artist-20",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hành Tinh Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Hành Tinh Nhỏ (Demo)"],
     "albumKey": "album-20",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-20",
@@ -2858,10 +2389,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Rock"
-    ],
+    "genre": ["Pop", "Rock"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2877,9 +2405,7 @@
     "title": "[QA] Qua những vì sao",
     "artistKey": "artist-20",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hành Tinh Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Hành Tinh Nhỏ (Demo)"],
     "albumKey": "album-20",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-20",
@@ -2888,10 +2414,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop",
-      "R&B"
-    ],
+    "genre": ["Pop", "R&B"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2907,9 +2430,7 @@
     "title": "[QA] Chuyến tàu giấc mơ",
     "artistKey": "artist-20",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hành Tinh Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Hành Tinh Nhỏ (Demo)"],
     "albumKey": "album-20",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-20",
@@ -2918,9 +2439,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 85,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2936,9 +2455,7 @@
     "title": "[QA] Ánh sáng xa xôi",
     "artistKey": "artist-20",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hành Tinh Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Hành Tinh Nhỏ (Demo)"],
     "albumKey": "album-20",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-20",
@@ -2947,10 +2464,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 95,
-    "genre": [
-      "Pop",
-      "Electronic"
-    ],
+    "genre": ["Pop", "Electronic"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,
@@ -2966,9 +2480,7 @@
     "title": "[QA] Ngày mình gặp lại",
     "artistKey": "artist-20",
     "artistId": "$RESOLVE_USER_ID",
-    "artistNames": [
-      "[QA] Hành Tinh Nhỏ (Demo)"
-    ],
+    "artistNames": ["[QA] Hành Tinh Nhỏ (Demo)"],
     "albumKey": "album-20",
     "albumId": "$RESOLVE_ALBUM_ID",
     "coverMediaKey": "cover-20",
@@ -2977,9 +2489,7 @@
     "audioUrl": "$UPLOAD_URL",
     "audioKey": "",
     "durationSeconds": 75,
-    "genre": [
-      "Pop"
-    ],
+    "genre": ["Pop"],
     "lyric": "Âm thanh tổng hợp kiểm thử trên 60 giây; không phải bản thu thương mại.",
     "releaseDate": "$TIMESTAMP",
     "isPublished": false,

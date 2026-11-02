@@ -1,8 +1,7 @@
-import React from "react";
 import { Redirect } from "expo-router";
+import React from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Loading, Page } from "./UI";
-import { Text } from "react-native";
+import { AppText, Loading, Page } from "./UI";
 export default function Guard({
   children,
   admin = false,
@@ -16,7 +15,7 @@ export default function Guard({
   if (admin && !auth.isAdmin)
     return (
       <Page title="Không đủ quyền">
-        <Text>Chỉ quản trị viên được sử dụng màn hình này.</Text>
+        <AppText>Chỉ quản trị viên được sử dụng màn hình này.</AppText>
       </Page>
     );
   return <>{children}</>;

@@ -1,10 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Song } from "../types/domain";
 
-import {
-  newHistoryId,
-  savePlayback,
-} from "../services/historyService";
+import { newHistoryId, savePlayback } from "../services/historyService";
 
 import { useAuth } from "../contexts/AuthContext";
 import { errorMessage } from "../utils/feedback";
@@ -70,11 +67,8 @@ export function usePlaybackHistory(
           currentStatus.duration || track.durationSeconds,
           heardNow,
           currentStatus.didJustFinish ||
-            (
-              currentStatus.duration > 0 &&
-              currentStatus.currentTime >=
-                currentStatus.duration - 1
-            ),
+            (currentStatus.duration > 0 &&
+              currentStatus.currentTime >= currentStatus.duration - 1),
         );
 
         lastSaved = heardNow;
@@ -101,8 +95,7 @@ export function usePlaybackHistory(
 
       capturedStatus = currentStatus;
 
-      const delta =
-        currentStatus.currentTime - lastPosition;
+      const delta = currentStatus.currentTime - lastPosition;
 
       if (
         currentStatus.isLoaded &&

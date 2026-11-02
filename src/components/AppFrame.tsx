@@ -1,94 +1,95 @@
-import React from "react";
-import { Pressable, Text, View } from "react-native";
 import { router, usePathname } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { XStack, YStack, styled } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
-import { ErrorText, ui } from "./UI";
+import MiniPlayer from "./MiniPlayer";
+import { Action, AppIcon, AppText, ErrorText } from "./UI";
+const SafeFrame = styled(SafeAreaView, {
+  displayName: "SafeFrame",
+  flex: 1,
+  backgroundColor: "background",
+});
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const path = usePathname(),
     { user } = useAuth(),
-    data = useData(),
-    player = usePlayer();
+    data = useData();
   const isPublic = ["/", "/login", "/register"].includes(path);
   const show = !!user && !isPublic;
+  const fullScreen = path === "/player" || path === "/comments";
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: "white" }}
-      edges={["top", "left", "right", "bottom"]}
+    <SafeFrame
+      edges={
+        path === "/" || fullScreen ? [] : ["top", "left", "right", "bottom"]
+      }
     >
-      <View style={{ flex: 1 }}>{children}</View>
-      {show && data.errors.length > 0 && (
+      <StatusBar
+        style={path === "/" || path === "/player" ? "light" : "dark"}
+      />
+      <YStack
+        flex={1}
+        minHeight={0}
+        overflow="hidden"
+        position="relative"
+        zIndex={0}
+      >
+        {children}
+      </YStack>
+      {show && path !== "/home" && !fullScreen && data.errors.length > 0 && (
         <ErrorText message={data.errors.join("\n")} />
       )}
-      {show && player.current && path !== "/player" && (
-        <View
-          style={{
-            backgroundColor: "#e6f6f3",
-            padding: 12,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Pressable style={{ flex: 1 }} onPress={() => router.push("/player")}>
-            <Text style={{ fontWeight: "700" }} numberOfLines={1}>
-              ♫ {player.current.title}
-            </Text>
-            <Text style={ui.small}>{player.current.artist}</Text>
-          </Pressable>
-          <Pressable
-            onPress={player.toggle}
-            accessibilityLabel={player.playing ? "Tạm dừng" : "Phát"}
-          >
-            <Text style={{ fontSize: 23, padding: 8 }}>
-              {player.playing ? "Ⅱ" : "▶"}
-            </Text>
-          </Pressable>
-        </View>
-      )}
-      {show && path !== "/player" && (
-        <View
-          style={{
-            flexDirection: "row",
-            borderTopWidth: 1,
-            borderColor: "#e4e8ec",
-            paddingVertical: 10,
-          }}
+      {show && !fullScreen && <MiniPlayer />}
+      {show && !fullScreen && (
+        <XStack
+          borderTopWidth={1}
+          borderColor="borderColor"
+          paddingVertical="1"
+          backgroundColor="background"
+          flexShrink={0}
         >
           {(
             [
-              ["/home", "⌂", "Home"],
-              ["/search", "⌕", "Search"],
-              ["/feed", "▣", "Feed"],
-              ["/library", "▤", "Library"],
+              ["/home", "home", "Home"],
+              ["/search", "search", "Search"],
+              ["/feed", "feed", "Feed"],
+              ["/library", "library", "Library"],
             ] as const
           ).map(([href, icon, label]) => (
-            <Pressable
+            <Action
               key={href}
-              onPress={() => router.replace(href)}
-              style={{ flex: 1, alignItems: "center" }}
+              onPress={() => {
+                if (path === href) return;
+                // Reuse Home already in the stack instead of creating a fresh copy.
+                if (href === "/home") router.navigate("/home");
+                else router.replace(href);
+              }}
+              flex={1}
+              alignItems="center"
+              justifyContent="center"
+              minHeight={56}
+              gap="1"
+              aria-label={label}
+              aria-current={path === href ? "page" : undefined}
             >
-              <Text
-                style={{
-                  fontSize: 23,
-                  color: path === href ? "#087e78" : "#777",
-                }}
-              >
-                {icon}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 11,
-                  color: path === href ? "#087e78" : "#777",
-                }}
+              <AppIcon
+                name={icon}
+                size={23}
+                color={path === href ? "accent" : "textMuted"}
+              />
+              <AppText
+                fontSize={11}
+                lineHeight="16px"
+                fontWeight={path === href ? "700" : "400"}
+                color={path === href ? "accent" : "textMuted"}
               >
                 {label}
-              </Text>
-            </Pressable>
+              </AppText>
+            </Action>
           ))}
-        </View>
+        </XStack>
       )}
-    </SafeAreaView>
+    </SafeFrame>
   );
 }

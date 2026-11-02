@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { errorMessage } from "../utils/feedback";
 export function useAction() {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  async function run(work: () => Promise<unknown>) {
-    if (busy) return false;
+  const pending = useRef(false);
+  const run = useCallback(async (work: () => Promise<unknown>) => {
+    if (pending.current) return false;
+    pending.current = true;
     setBusy(true);
     setError("");
     try {
@@ -14,8 +16,9 @@ export function useAction() {
       setError(errorMessage(e));
       return false;
     } finally {
+      pending.current = false;
       setBusy(false);
     }
-  }
+  }, []);
   return { busy, error, setError, run };
 }

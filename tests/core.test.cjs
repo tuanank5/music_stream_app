@@ -1,5 +1,55 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
+const { createBackAction } = require("../src/utils/navigation.ts");
+
+test("back pops the existing stack once even when tapped twice before navigation commits", () => {
+  const calls = [];
+  const action = createBackAction(
+    {
+      canDismiss: () => true,
+      dismiss: (n) => calls.push(["pop", n]),
+      replace: (href) => calls.push(["replace", href]),
+    },
+    "/home",
+  );
+  action.go();
+  action.go();
+  assert.deepEqual(calls, [["pop", 1]]);
+});
+test("back without a stack predecessor uses the fallback without dispatching GO_BACK", () => {
+  const calls = [];
+  const action = createBackAction(
+    {
+      canDismiss: () => false,
+      dismiss: (n) => calls.push(["pop", n]),
+      replace: (href) => calls.push(["replace", href]),
+    },
+    "/feed",
+  );
+  action.go();
+  action.go();
+  assert.deepEqual(calls, [["replace", "/feed"]]);
+});
+test("back becomes available again after returning to the screen and rechecks history", () => {
+  let canDismiss = true;
+  const calls = [];
+  const action = createBackAction(
+    {
+      canDismiss: () => canDismiss,
+      dismiss: (n) => calls.push(["pop", n]),
+      replace: (href) => calls.push(["replace", href]),
+    },
+    "/home",
+  );
+  action.go();
+  action.reset();
+  canDismiss = false;
+  action.go();
+  assert.deepEqual(calls, [
+    ["pop", 1],
+    ["replace", "/home"],
+  ]);
+});
 const {
   cleanText,
   httpsUrl,
