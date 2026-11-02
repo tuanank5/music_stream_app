@@ -1,5 +1,6 @@
 import { Auth, getAuth } from "firebase/auth";
 import { getFirebaseApp, isFirebaseConfigured } from "./config";
+import { connectLocalAuth } from "./emulators";
 
 let authInstance: Auth | null = null;
 
@@ -10,7 +11,9 @@ export function getFirebaseAuth(): Auth {
     );
   }
   if (!authInstance) {
-    authInstance = getAuth(getFirebaseApp());
+    const auth = getAuth(getFirebaseApp());
+    connectLocalAuth(auth);
+    authInstance = auth;
   }
   return authInstance;
 }

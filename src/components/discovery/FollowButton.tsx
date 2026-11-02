@@ -1,6 +1,6 @@
 import { YStack } from "tamagui";
 import { useAuth } from "../../contexts/AuthContext";
-import { useData } from "../../contexts/DataContext";
+import { useLibraryData } from "../../contexts/DataContext";
 import { useAction } from "../../hooks/useAction";
 import { setFollow } from "../../services/libraryService";
 import { Action, AppText, ErrorText } from "../UI";
@@ -13,7 +13,7 @@ export function FollowButton({
   inline?: boolean;
 }) {
   const { user } = useAuth();
-  const { followingIds } = useData();
+  const { followingIds } = useLibraryData();
   const action = useAction();
   const following = followingIds.includes(artistId);
   return (
@@ -50,7 +50,7 @@ export function FollowButton({
           fontWeight="700"
           color={following ? "color" : "onPrimary"}
         >
-          {following ? "Following" : "Follow"}
+          {following ? "Unfollow" : "Follow"}
         </AppText>
       </Action>
 

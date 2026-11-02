@@ -231,11 +231,19 @@ test("Player renders normal, error and demo states without raw text nodes in lay
           useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
         };
       if (request.endsWith("/contexts/PlayerContext"))
-        return { usePlayer: () => player };
+        return {
+          usePlayer: () => player,
+          usePlayerActions: () => player,
+          usePlayerState: () => player,
+          usePlayerProgress: () => player,
+        };
       if (request.endsWith("/contexts/AuthContext"))
         return { useAuth: () => ({ user: { uid: "user-1" } }) };
       if (request.endsWith("/contexts/DataContext"))
-        return { useData: () => ({ favoriteIds: [] }) };
+        return {
+          useData: () => ({ favoriteIds: [] }),
+          useLibraryData: () => ({ favoriteIds: [] }),
+        };
       if (request.endsWith("/services/libraryService"))
         return { setFavorite: async () => {} };
       if (request === "lucide-react-native")

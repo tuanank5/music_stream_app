@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import type { ReactNode } from "react";
 import { useWindowDimensions } from "react-native";
 import { ScrollView, XStack, YStack } from "tamagui";
-import { usePlayer } from "../contexts/PlayerContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import { useCharts } from "../hooks/useCharts";
 import type { useHomeDiscovery } from "../hooks/useHomeDiscovery";
 import { uiSpacing } from "../../tamagui.config";
@@ -78,7 +78,7 @@ export default function HomeDiscovery({
 }: {
   state: ReturnType<typeof useHomeDiscovery>;
 }) {
-  const player = usePlayer();
+  const player = usePlayerActions();
   const charts = useCharts();
   const { width } = useWindowDimensions();
   const portraitWidth = Math.round(width * 0.58);

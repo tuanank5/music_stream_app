@@ -4,7 +4,7 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { XStack, YStack, styled } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData } from "../contexts/DataContext";
 import MiniPlayer from "./MiniPlayer";
 import { Action, AppIcon, AppText, ErrorText } from "./UI";
 const SafeFrame = styled(SafeAreaView, {
@@ -15,7 +15,7 @@ const SafeFrame = styled(SafeAreaView, {
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const path = usePathname(),
     { user } = useAuth(),
-    data = useData();
+    data = useCatalogData();
   const isPublic = ["/", "/login", "/register"].includes(path);
   const show = !!user && !isPublic;
   const fullScreen = path === "/player" || path === "/comments";

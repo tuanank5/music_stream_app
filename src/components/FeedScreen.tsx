@@ -4,7 +4,7 @@ import { Share, useWindowDimensions } from "react-native";
 import { XStack, YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
 import { useRealtimeList } from "../hooks/useRealtimeList";
 import * as feed from "../services/feedService";
@@ -32,7 +32,7 @@ import {
 export default function FeedScreen() {
   const { user, isAdmin } = useAuth();
   const data = useData();
-  const player = usePlayer();
+  const player = usePlayerActions();
   const action = useAction();
   const { width } = useWindowDimensions();
   const { items: posts, loading, error } = useRealtimeList(feed.watchPosts);

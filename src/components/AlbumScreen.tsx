@@ -5,11 +5,11 @@ import { BackButton } from "./discovery/BackButton";
 import { AppText, Button, EmptyState, ListPage, Loading } from "./UI";
 import Artwork from "./Artwork";
 import { YStack } from "tamagui";
-import { usePlayer } from "../contexts/PlayerContext";
-import { useData } from "../contexts/DataContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
+import { useCatalogData } from "../contexts/DataContext";
 export default function AlbumScreen({ id }: { id: string }) {
-  const data = useData();
-  const player = usePlayer();
+  const data = useCatalogData();
+  const player = usePlayerActions();
   const album = data.albums.find((value) => value.id === id);
   const songs = data.songs
     .filter(

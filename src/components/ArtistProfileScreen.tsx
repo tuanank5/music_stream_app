@@ -2,8 +2,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { ScrollView, XStack, YStack } from "tamagui";
-import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
+import { useCatalogData } from "../contexts/DataContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import { artistAlbums, artistSongs, shuffleSongs } from "../utils/discovery";
 import Artwork from "./Artwork";
 import SongRow from "./SongRow";
@@ -31,9 +31,9 @@ export default function ArtistProfileScreen() {
     id?: string | string[];
   }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const data = useData();
+  const data = useCatalogData();
   const { width } = useWindowDimensions();
-  const player = usePlayer();
+  const player = usePlayerActions();
   const [selection, setSelection] = useState({
     artistId: "",
     album: "",

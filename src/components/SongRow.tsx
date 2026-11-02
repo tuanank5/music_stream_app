@@ -2,8 +2,8 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { XStack, YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
-import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
+import { useLibraryData } from "../contexts/DataContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
 import { changePlaylistSong } from "../services/libraryService";
 import { useFavoriteSong } from "../hooks/useFavoriteSong";
@@ -32,8 +32,8 @@ export default function SongRow({
   onRemove?: () => void;
 }) {
   const { user } = useAuth();
-  const data = useData();
-  const player = usePlayer();
+  const data = useLibraryData();
+  const player = usePlayerActions();
   const action = useAction();
   const [panel, setPanel] = useState<"actions" | "playlists" | null>(null);
   const favorites = useFavoriteSong(song.id);

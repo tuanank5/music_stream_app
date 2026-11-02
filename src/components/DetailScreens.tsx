@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { YStack } from "tamagui";
 import { BackButton } from "./discovery/BackButton";
-import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
+import { useCatalogData } from "../contexts/DataContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import { formatDuration } from "../utils/validation";
 import Artwork from "./Artwork";
 import { AppText, Button, Page, SectionTitle } from "./UI";
@@ -10,8 +10,8 @@ export function SongDetailScreen() {
   const { id } = useLocalSearchParams<{
       id: string;
     }>(),
-    data = useData(),
-    player = usePlayer();
+    data = useCatalogData(),
+    player = usePlayerActions();
   const song = data.songs.find((s) => s.id === id && s.active);
   if (!song)
     return (
@@ -65,7 +65,7 @@ export function LyricsScreen() {
   const { id } = useLocalSearchParams<{
       id: string;
     }>(),
-    data = useData();
+    data = useCatalogData();
   const song = data.songs.find((s) => s.id === id && s.active);
   return (
     <Page

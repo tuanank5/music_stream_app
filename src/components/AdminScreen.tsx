@@ -13,7 +13,7 @@ import {
   Toggle,
   FilterBar,
 } from "./UI";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData } from "../contexts/DataContext";
 import { useAction } from "../hooks/useAction";
 import {
   archiveArtist,
@@ -41,7 +41,7 @@ const adminTabs = [
   { value: "artists", label: "Nghệ sĩ" },
 ] as const;
 export default function AdminScreen() {
-  const data = useData(),
+  const data = useCatalogData(),
     a = useAction();
   const [tab, setTab] = useState<"songs" | "artists">("songs"),
     [song, setSong] = useState<SongInput>(empty),

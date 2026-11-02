@@ -96,13 +96,11 @@
 //   );
 // }
 
-
 //Update Date 10/30/2026
 import {
   collection,
   deleteDoc,
   doc,
-  increment,
   limit,
   onSnapshot,
   orderBy,
@@ -113,7 +111,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { getFirebaseDb } from "./firebase";
+import { getFirebaseDb, getFirebaseAuth } from "./firebase";
 import { HistoryEntry, Playlist } from "../types/domain";
 import { cleanText } from "../utils/validation";
 
@@ -124,15 +122,13 @@ export function watchPlaylists(
 ) {
   return onSnapshot(
     collection(getFirebaseDb(), "users", uid, "playlists"),
-    snap =>
+    (snap) =>
       next(
-        snap.docs.map(d => ({
+        snap.docs.map((d) => ({
           id: d.id,
           name: String(d.data().name ?? ""),
           description: String(d.data().description ?? ""),
-          songIds: Array.isArray(d.data().songIds)
-            ? d.data().songIds
-            : [],
+          songIds: Array.isArray(d.data().songIds) ? d.data().songIds : [],
         })),
       ),
     fail,
@@ -146,7 +142,7 @@ export function watchFavorites(
 ) {
   return onSnapshot(
     collection(getFirebaseDb(), "users", uid, "favorites"),
-    snap => next(snap.docs.map(d => d.id)),
+    (snap) => next(snap.docs.map((d) => d.id)),
     fail,
   );
 }
@@ -158,7 +154,7 @@ export function watchFollowing(
 ) {
   return onSnapshot(
     collection(getFirebaseDb(), "users", uid, "following"),
-    snap => next(snap.docs.map(d => d.id)),
+    (snap) => next(snap.docs.map((d) => d.id)),
     fail,
   );
 }
@@ -174,9 +170,9 @@ export function watchHistory(
       orderBy("playedAt", "desc"),
       limit(100),
     ),
-    snap =>
+    (snap) =>
       next(
-        snap.docs.map(d => ({
+        snap.docs.map((d) => ({
           id: d.id,
           songId: String(d.data().songId),
           playedAt: d.data().playedAt?.toMillis?.() ?? 0,
@@ -224,9 +220,7 @@ export async function savePlaylist(
 }
 
 export function deletePlaylist(uid: string, id: string) {
-  return deleteDoc(
-    doc(getFirebaseDb(), "users", uid, "playlists", id),
-  );
+  return deleteDoc(doc(getFirebaseDb(), "users", uid, "playlists", id));
 }
 
 export async function changePlaylistSong(
@@ -238,7 +232,7 @@ export async function changePlaylistSong(
   const db = getFirebaseDb();
   const ref = doc(db, "users", uid, "playlists", id);
 
-  await runTransaction(db, async transaction => {
+  await runTransaction(db, async (transaction) => {
     const snap = await transaction.get(ref);
 
     if (!snap.exists()) {
@@ -262,18 +256,8 @@ export async function changePlaylistSong(
   });
 }
 
-export function setFavorite(
-  uid: string,
-  songId: string,
-  value: boolean,
-) {
-  const ref = doc(
-    getFirebaseDb(),
-    "users",
-    uid,
-    "favorites",
-    songId,
-  );
+export function setFavorite(uid: string, songId: string, value: boolean) {
+  const ref = doc(getFirebaseDb(), "users", uid, "favorites", songId);
 
   return value
     ? setDoc(ref, {
@@ -283,31 +267,66 @@ export function setFavorite(
     : deleteDoc(ref);
 }
 
-export async function setFollow(
-  uid: string,
-  target: string,
-  value: boolean,
-) {
+const followQueues = new Map<string, Promise<void>>();
+
+export async function setFollow(uid: string, target: string, value: boolean) {
   if (uid === target) {
     throw new Error("Không thể tự theo dõi.");
   }
 
+  const auth = getFirebaseAuth();
+  if (auth.currentUser?.uid !== uid)
+    throw new Error("Cần đăng nhập đúng tài khoản.");
+  const key = `${auth.app.name}:${uid}`;
+  // Separate buttons can submit the same relationship before snapshots catch
+  // up. Serialize this account's changes, including follow then unfollow.
+  const previous = followQueues.get(key) ?? Promise.resolve();
+  const work = previous
+    .catch(() => {})
+    .then(async () => {
+      if (auth.currentUser?.uid !== uid)
+        throw new Error("Phiên đăng nhập đã thay đổi.");
+      await changeFollow(uid, target, value);
+    });
+  followQueues.set(key, work);
+  try {
+    await work;
+  } finally {
+    if (followQueues.get(key) === work) followQueues.delete(key);
+  }
+}
+
+async function changeFollow(uid: string, target: string, value: boolean) {
   const db = getFirebaseDb();
   const ref = doc(db, "users", uid, "following", target);
 
-  await runTransaction(db, async transaction => {
-    const [relation, profile] = await Promise.all([
+  await runTransaction(db, async (transaction) => {
+    const [relation, profile, ownProfile] = await Promise.all([
       transaction.get(ref),
       transaction.get(doc(db, "users", target)),
+      transaction.get(doc(db, "users", uid)),
     ]);
 
     if (!profile.exists()) {
       throw new Error("Không tìm thấy nghệ sĩ.");
     }
+    if (!ownProfile.exists())
+      throw new Error("Không tìm thấy hồ sơ tài khoản.");
+    if (getFirebaseAuth().currentUser?.uid !== uid)
+      throw new Error("Phiên đăng nhập đã thay đổi.");
 
     if (relation.exists() === value) return;
 
     const delta = value ? 1 : -1;
+    const ownCount = ownProfile.data().followingCount;
+    const targetCount = profile.data().followerCount;
+    if (
+      !Number.isSafeInteger(ownCount) ||
+      !Number.isSafeInteger(targetCount) ||
+      ownCount + delta < 0 ||
+      targetCount + delta < 0
+    )
+      throw new Error("Số lượt theo dõi không nhất quán. Hãy tải lại hồ sơ.");
 
     if (value) {
       transaction.set(ref, {
@@ -319,17 +338,12 @@ export async function setFollow(
     }
 
     transaction.update(doc(db, "users", uid), {
-      followingCount: increment(delta),
+      followingCount: ownCount + delta,
       lastFollowingId: target,
     });
 
     transaction.update(doc(db, "users", target), {
-      followerCount: increment(delta),
-    });
-
-
-    transaction.update(doc(db, "users", target), {
-      followerCount: increment(delta),
+      followerCount: targetCount + delta,
     });
   });
 }

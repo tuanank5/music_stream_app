@@ -1,6 +1,7 @@
 import { getFirebaseApp, isFirebaseConfigured } from "./config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FirebaseAuth from "firebase/auth";
+import { connectLocalAuth } from "./emulators";
 // Metro selects Firebase RN implementation. Its RN-only export is not in web typings.
 const { getReactNativePersistence } = FirebaseAuth as unknown as {
   getReactNativePersistence: (
@@ -17,6 +18,7 @@ export function getFirebaseAuth(): FirebaseAuth.Auth {
     );
   }
   if (authInstance) {
+    connectLocalAuth(authInstance);
     return authInstance;
   }
 
@@ -37,5 +39,6 @@ export function getFirebaseAuth(): FirebaseAuth.Auth {
     }
   }
 
+  connectLocalAuth(authInstance);
   return authInstance;
 }

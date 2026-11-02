@@ -1,5 +1,29 @@
 # Tiến độ và bàn giao
 
+## M1 hoàn thành — 2026-11-03
+
+Đã sửa Follow/Unfollow, counter trùng và tuần tự hóa thao tác cùng tài khoản; bổ sung guard lastFollowingId trong rules local. Tách Player actions/state/progress (một audio engine) và Data catalog/library/history, memo/Map merge, listener đối soát theo ID, gộp request đang pending và loại callback cũ/mất quyền. Các screen/hook đã chuyển sang context hẹp phù hợp. Chi tiết và bằng chứng nằm ở checkpoint M1 trong `docs/IMPLEMENTATION_ROADMAP.md`.
+
+Checks cuối: lint sạch PASS, typecheck PASS, npm test 35/35 PASS, integration Auth/Firestore/Node/rules Emulator 4/4 PASS. Harness React: 50 progress ticks chỉ consumer progress render thêm 50 lần; actions/state không render thêm; 10 history updates không render catalog hoặc thay reference songs. Happy-dom chỉ là devDependency; Firebase transport/audio được stub trong phép đo React, không phải test audio/FPS native. Không deploy cloud, không đổi .env hoặc dữ liệu thật; không có process test còn chạy. Tiếp theo M2; M2–M6 chưa bắt đầu.
+
+## M0 hoàn thành — 2026-11-03
+
+Đã code và kiểm tra môi trường local Auth/Firestore/Node với demo-music-stream, fixture và fail-closed; upload Cloudinary bị tắt trong local, fixture dùng media bundled/fallback. Xem `docs/LOCAL_DEVELOPMENT.md` để chạy và `docs/IMPLEMENTATION_ROADMAP.md` phần checkpoint M0 để biết files, baseline/kết quả, lỗi đã xử lý và bước tiếp tục.
+
+Checks: lint PASS, typecheck PASS, npm test 22/22 PASS, integration Emulator thực 3/3 PASS, start:local --help PASS, git diff --check PASS. Đã sửa wrapper Java trên Windows để đóng Emulator sạch; không còn listener do lượt này trên 8080/9099/8787/4400. Không sửa .env của người dùng, không deploy/migration cloud, chưa chạy UI native hay suite rules cũ. M1–M6 chưa bắt đầu; tiếp theo M1 sửa Follow counter trùng/Unfollow và tối ưu context/listener.
+
+## Kế hoạch triển khai chính — 2026-11-03
+
+Đọc `docs/IMPLEMENTATION_ROADMAP.md` trước khi tiếp tục. Đây là file mới tổng hợp yêu cầu đã chốt sau hội thoại; thay thế các quyết định cũ không còn phù hợp trong SEARCH_DISCOVERY_PLAN.md. Mới lập kế hoạch, chưa sửa source/rules/backend hoặc deploy. Checklist M0–M6 và mục Bàn giao ghi việc đã làm/còn lại, checks, process và điểm tiếp tục; phải cập nhật khi người dùng yêu cầu ngừng.
+
+Điểm chính: history giữ 1.000 phiên và khử trùng để hiện tối đa 100 bài (10 + 10); Search local 20 mục có xóa riêng/xóa tất cả, filter chỉ khi nhập và không có Tất cả; Library mặc định favorites + followed artists, hai nút Playlist của bạn/Lịch sử mở màn riêng. Home suggestions/artists/albums tối đa 20, không thêm Nghe gần đây; Charts chọn Top 50 trước trộn. Local/Emulator trước, Firebase thật sau. Bước code đầu tiên: baseline/môi trường rồi sửa Follow counter trùng.
+
+## Kế hoạch Search/Library/Discovery — 2026-11-03
+
+Đã ghi lựa chọn người dùng và thiết kế tiếp theo trong `docs/SEARCH_DISCOVERY_PLAN.md`: Search history cục bộ 20 item đã mở; Search phía server/phân trang; Library toggle filter, bỏ nút trùng; history hiển thị 100 bài khác nhau; Discovery đa dạng và Nghe gần đây. Được thêm field tùy chọn/collection, chưa chọn triển khai cloud (đang phân biệt 13.A và 13.C). Đây là kế hoạch, chưa sửa source/rules/schema hay deploy.
+
+Phát hiện source `setFollow` đang gọi transaction.update tăng followerCount của target hai lần; rules chỉ cho delta một lần. Cần sửa update trùng trước, không nới phân quyền/admin. History theo bài cần view tổng hợp riêng trong giai đoạn chuyển tiếp vì rules phiên hiện tại khóa startedAt/counted; không thay ID phiên bằng songId một cách trực tiếp. Xem kế hoạch để biết completed lần gần nhất và everCompleted tùy chọn.
+
 ## K?t qu? m?i nh?t ? 2026-11-02
 
 ?? ho?n th?nh ??t chu?n h?a UI/code v? s?a Back. BackButton/Player/Comments d?ng useBackNavigation: dismiss(1) khi c? stack, fallback khi kh?ng c? l?ch s?, kh?a nh?n l?p ??n l?n focus ti?p theo. Home gi? instance/scroll khi m? chi ti?t r?i Back; kh?ng thay PlayerContext.

@@ -82,10 +82,13 @@ service cloud.firestore {
   }
   function followingChange(uid) {
    let d = request.resource.data;
-   let delta = relationDelta(uid,d.lastFollowingId);
-   return owner(uid) && delta != 0 && uid != d.lastFollowingId
+   // Other users' follower updates do not carry lastFollowingId. Check the
+   // operation/field before evaluating a relation path for this branch.
+   return owner(uid) && d.keys().hasAll(['lastFollowingId'])
+    && text(d.lastFollowingId,128) && d.lastFollowingId.size()>0 && uid != d.lastFollowingId
     && d.diff(resource.data).affectedKeys().hasOnly(['followingCount','lastFollowingId'])
-    && d.followingCount == resource.data.followingCount + delta && d.followingCount >= 0;
+    && relationDelta(uid,d.lastFollowingId) != 0
+    && d.followingCount == resource.data.followingCount + relationDelta(uid,d.lastFollowingId) && d.followingCount >= 0;
   }
   function followerChange(uid) {
    let delta = relationDelta(request.auth.uid,uid);

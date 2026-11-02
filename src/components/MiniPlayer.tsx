@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { Spinner, XStack, YStack } from "tamagui";
-import { usePlayer } from "../contexts/PlayerContext";
+import { usePlayerActions, usePlayerState } from "../contexts/PlayerContext";
 import { useFavoriteSong } from "../hooks/useFavoriteSong";
 import Artwork from "./Artwork";
 import {
@@ -13,7 +13,8 @@ import {
 } from "./UI";
 
 export default function MiniPlayer() {
-  const player = usePlayer();
+  const player = usePlayerState();
+  const { toggle } = usePlayerActions();
   const song = player.current;
   const favorites = useFavoriteSong(song?.id);
   if (!song) return null;
@@ -69,7 +70,7 @@ export default function MiniPlayer() {
                 : "Phát nhạc"
           }
           disabled={player.loading}
-          onPress={player.toggle}
+          onPress={toggle}
         >
           {player.loading ? (
             <Spinner color="white" />

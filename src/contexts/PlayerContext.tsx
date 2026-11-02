@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -20,14 +21,15 @@ const demos: Record<string, number> = {
   demo2: require("../../assets/audio/demo2.mp3"),
   demo3: require("../../assets/audio/demo3.mp3"),
 };
-type Value = {
+type PlayerState = {
   current: Song | null;
   playing: boolean;
-  position: number;
-  duration: number;
   loading: boolean;
   error: string;
   repeat: boolean;
+};
+type PlayerProgress = { position: number; duration: number };
+type PlayerActions = {
   setRepeat: (v: boolean) => void;
   play: (s: Song, queue?: Song[]) => void;
   toggle: () => void;
@@ -35,7 +37,9 @@ type Value = {
   previous: () => void;
   seek: (time: number) => Promise<void>;
 };
-const Context = createContext<Value | null>(null);
+const StateContext = createContext<PlayerState | null>(null);
+const ProgressContext = createContext<PlayerProgress | null>(null);
+const ActionsContext = createContext<PlayerActions | null>(null);
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   return <PlayerSession key={user?.uid ?? "guest"}>{children}</PlayerSession>;
@@ -51,13 +55,26 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
   const queue = useRef<Song[]>([]);
   const now = useRef<Song | null>(null);
   const ended = useRef(false);
-  useEffect(() => {
-    setAudioModeAsync({ playsInSilentMode: true }).catch((e) =>
-      setError(errorMessage(e)),
-    );
+  const latest = useRef(status);
+  const live = useRef(true);
+  const generation = useRef(0);
+  const closeSession = useCallback(() => {
+    live.current = false;
+    generation.current++;
   }, []);
+  useEffect(() => {
+    latest.current = status;
+  }, [status]);
+  useEffect(() => {
+    live.current = true;
+    setAudioModeAsync({ playsInSilentMode: true }).catch((e) => {
+      if (live.current) setError(errorMessage(e));
+    });
+    return closeSession;
+  }, [closeSession]);
   const play = useCallback(
     (song: Song, list?: Song[]) => {
+      if (!live.current) return;
       const source = song.audioUrl
         ? { uri: song.audioUrl }
         : demos[song.audioKey];
@@ -70,8 +87,9 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
         else if (!queue.current.some((x) => x.id === song.id))
           queue.current = [song];
         now.current = song;
+        generation.current++;
         setCurrent(song);
-        setSession(value => value + 1);
+        setSession((value) => value + 1);
         setError("");
         ended.current = false;
         player.replace(source);
@@ -91,22 +109,7 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
     },
     [play],
   );
-  // useEffect(() => {
-  //   if (!status.didJustFinish) {
-  //     ended.current = false;
-  //     return;
-  //   }
-  //   if (ended.current) return;
-  //   ended.current = true;
-  //   if (repeat)
-  //     player
-  //       .seekTo(0)
-  //       .then(() => player.play())
-  //       .catch((e) => setError(errorMessage(e)));
-  //   else if (queue.current.length > 1) move(1);
-  // }, [status.didJustFinish, repeat, move, player]);
-  //Update 10/30/2026
-    useEffect(() => {
+  useEffect(() => {
     if (!status.didJustFinish) {
       ended.current = false;
       return;
@@ -131,51 +134,95 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
     );
     return () => clearTimeout(timer);
   }, [current, status.isLoaded]);
-  function toggle() {
-    if (!current) return;
+  const toggle = useCallback(() => {
+    if (!live.current || !now.current) return;
+    const currentStatus = latest.current;
+    const started = generation.current;
     try {
-      if (status.playing) player.pause();
-      else if (status.duration > 0 && status.currentTime >= status.duration)
+      if (currentStatus.playing) player.pause();
+      else if (
+        currentStatus.duration > 0 &&
+        currentStatus.currentTime >= currentStatus.duration
+      )
         player
           .seekTo(0)
-          .then(() => player.play())
-          .catch((e) => setError(errorMessage(e)));
+          .then(() => {
+            if (live.current && generation.current === started) player.play();
+          })
+          .catch((e) => {
+            if (live.current && generation.current === started)
+              setError(errorMessage(e));
+          });
       else player.play();
     } catch (e) {
       setError(errorMessage(e));
     }
-  }
-  async function seek(time: number) {
-    try {
-      await player.seekTo(Math.max(0, Math.min(time, status.duration || 0)));
-    } catch (e) {
-      setError(errorMessage(e));
-    }
-  }
+  }, [player]);
+  const seek = useCallback(
+    async (time: number) => {
+      if (!live.current) return;
+      const started = generation.current;
+      try {
+        await player.seekTo(
+          Math.max(
+            0,
+            Math.min(
+              Number.isFinite(time) ? time : 0,
+              latest.current.duration || 0,
+            ),
+          ),
+        );
+      } catch (e) {
+        if (live.current && generation.current === started)
+          setError(errorMessage(e));
+      }
+    },
+    [player],
+  );
+  const next = useCallback(() => move(1), [move]);
+  const previous = useCallback(() => move(-1), [move]);
+  const actions = useMemo(
+    () => ({ play, toggle, next, previous, seek, setRepeat }),
+    [play, toggle, next, previous, seek],
+  );
+  const loading = !!current && !status.isLoaded;
+  const state = useMemo(
+    () => ({ current, playing: status.playing, loading, error, repeat }),
+    [current, status.playing, loading, error, repeat],
+  );
+  const progress = useMemo(
+    () => ({
+      position: status.currentTime || 0,
+      duration: status.duration || 0,
+    }),
+    [status.currentTime, status.duration],
+  );
   return (
-    <Context.Provider
-      value={{
-        current,
-        playing: status.playing,
-        position: status.currentTime || 0,
-        duration: status.duration || 0,
-        loading: !!current && !status.isLoaded,
-        error,
-        repeat,
-        setRepeat,
-        play,
-        toggle,
-        next: () => move(1),
-        previous: () => move(-1),
-        seek,
-      }}
-    >
-      {children}
-    </Context.Provider>
+    <ActionsContext.Provider value={actions}>
+      <StateContext.Provider value={state}>
+        <ProgressContext.Provider value={progress}>
+          {children}
+        </ProgressContext.Provider>
+      </StateContext.Provider>
+    </ActionsContext.Provider>
   );
 }
+export function usePlayerActions() {
+  const value = useContext(ActionsContext);
+  if (!value) throw new Error("Thiếu PlayerProvider");
+  return value;
+}
+export function usePlayerState() {
+  const value = useContext(StateContext);
+  if (!value) throw new Error("Thiếu PlayerProvider");
+  return value;
+}
+export function usePlayerProgress() {
+  const value = useContext(ProgressContext);
+  if (!value) throw new Error("Thiếu PlayerProvider");
+  return value;
+}
+// Compatibility only. New consumers subscribe to the narrow hook they need.
 export function usePlayer() {
-  const c = useContext(Context);
-  if (!c) throw new Error("Thiếu PlayerProvider");
-  return c;
+  return { ...usePlayerActions(), ...usePlayerState(), ...usePlayerProgress() };
 }

@@ -12,7 +12,11 @@ import {
   styled,
   useTheme,
 } from "tamagui";
-import { usePlayer } from "../contexts/PlayerContext";
+import {
+  usePlayerActions,
+  usePlayerState,
+  usePlayerProgress,
+} from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
 import { useBackNavigation } from "../hooks/useBackNavigation";
 import { useFavoriteSong } from "../hooks/useFavoriteSong";
@@ -38,7 +42,11 @@ const BackdropGradient = styled(LinearGradient, {
 // Local drag state prevents the audio clock from fighting the user's thumb.
 // Only commit the existing player's seek operation after the drag ends.
 function PlaybackProgress() {
-  const player = usePlayer();
+  const player = {
+    ...usePlayerProgress(),
+    ...usePlayerActions(),
+    loading: usePlayerState().loading,
+  };
   const [draft, setDraft] = useState<number | null>(null);
   const duration = Math.max(0, player.duration);
   const position = Math.min(duration, draft ?? player.position);
@@ -83,7 +91,7 @@ function PlaybackProgress() {
 
 export default function PlayerScreen() {
   const closePlayer = useBackNavigation("/home");
-  const player = usePlayer();
+  const player = { ...usePlayerState(), ...usePlayerActions() };
   const action = useAction();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();

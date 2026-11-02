@@ -1,4 +1,6 @@
 import { Platform } from "react-native";
+import { getFirebaseRuntime } from "./firebase/config";
+import { assertExternalUploadsAllowed } from "./firebase/runtime";
 
 export type PickedMedia = {
   uri: string;
@@ -12,6 +14,8 @@ export async function uploadMedia(
   asset: PickedMedia,
   kind: "image" | "video",
 ) {
+  // Check before file reads, FormData, or any Cloudinary request.
+  assertExternalUploadsAllowed(getFirebaseRuntime());
   const cloud =
     process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME;
 

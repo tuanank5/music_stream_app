@@ -128,6 +128,7 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  getDocFromServer,
   onSnapshot,
   query,
   where,
@@ -139,10 +140,7 @@ import { getFirebaseAuth, getFirebaseDb } from "./firebase";
 import { Artist, Album, Song, SongInput } from "../types/domain";
 import { cleanText, httpsUrl } from "../utils/validation";
 
-export function mapSong(
-  id: string,
-  x: Record<string, unknown>,
-): Song {
+export function mapSong(id: string, x: Record<string, unknown>): Song {
   const names = Array.isArray(x.artistNames)
     ? x.artistNames.map(String)
     : [String(x.artist ?? "")];
@@ -185,9 +183,7 @@ export function watchSongs(
 
   const emit = () =>
     next([
-      ...new Map(
-        [...publicSongs, ...ownSongs].map(s => [s.id, s]),
-      ).values(),
+      ...new Map([...publicSongs, ...ownSongs].map((s) => [s.id, s])).values(),
     ]);
 
   const stops = [
@@ -199,23 +195,20 @@ export function watchSongs(
             where("visibility", "==", "public"),
             where("isPublished", "==", true),
           ),
-      snap => {
-        publicSongs = snap.docs.map(d => mapSong(d.id, d.data()));
+      (snap) => {
+        publicSongs = snap.docs.map((d) => mapSong(d.id, d.data()));
         emit();
       },
       fail,
     ),
   ];
 
-  if (uid) {
+  if (uid && !includeAll) {
     stops.push(
       onSnapshot(
-        query(
-          collection(db, "songs"),
-          where("artistId", "==", uid),
-        ),
-        snap => {
-          ownSongs = snap.docs.map(d => mapSong(d.id, d.data()));
+        query(collection(db, "songs"), where("artistId", "==", uid)),
+        (snap) => {
+          ownSongs = snap.docs.map((d) => mapSong(d.id, d.data()));
           emit();
         },
         fail,
@@ -223,7 +216,7 @@ export function watchSongs(
     );
   }
 
-  return () => stops.forEach(stop => stop());
+  return () => stops.forEach((stop) => stop());
 }
 
 export function watchArtists(
@@ -232,9 +225,9 @@ export function watchArtists(
 ) {
   return onSnapshot(
     collection(getFirebaseDb(), "users"),
-    snap =>
+    (snap) =>
       next(
-        snap.docs.map(d => {
+        snap.docs.map((d) => {
           const x = d.data();
 
           return {
@@ -261,9 +254,9 @@ export function watchAlbums(
       collection(getFirebaseDb(), "albums"),
       where("isPublished", "==", true),
     ),
-    snap =>
+    (snap) =>
       next(
-        snap.docs.map(d => ({
+        snap.docs.map((d) => ({
           id: d.id,
           title: String(d.data().title ?? ""),
           artistId: String(d.data().artistId ?? ""),
@@ -277,30 +270,21 @@ export function watchAlbums(
 }
 
 export async function getReadableSong(id: string) {
-  const snap = await getDoc(
-    doc(getFirebaseDb(), "songs", id),
-  );
+  const snap = await getDocFromServer(doc(getFirebaseDb(), "songs", id));
 
   return snap.exists() ? mapSong(snap.id, snap.data()) : null;
 }
 
-export async function saveSong(
-  id: string | null,
-  v: SongInput,
-) {
+export async function saveSong(id: string | null, v: SongInput) {
   const auth = getFirebaseAuth().currentUser;
 
   if (!auth) throw new Error("Cần đăng nhập.");
 
   const db = getFirebaseDb();
-  const ref = id
-    ? doc(db, "songs", id)
-    : doc(collection(db, "songs"));
+  const ref = id ? doc(db, "songs", id) : doc(collection(db, "songs"));
 
   const artistId = v.artistId || auth.uid;
-  const profile = await getDoc(
-    doc(db, "users", artistId),
-  );
+  const profile = await getDoc(doc(db, "users", artistId));
 
   if (!profile.exists()) {
     throw new Error("Không tìm thấy hồ sơ nghệ sĩ.");
@@ -309,35 +293,21 @@ export async function saveSong(
   const visibility = v.visibility ?? "public";
   const duration = Number(v.durationSeconds);
 
-  if (
-    !Number.isFinite(duration) ||
-    duration <= 0 ||
-    duration > 86400
-  ) {
-    throw new Error(
-      "Thời lượng phải lớn hơn 0, tối đa 86400 giây.",
-    );
+  if (!Number.isFinite(duration) || duration <= 0 || duration > 86400) {
+    throw new Error("Thời lượng phải lớn hơn 0, tối đa 86400 giây.");
   }
 
   if (v.albumId) {
-    const album = await getDoc(
-      doc(db, "albums", v.albumId),
-    );
+    const album = await getDoc(doc(db, "albums", v.albumId));
 
-    if (
-      !album.exists() ||
-      album.data().artistId !== artistId
-    ) {
+    if (!album.exists() || album.data().artistId !== artistId) {
       throw new Error("Album không thuộc nghệ sĩ này.");
     }
   }
 
   const audioUrl = httpsUrl(v.audioUrl, "âm thanh");
 
-  if (
-    !audioUrl &&
-    !["demo1", "demo2", "demo3"].includes(v.audioKey)
-  ) {
+  if (!audioUrl && !["demo1", "demo2", "demo3"].includes(v.audioKey)) {
     throw new Error("Chọn file âm thanh.");
   }
 
@@ -352,19 +322,10 @@ export async function saveSong(
     audioKey: v.audioKey || "",
     durationSeconds: duration,
     genre: [
-      ...new Set(
-        (v.genre ?? ["Other"])
-          .map(g => g.trim())
-          .filter(Boolean),
-      ),
+      ...new Set((v.genre ?? ["Other"]).map((g) => g.trim()).filter(Boolean)),
     ],
     lyric: cleanText(v.lyrics, "lời bài hát", 12000, false),
-    description: cleanText(
-      v.description ?? "",
-      "mô tả",
-      4000,
-      false,
-    ),
+    description: cleanText(v.description ?? "", "mô tả", 4000, false),
     tags: v.tags ?? [],
     visibility,
     isPublished: visibility === "public" && v.active,
@@ -399,10 +360,7 @@ export function deleteSongPermanently(id: string) {
   return deleteDoc(doc(getFirebaseDb(), "songs", id));
 }
 
-export async function saveArtist(
-  id: string | null,
-  v: Omit<Artist, "id">,
-) {
+export async function saveArtist(id: string | null, v: Omit<Artist, "id">) {
   if (!id) {
     throw new Error(
       "Nghệ sĩ mới phải đăng ký tài khoản. Không tạo user Auth bằng client admin form.",
@@ -443,17 +401,12 @@ async function saveArtistActive(id: string) {
   await batch.commit();
 }
 
-export async function createAlbum(
-  title: string,
-  coverUrl = "",
-) {
+export async function createAlbum(title: string, coverUrl = "") {
   const user = getFirebaseAuth().currentUser;
 
   if (!user) throw new Error("Cần đăng nhập.");
 
-  const ref = doc(
-    collection(getFirebaseDb(), "albums"),
-  );
+  const ref = doc(collection(getFirebaseDb(), "albums"));
 
   await setDoc(ref, {
     albumId: ref.id,
@@ -484,7 +437,7 @@ export function watchFollowedSongs(
 
   queueMicrotask(emit);
 
-  const stops = ids.map(id =>
+  const stops = ids.map((id) =>
     onSnapshot(
       query(
         collection(getFirebaseDb(), "songs"),
@@ -492,15 +445,15 @@ export function watchFollowedSongs(
         where("visibility", "==", "followers"),
         where("active", "==", true),
       ),
-      snap => {
+      (snap) => {
         groups.set(
           id,
-          snap.docs.map(d => mapSong(d.id, d.data())),
+          snap.docs.map((d) => mapSong(d.id, d.data())),
         );
 
         emit();
       },
-      e => {
+      (e) => {
         groups.delete(id);
         emit();
 
@@ -511,6 +464,39 @@ export function watchFollowedSongs(
 
   return () => {
     live = false;
-    stops.forEach(stop => stop());
+    stops.forEach((stop) => stop());
   };
+}
+
+// DataContext reconciles these subscriptions by artist ID rather than restarting
+// every followed-artist query when a single relationship changes.
+export function watchArtistFollowerSongs(
+  artistId: string,
+  next: (songs: Song[]) => void,
+  fail: (error: Error) => void,
+) {
+  return onSnapshot(
+    query(
+      collection(getFirebaseDb(), "songs"),
+      where("artistId", "==", artistId),
+      where("visibility", "==", "followers"),
+      where("active", "==", true),
+    ),
+    (snapshot) =>
+      next(snapshot.docs.map((item) => mapSong(item.id, item.data()))),
+    fail,
+  );
+}
+
+export function watchSong(
+  id: string,
+  next: (song: Song | null) => void,
+  fail: (error: Error) => void,
+) {
+  return onSnapshot(
+    doc(getFirebaseDb(), "songs", id),
+    (snapshot) =>
+      next(snapshot.exists() ? mapSong(snapshot.id, snapshot.data()) : null),
+    fail,
+  );
 }

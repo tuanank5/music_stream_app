@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData } from "../contexts/DataContext";
 import { useAction } from "../hooks/useAction";
 import { createAlbum, saveSong } from "../services/catalogService";
 import { PickedMedia, uploadMedia } from "../services/mediaUploadService";
@@ -50,7 +50,7 @@ const options: {
 ];
 export default function UploadSongScreen() {
   const { user } = useAuth();
-  const data = useData();
+  const data = useCatalogData();
   const action = useAction();
   const [audio, setAudio] = useState<PickedMedia | null>(null);
   const [image, setImage] = useState<PickedMedia | null>(null);

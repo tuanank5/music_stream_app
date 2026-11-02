@@ -8,6 +8,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
 import { PlayerProvider } from "../contexts/PlayerContext";
 import { isFirebaseConfigured } from "../services/firebase";
+import { getFirebaseSetupError } from "../services/firebase/config";
 export default function Layout() {
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme="light">
@@ -21,8 +22,7 @@ function AppLayout() {
       <SafeAreaProvider>
         <Page title="Thiết lập Firebase">
           <AppText variant="muted">
-            Sao chép .env.example thành .env ở thư mục gốc, điền đủ 6 giá trị
-            Firebase Web app config rồi khởi động lại Expo. Xem START_HERE.md.
+            {getFirebaseSetupError()}
           </AppText>
         </Page>
       </SafeAreaProvider>

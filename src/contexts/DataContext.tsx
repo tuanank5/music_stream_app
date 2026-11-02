@@ -1,190 +1,68 @@
-// import React, { createContext, useContext, useEffect, useState } from "react";
-// import { useAuth } from "./AuthContext";
-// import { watchSongs, watchArtists } from "../services/catalogService";
-// import {
-//   watchPlaylists,
-//   watchFavorites,
-//   watchFollowing,
-// } from "../services/libraryService";
-// import { Artist, Playlist, Song } from "../types/domain";
-// import { errorMessage } from "../utils/feedback";
-// type Data = {
-//   songs: Song[];
-//   artists: Artist[];
-//   playlists: Playlist[];
-//   favoriteIds: string[];
-//   followingIds: string[];
-//   loading: boolean;
-//   errors: string[];
-// };
-// const Context = createContext<Data | null>(null);
-// export function DataProvider({ children }: { children: React.ReactNode }) {
-//   const { user } = useAuth();
-//   return (
-//     <DataSession key={user?.uid ?? "guest"} uid={user?.uid}>
-//       {children}
-//     </DataSession>
-//   );
-// }
-// function DataSession({
-//   children,
-//   uid,
-// }: {
-//   children: React.ReactNode;
-//   uid?: string;
-// }) {
-//   const [songs, setSongs] = useState<Song[]>([]),
-//     [artists, setArtists] = useState<Artist[]>([]),
-//     [playlists, setPlaylists] = useState<Playlist[]>([]),
-//     [favoriteIds, setFavorites] = useState<string[]>([]),
-//     [followingIds, setFollowing] = useState<string[]>([]),
-//     [loading, setLoading] = useState(!!uid),
-//     [errors, setErrors] = useState<string[]>([]);
-//   useEffect(() => {
-//     let live = true;
-//     if (!uid) return;
-//     const fail = (name: string) => (e: Error) => {
-//       if (live) {
-//         setErrors((v) => [
-//           ...v.filter((x) => !x.startsWith(name + ":")),
-//           name + ": " + errorMessage(e),
-//         ]);
-//         if (name === "Songs") setLoading(false);
-//       }
-//     };
-//     const stops = [
-//       watchSongs((v) => {
-//         if (live) {
-//           setSongs(v);
-//           setLoading(false);
-//         }
-//       }, fail("Songs")),
-//       watchArtists((v) => {
-//         if (live) setArtists(v);
-//       }, fail("Artists")),
-//       watchPlaylists(
-//         uid,
-//         (v) => {
-//           if (live) setPlaylists(v);
-//         },
-//         fail("Playlist"),
-//       ),
-//       watchFavorites(
-//         uid,
-//         (v) => {
-//           if (live) setFavorites(v);
-//         },
-//         fail("Favorites"),
-//       ),
-//       watchFollowing(
-//         uid,
-//         (v) => {
-//           if (live) setFollowing(v);
-//         },
-//         fail("Following"),
-//       ),
-//     ];
-//     return () => {
-//       live = false;
-//       stops.forEach((stop) => stop());
-//     };
-//   }, [uid]);
-//   return (
-//     <Context.Provider
-//       value={{
-//         songs: songs.map((song) => ({
-//           ...song,
-//           artist:
-//             artists.find((a) => a.id === song.artistId)?.name ?? song.artist,
-//         })),
-//         artists,
-//         playlists,
-//         favoriteIds,
-//         followingIds,
-//         loading,
-//         errors,
-//       }}
-//     >
-//       {children}
-//     </Context.Provider>
-//   );
-// }
-// export function useData() {
-//   const c = useContext(Context);
-//   if (!c) throw new Error("Thiếu DataProvider");
-//   return c;
-// }
-
-
-//Update 10/30/2026
 import React, {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
-
-import { doc, onSnapshot } from "firebase/firestore";
-import { getFirebaseDb } from "../services/firebase";
 import { useAuth } from "./AuthContext";
-
 import {
+  getReadableSong,
   watchSongs,
   watchArtists,
   watchAlbums,
-  getReadableSong,
-  mapSong,
-  watchFollowedSongs,
+  watchSong,
+  watchArtistFollowerSongs,
 } from "../services/catalogService";
-
 import {
   watchPlaylists,
   watchFavorites,
   watchFollowing,
   watchHistory,
 } from "../services/libraryService";
-
-import {
-  Artist,
+import type {
   Album,
+  Artist,
   HistoryEntry,
   Playlist,
   Song,
 } from "../types/domain";
-
 import { errorMessage } from "../utils/feedback";
+import { mergeCatalogSongs } from "../utils/catalog";
+import {
+  createKeyedSubscriptions,
+  createPendingRequests,
+} from "../utils/subscriptions";
 
-type Data = {
+type CatalogData = {
   songs: Song[];
   albums: Album[];
-  history: HistoryEntry[];
-  ensureSong: (id: string) => Promise<void>;
   artists: Artist[];
+  ensureSong: (id: string) => Promise<void>;
+  loading: boolean;
+  loadingSources: { songs: boolean; albums: boolean; artists: boolean };
+  errors: string[];
+};
+type LibraryData = {
   playlists: Playlist[];
   favoriteIds: string[];
   followingIds: string[];
   loading: boolean;
-  errors: string[];
 };
+type HistoryData = { history: HistoryEntry[]; loading: boolean; error: string };
+const CatalogContext = createContext<CatalogData | null>(null);
+const LibraryContext = createContext<LibraryData | null>(null);
+const HistoryContext = createContext<HistoryData | null>(null);
 
-const Context = createContext<Data | null>(null);
-
-export function DataProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const {
-    user,
-    isAdmin,
-    loading: authLoading,
-  } = useAuth();
-
+export function DataProvider({ children }: { children: React.ReactNode }) {
+  const { user, isAdmin, loading } = useAuth();
+  const uid = loading ? undefined : user?.uid;
   return (
     <DataSession
-      key={`${user?.uid ?? "guest"}-${isAdmin}`}
-      uid={authLoading ? undefined : user?.uid}
+      key={`${uid ?? "guest"}-${isAdmin}`}
+      uid={uid}
       isAdmin={isAdmin}
     >
       {children}
@@ -203,205 +81,328 @@ function DataSession({
 }) {
   const [songs, setSongs] = useState<Song[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [followedSongs, setFollowedSongs] = useState<Song[]>([]);
-  const [extraSongs, setExtraSongs] = useState<Song[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [favoriteIds, setFavorites] = useState<string[]>([]);
   const [followingIds, setFollowing] = useState<string[]>([]);
-  const [loading, setLoading] = useState(!!uid);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [followedSongs, setFollowedSongs] = useState<Song[]>([]);
+  const [extraSongs, setExtraSongs] = useState<Song[]>([]);
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [ready, setReady] = useState({
+    songs: !uid,
+    artists: !uid,
+    albums: !uid,
+    history: !uid,
+    playlists: !uid,
+    favorites: !uid,
+    following: !uid,
+  });
+  const live = useRef(true);
+  const [pending] = useState(() => createPendingRequests<Song>());
+  const sharedSongs = useMemo(
+    () => [...songs, ...followedSongs],
+    [songs, followedSongs],
+  );
+  const sharedIndex = useMemo(
+    () => new Map(sharedSongs.map((song) => [song.id, song])),
+    [sharedSongs],
+  );
+  const shared = useRef(sharedIndex);
+  useEffect(() => {
+    shared.current = sharedIndex;
+  }, [sharedIndex]);
 
-  const ensureSong = useCallback(async (id: string) => {
-    const song = await getReadableSong(id);
-
-    if (!song) {
-      throw new Error("Bài hát không tồn tại.");
-    }
-
-    setRequestedIds(v =>
-      v.includes(id) ? v : [...v, id],
+  const clearError = useCallback((source: string) => {
+    setErrors((previous) =>
+      previous.some((item) => item.startsWith(source + ": "))
+        ? previous.filter((item) => !item.startsWith(source + ": "))
+        : previous,
     );
-
-    setExtraSongs(v => [
-      ...v.filter(s => s.id !== id),
-      song,
-    ]);
+  }, []);
+  const fail = useCallback((source: string, error: Error) => {
+    const message = source + ": " + errorMessage(error);
+    setErrors((previous) =>
+      previous.includes(message)
+        ? previous
+        : [
+            ...previous.filter((item) => !item.startsWith(source + ": ")),
+            message,
+          ],
+    );
   }, []);
 
-  const followingKey = JSON.stringify(
-    [...followingIds].sort(),
+  const [followingSubscriptions] = useState(() =>
+    createKeyedSubscriptions<Song[]>(
+      watchArtistFollowerSongs,
+      (groups) => setFollowedSongs([...groups.values()].flat()),
+      (id, error) => fail(`Following songs:${id}`, error),
+      (id) => clearError(`Following songs:${id}`),
+    ),
+  );
+  const [linkedSubscriptions] = useState(() =>
+    createKeyedSubscriptions<Song | null>(
+      watchSong,
+      (items, waiting) =>
+        setExtraSongs((previous) => [
+          ...previous.filter((song) => waiting.has(song.id)),
+          ...[...items.values()].filter((song): song is Song => song !== null),
+        ]),
+      (id, error) => {
+        pending.invalidate(id);
+        fail(`Song:${id}`, error);
+      },
+      (id, song) => {
+        if (!song) pending.invalidate(id);
+        clearError(`Song:${id}`);
+      },
+    ),
+  );
+  const ensureSong = useCallback(
+    async (id: string) => {
+      if (!uid || !live.current) throw new Error("Cần đăng nhập.");
+      if (!id) throw new Error("Thiếu ID bài hát.");
+      // Reuse only documents maintained by an active shared query. Detail requests
+      // have no TTL permission cache: subsequent calls revalidate on the server.
+      if (shared.current.has(id)) return;
+      await pending.run(
+        id,
+        async () => {
+          const song = await getReadableSong(id);
+          if (!song) throw new Error("Bài hát không tồn tại.");
+          return song;
+        },
+        (song) => {
+          if (!live.current) return;
+          setRequestedIds((previous) =>
+            previous.includes(id) ? previous : [...previous, id],
+          );
+          setExtraSongs((previous) => [
+            ...previous.filter((item) => item.id !== id),
+            song,
+          ]);
+          linkedSubscriptions.retry(id);
+        },
+      );
+    },
+    [uid, pending, linkedSubscriptions],
   );
 
-  useEffect(() => {
-    if (!uid) return;
-
-    return watchFollowedSongs(
-      JSON.parse(followingKey),
-      setFollowedSongs,
-      e =>
-        setErrors(v => [
-          ...v.filter(x => !x.startsWith("Following songs:")),
-          "Following songs: " + errorMessage(e),
-        ]),
-    );
-  }, [uid, followingKey]);
-
-  const linkedIds = JSON.stringify(
+  const followingKey = JSON.stringify([...new Set(followingIds)].sort());
+  const linkedKey = JSON.stringify(
     [
       ...new Set([
         ...requestedIds,
         ...favoriteIds,
-        ...playlists.flatMap(p => p.songIds),
+        ...playlists.flatMap((playlist) => playlist.songIds),
       ]),
-    ].sort(),
+    ]
+      .filter((id) => !sharedIndex.has(id))
+      .sort(),
   );
 
   useEffect(() => {
-    if (!uid) return;
-
-    const ids = JSON.parse(linkedIds) as string[];
-
-    const stops = ids.map(id =>
-      onSnapshot(
-        doc(getFirebaseDb(), "songs", id),
-        snap => {
-          setExtraSongs(v => [
-            ...v.filter(s => s.id !== id),
-            ...(snap.exists()
-              ? [mapSong(snap.id, snap.data())]
-              : []),
-          ]);
-        },
-        () =>
-          setExtraSongs(v =>
-            v.filter(s => s.id !== id),
-          ),
-      ),
-    );
-
-    return () => stops.forEach(stop => stop());
-  }, [uid, linkedIds]);
-
-  useEffect(() => {
-    let live = true;
-
-    if (!uid) return;
-
-    const fail = (name: string) => (e: Error) => {
-      if (!live) return;
-
-      setErrors(v => [
-        ...v.filter(x => !x.startsWith(name + ":")),
-        name + ": " + errorMessage(e),
-      ]);
-
-      if (name === "Songs") {
-        setLoading(false);
-      }
-    };
-
+    live.current = true;
+    if (!uid)
+      return () => {
+        live.current = false;
+        pending.clear();
+      };
+    const success =
+      <T,>(
+        source: keyof typeof ready,
+        label: string,
+        set: (value: T) => void,
+      ) =>
+      (value: T) => {
+        if (!live.current) return;
+        set(value);
+        clearError(label);
+        setReady((previous) =>
+          previous[source] ? previous : { ...previous, [source]: true },
+        );
+      };
+    const failure =
+      (source: keyof typeof ready, label: string) => (error: Error) => {
+        fail(label, error);
+        if (live.current)
+          setReady((previous) =>
+            previous[source] ? previous : { ...previous, [source]: true },
+          );
+      };
+    // Each callback also has a generation guard so StrictMode restart cannot
+    // revive callbacks from the previous effect when live becomes true again.
+    let active = true;
+    const guarded =
+      <T,>(callback: (value: T) => void) =>
+      (value: T) => {
+        if (active) callback(value);
+      };
     const stops = [
       watchSongs(
-        v => {
-          if (live) {
-            setSongs(v);
-            setLoading(false);
-          }
-        },
-        fail("Songs"),
+        guarded(success("songs", "Songs", setSongs)),
+        guarded(failure("songs", "Songs")),
         isAdmin,
       ),
-
-      watchAlbums(v => {
-        if (live) setAlbums(v);
-      }, fail("Albums")),
-
+      watchArtists(
+        guarded(success("artists", "Artists", setArtists)),
+        guarded(failure("artists", "Artists")),
+      ),
+      watchAlbums(
+        guarded(success("albums", "Albums", setAlbums)),
+        guarded(failure("albums", "Albums")),
+      ),
       watchHistory(
         uid,
-        v => {
-          if (live) setHistory(v);
-        },
-        fail("History"),
+        guarded(success("history", "History", setHistory)),
+        guarded(failure("history", "History")),
       ),
-
-      watchArtists(v => {
-        if (live) setArtists(v);
-      }, fail("Artists")),
-
       watchPlaylists(
         uid,
-        v => {
-          if (live) setPlaylists(v);
-        },
-        fail("Playlist"),
+        guarded(success("playlists", "Playlist", setPlaylists)),
+        guarded(failure("playlists", "Playlist")),
       ),
-
       watchFavorites(
         uid,
-        v => {
-          if (live) setFavorites(v);
-        },
-        fail("Favorites"),
+        guarded(success("favorites", "Favorites", setFavorites)),
+        guarded(failure("favorites", "Favorites")),
       ),
-
       watchFollowing(
         uid,
-        v => {
-          if (live) setFollowing(v);
-        },
-        fail("Following"),
+        guarded(success("following", "Following", setFollowing)),
+        guarded(failure("following", "Following")),
       ),
     ];
-
     return () => {
-      live = false;
-      stops.forEach(stop => stop());
+      active = false;
+      live.current = false;
+      pending.clear();
+      followingSubscriptions.clear();
+      linkedSubscriptions.clear();
+      stops.forEach((stop) => stop());
     };
-  }, [uid, isAdmin]);
+  }, [
+    uid,
+    isAdmin,
+    clearError,
+    fail,
+    pending,
+    followingSubscriptions,
+    linkedSubscriptions,
+  ]);
+  useEffect(() => {
+    if (!uid) return;
+    const ids: string[] = JSON.parse(followingKey);
+    followingSubscriptions.update(ids);
+  }, [uid, followingKey, followingSubscriptions]);
+  useEffect(() => {
+    if (!uid) return;
+    const ids: string[] = JSON.parse(linkedKey);
+    linkedSubscriptions.update(ids);
+  }, [uid, linkedKey, linkedSubscriptions]);
 
-  const mergedSongs = [
-    ...new Map(
-      [...extraSongs, ...followedSongs, ...songs].map(
-        song => [song.id, song],
-      ),
-    ).values(),
-  ].map(song => ({
-    ...song,
-    artist:
-      artists.find(a => a.id === song.artistId)?.name ??
-      song.artist,
-    album:
-      albums.find(a => a.id === song.albumId)?.title ??
-      song.album,
-  }));
+  const visibleErrors = useMemo(() => {
+    if (!errors.length) return errors;
+    const followed: string[] = JSON.parse(followingKey);
+    const linked: string[] = JSON.parse(linkedKey);
+    const filtered = errors.filter((message) => {
+      if (message.startsWith("Following songs:"))
+        return followed.some((id) =>
+          message.startsWith(`Following songs:${id}: `),
+        );
+      if (message.startsWith("Song:"))
+        return linked.some((id) => message.startsWith(`Song:${id}: `));
+      return true;
+    });
+    return filtered.length === errors.length ? errors : filtered;
+  }, [errors, followingKey, linkedKey]);
 
+  const mergedSongs = useMemo(
+    () =>
+      mergeCatalogSongs([extraSongs, followedSongs, songs], artists, albums),
+    [extraSongs, followedSongs, songs, artists, albums],
+  );
+  const loadingSources = useMemo(
+    () => ({
+      songs: !ready.songs,
+      artists: !ready.artists,
+      albums: !ready.albums,
+    }),
+    [ready.songs, ready.artists, ready.albums],
+  );
+  const loading =
+    loadingSources.songs || loadingSources.artists || loadingSources.albums;
+  const catalogValue = useMemo(
+    () => ({
+      songs: mergedSongs,
+      albums,
+      artists,
+      ensureSong,
+      loading,
+      loadingSources,
+      errors: visibleErrors,
+    }),
+    [
+      mergedSongs,
+      albums,
+      artists,
+      ensureSong,
+      loading,
+      loadingSources,
+      visibleErrors,
+    ],
+  );
+  const libraryLoading =
+    !ready.playlists || !ready.favorites || !ready.following;
+  const libraryValue = useMemo(
+    () => ({ playlists, favoriteIds, followingIds, loading: libraryLoading }),
+    [playlists, favoriteIds, followingIds, libraryLoading],
+  );
+  const historyError = errors
+    .filter((item) => item.startsWith("History:"))
+    .join("\n");
+  const historyValue = useMemo(
+    () => ({ history, loading: !ready.history, error: historyError }),
+    [history, ready.history, historyError],
+  );
   return (
-    <Context.Provider
-      value={{
-        songs: mergedSongs,
-        albums,
-        history,
-        ensureSong,
-        artists,
-        playlists,
-        favoriteIds,
-        followingIds,
-        loading,
-        errors,
-      }}
-    >
-      {children}
-    </Context.Provider>
+    <CatalogContext.Provider value={catalogValue}>
+      <LibraryContext.Provider value={libraryValue}>
+        <HistoryContext.Provider value={historyValue}>
+          {children}
+        </HistoryContext.Provider>
+      </LibraryContext.Provider>
+    </CatalogContext.Provider>
   );
 }
 
-export function useData() {
-  const value = useContext(Context);
-
+export function useCatalogData() {
+  const value = useContext(CatalogContext);
   if (!value) throw new Error("Thiếu DataProvider");
-
   return value;
+}
+export function useLibraryData() {
+  const value = useContext(LibraryContext);
+  if (!value) throw new Error("Thiếu DataProvider");
+  return value;
+}
+export function useHistoryData() {
+  const value = useContext(HistoryContext);
+  if (!value) throw new Error("Thiếu DataProvider");
+  return value;
+}
+// Existing mixed screens keep this facade, without subscribing to playback
+// history. Screens needing history must opt into useHistoryData explicitly.
+export function useData() {
+  const catalog = useCatalogData();
+  const library = useLibraryData();
+  return useMemo(
+    () => ({
+      ...catalog,
+      ...library,
+      loading: catalog.loading || library.loading,
+    }),
+    [catalog, library],
+  );
 }

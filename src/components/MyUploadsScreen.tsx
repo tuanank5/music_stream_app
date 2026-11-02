@@ -3,11 +3,11 @@ import React from "react";
 import SongRow from "./SongRow";
 import { AppText, EmptyState, ListPage, Loading } from "./UI";
 import { useAuth } from "../contexts/AuthContext";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData } from "../contexts/DataContext";
 import { BackButton } from "./discovery/BackButton";
 export default function MyUploadsScreen() {
   const { user } = useAuth();
-  const data = useData();
+  const data = useCatalogData();
   const songs = data.songs.filter(
     (song) => song.artistId === user?.uid && song.active,
   );

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData } from "../contexts/DataContext";
 import { errorMessage } from "../utils/feedback";
 
 export function useSongDetail(id: string) {
-  const { ensureSong } = useData();
+  const { ensureSong } = useCatalogData();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   useEffect(() => {

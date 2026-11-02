@@ -37,17 +37,24 @@
     "@types/react": "~19.3.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.0",
+    "happy-dom": "^21.0.4",
     "prettier": "^3.9.10",
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "start:local": "node scripts/start-local.cjs",
+    "local:emulators": "node tools/local/cli.cjs start",
+    "local:seed": "node tools/local/seed.cjs",
+    "local:backend": "node tools/local/backend.cjs",
+    "test:local": "node --test tests/local-environment.test.cjs",
+    "test:local:integration": "node tools/local/cli.cjs test",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "test": "node --test tests/core.test.cjs tests/ui.test.cjs",
+    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs",
     "test:rules": "node --test tests/firestore.rules.test.cjs"
   },
   "private": true

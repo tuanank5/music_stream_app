@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { Share, useWindowDimensions } from "react-native";
 import { XStack, YStack } from "tamagui";
-import { useData } from "../contexts/DataContext";
-import { usePlayer } from "../contexts/PlayerContext";
+import { useCatalogData } from "../contexts/DataContext";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
 import { useCharts } from "../hooks/useCharts";
 import { chartSongs, shuffleSongs } from "../utils/discovery";
@@ -64,8 +64,8 @@ export function ChartDetailScreen() {
   }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const state = useCharts(),
-    data = useData(),
-    player = usePlayer(),
+    data = useCatalogData(),
+    player = usePlayerActions(),
     action = useAction();
   const chart = state.charts.find((c) => c.id === id);
   if (!chart)

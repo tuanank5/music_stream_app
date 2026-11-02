@@ -1,11 +1,12 @@
 import { useMemo } from "react";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData, useHistoryData } from "../contexts/DataContext";
 import { popularArtists } from "../utils/discovery";
 import { suggestSongs, trendingAlbums } from "../utils/recommendations";
 
 // Derive Home content from the existing shared data session; no extra listeners.
 export function useHomeDiscovery() {
-  const data = useData();
+  const data = useCatalogData();
+  const { history } = useHistoryData();
   const songs = useMemo(
     () =>
       data.songs.filter(
@@ -15,8 +16,8 @@ export function useHomeDiscovery() {
     [data.songs],
   );
   const suggestions = useMemo(
-    () => suggestSongs(songs, data.history),
-    [songs, data.history],
+    () => suggestSongs(songs, history),
+    [songs, history],
   );
   const albums = useMemo(
     () => trendingAlbums(songs, data.albums),

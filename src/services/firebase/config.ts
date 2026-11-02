@@ -1,5 +1,6 @@
-import { FirebaseApp, getApp, getApps, initializeApp } from "firebase/app";
+import { FirebaseApp, getApps, initializeApp } from "firebase/app";
 import { Platform } from "react-native";
+import { resolveFirebaseRuntime } from "./runtime";
 
 export type FirebaseClientConfig = {
   apiKey: string;
@@ -10,52 +11,57 @@ export type FirebaseClientConfig = {
   appId: string;
 };
 
-function readConfigFromEnv(): FirebaseClientConfig | null {
-  const apiKey = process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
-  const authDomain = process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN;
-  const projectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID;
-  const storageBucket = process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET;
-  const messagingSenderId =
-    process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
-  const appId = process.env.EXPO_PUBLIC_FIREBASE_APP_ID;
+export function getFirebaseRuntime() {
+  // Expo only inlines direct process.env.EXPO_PUBLIC_* access.
+  return resolveFirebaseRuntime({
+    EXPO_PUBLIC_FIREBASE_MODE: process.env.EXPO_PUBLIC_FIREBASE_MODE,
+    EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:
+      process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    EXPO_PUBLIC_FIREBASE_PROJECT_ID:
+      process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET:
+      process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:
+      process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    EXPO_PUBLIC_FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    EXPO_PUBLIC_EMULATOR_HOST: process.env.EXPO_PUBLIC_EMULATOR_HOST,
+    EXPO_PUBLIC_AUTH_EMULATOR_PORT: process.env.EXPO_PUBLIC_AUTH_EMULATOR_PORT,
+    EXPO_PUBLIC_FIRESTORE_EMULATOR_PORT:
+      process.env.EXPO_PUBLIC_FIRESTORE_EMULATOR_PORT,
+    EXPO_PUBLIC_BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
+  });
+}
 
-  if (
-    !apiKey ||
-    !authDomain ||
-    !projectId ||
-    !storageBucket ||
-    !messagingSenderId ||
-    !appId
-  ) {
-    return null;
+export function getFirebaseSetupError(): string {
+  try {
+    getFirebaseRuntime();
+    return "";
+  } catch (error) {
+    return error instanceof Error
+      ? error.message
+      : "Cấu hình Firebase không hợp lệ.";
   }
-
-  return {
-    apiKey,
-    authDomain,
-    projectId,
-    storageBucket,
-    messagingSenderId,
-    appId,
-  };
 }
 
 export function isFirebaseConfigured(): boolean {
-  return readConfigFromEnv() !== null;
+  return !getFirebaseSetupError();
 }
 
 /** Single Firebase app instance for the client SDK. */
 export function getFirebaseApp(): FirebaseApp {
-  const config = readConfigFromEnv();
-  if (!config) {
-    throw new Error(
-      "Firebase is not configured. Copy .env.example to .env and set EXPO_PUBLIC_FIREBASE_* values.",
-    );
+  const { config, mode } = getFirebaseRuntime();
+  // Separate app names also isolate persisted Auth sessions between environments.
+  const name = mode === "emulator" ? "local-demo-music-stream" : "[DEFAULT]";
+  const existing = getApps().find((app) => app.name === name);
+  if (existing) {
+    if (existing.options.projectId !== config.projectId)
+      throw new Error(
+        "Firebase project đã thay đổi. Khởi động lại app để tránh lẫn môi trường.",
+      );
+    return existing;
   }
-  if (getApps().length > 0) {
-    return getApp();
-  }
-  return initializeApp(config);
+  return initializeApp(config, name);
 }
 
 export function getFirebaseRuntimePlatform(): "web" | "native" {

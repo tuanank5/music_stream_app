@@ -12,7 +12,7 @@ import {
   Loading,
   SearchField,
 } from "./UI";
-import { useData } from "../contexts/DataContext";
+import { useCatalogData } from "../contexts/DataContext";
 import type { Album, Artist, Song } from "../types/domain";
 import { normalizeSearch } from "../utils/validation";
 
@@ -33,7 +33,7 @@ export default function SearchScreen({
 }: {
   autoFocus?: boolean;
 }) {
-  const data = useData();
+  const data = useCatalogData();
   const [keyword, setKeyword] = useState("");
   const [tab, setTab] = useState<Tab>("all");
   const q = normalizeSearch(keyword);

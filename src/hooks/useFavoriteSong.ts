@@ -1,11 +1,11 @@
 import { useAuth } from "../contexts/AuthContext";
-import { useData } from "../contexts/DataContext";
+import { useLibraryData } from "../contexts/DataContext";
 import { setFavorite } from "../services/libraryService";
 import { useAction } from "./useAction";
 
 export function useFavoriteSong(songId?: string) {
   const { user } = useAuth();
-  const { favoriteIds } = useData();
+  const { favoriteIds } = useLibraryData();
   const action = useAction();
   const favorite = !!songId && favoriteIds.includes(songId);
   return {
