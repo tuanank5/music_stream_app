@@ -6,9 +6,13 @@ import { YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useCatalogData } from "../contexts/DataContext";
 import { useAction } from "../hooks/useAction";
-import { createAlbum, saveSong } from "../services/catalogService";
+import { createAlbum, newSongId } from "../services/catalogService";
+import { backendPost } from "../services/backendService";
+import { getFirebaseAuth } from "../services/firebase";
 import { PickedMedia, uploadMedia } from "../services/mediaUploadService";
 import { Visibility } from "../types/domain";
+import { GENRES, validateGenres } from "../utils/genres";
+import { ModalPanel } from "./ui/ModalPanel";
 import { BackButton } from "./discovery/BackButton";
 import {
   Action,
@@ -29,23 +33,13 @@ const options: {
 }[] = [
   {
     value: "public",
-    title: "Public",
+    title: "Công khai",
     note: "Hiển thị trong tìm kiếm, Charts và đề xuất.",
   },
   {
-    value: "unlisted",
-    title: "Unlisted",
-    note: "Không hiện trong danh mục; người đăng nhập có link có thể xem.",
-  },
-  {
     value: "private",
-    title: "Private",
+    title: "Riêng tư",
     note: "Chỉ bạn được xem trong ứng dụng.",
-  },
-  {
-    value: "followers",
-    title: "Follower Exclusive",
-    note: "Chỉ bạn và người đang theo dõi bạn được xem.",
   },
 ];
 export default function UploadSongScreen() {
@@ -55,10 +49,11 @@ export default function UploadSongScreen() {
   const [audio, setAudio] = useState<PickedMedia | null>(null);
   const [image, setImage] = useState<PickedMedia | null>(null);
   const [title, setTitle] = useState("");
-  const [genre, setGenre] = useState("Pop");
+  const [genres, setGenres] = useState<string[]>([]);
+  const [genreOpen, setGenreOpen] = useState(false);
   const [lyric, setLyric] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
+  const [artists, setArtists] = useState(user?.displayName || "Music lover");
   const [albumId, setAlbumId] = useState("");
   const [newAlbum, setNewAlbum] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("public");
@@ -72,6 +67,8 @@ export default function UploadSongScreen() {
     albumKey?: string;
     albumId?: string;
     savedId?: string;
+    requestId?: string;
+    audioPublicId?: string;
   }>({});
   async function pickAudio() {
     const result = await DocumentPicker.getDocumentAsync({
@@ -90,6 +87,7 @@ export default function UploadSongScreen() {
       file: asset.file,
     });
     cache.current.savedId = undefined;
+    cache.current.requestId = undefined;
     if (!title) {
       setTitle(asset.name.replace(/\.[^.]+$/, ""));
     }
@@ -112,27 +110,34 @@ export default function UploadSongScreen() {
     });
   }
   async function save() {
+    const sessionUser = getFirebaseAuth().currentUser;
+    const checkSession = () => {
+      if (
+        !sessionUser ||
+        sessionUser.uid !== user?.uid ||
+        getFirebaseAuth().currentUser !== sessionUser
+      )
+        throw new Error("Phiên đăng nhập đã thay đổi.");
+    };
+    checkSession();
     if (!user || !audio) {
       throw new Error("Đăng nhập và chọn file âm thanh trước.");
     }
     if (!title.trim()) {
       throw new Error("Nhập tên bài hát.");
     }
-    const genres = [
-      ...new Set(
-        genre
-          .split(",")
-          .map((value) => value.trim())
-          .filter(Boolean),
-      ),
-    ];
+    const artistNames = artists
+      .split(",")
+      .map((name) => name.trim())
+      .filter(Boolean);
     if (
-      !genres.length ||
-      genres.length > 10 ||
-      genres.some((value) => value.length > 50)
+      !artistNames.length ||
+      artistNames.length > 10 ||
+      artistNames.some((name) => name.length > 80)
     ) {
-      throw new Error("Nhập 1–10 genre, mỗi genre tối đa 50 ký tự.");
+      throw new Error("Nhập từ 1 đến 10 tên nghệ sĩ, mỗi tên tối đa 80 ký tự.");
     }
+    const selectedGenres = validateGenres(genres);
     const saved = cache.current;
     if (saved.savedId) {
       router.replace({
@@ -147,48 +152,44 @@ export default function UploadSongScreen() {
       saved.audioUri = audio.uri;
       saved.audioUrl = uploaded.url;
       saved.duration = uploaded.duration;
+      saved.audioPublicId = uploaded.publicId;
+      checkSession();
     }
     if (image && saved.imageUri !== image.uri) {
       saved.coverUrl = (await uploadMedia(image, "image")).url;
       saved.imageUri = image.uri;
+      checkSession();
     }
     if (!saved.duration || saved.duration <= 0) {
       throw new Error("Cloudinary chưa trả về thời lượng âm thanh hợp lệ.");
     }
     let selectedAlbum = albumId;
+    checkSession();
     if (newAlbum.trim()) {
       const key = newAlbum.trim();
       if (saved.albumKey !== key) {
         saved.albumId = await createAlbum(key, saved.coverUrl || "");
+        checkSession();
         saved.albumKey = key;
       }
       selectedAlbum = saved.albumId!;
     }
     setMessage("Đang lưu bài hát...");
-    const id = await saveSong(null, {
+    saved.requestId ||= newSongId();
+    checkSession();
+    const result = await backendPost<{ id: string }>("/songs", {
+      requestId: saved.requestId,
       title,
-      artist: user.displayName || "Music lover",
-      artistId: user.uid,
+      artistNames,
       albumId: selectedAlbum,
-      album:
-        newAlbum.trim() ||
-        data.albums.find((a) => a.id === albumId)?.title ||
-        "",
       coverUrl: saved.coverUrl || "",
-      audioUrl: saved.audioUrl!,
-      audioKey: "",
-      durationSeconds: saved.duration,
-      lyrics: lyric,
+      audioPublicId: saved.audioPublicId || "",
+      lyric,
       description,
-      tags: tags
-        .split(",")
-        .map((value) => value.trim())
-        .filter(Boolean)
-        .slice(0, 20),
-      genre: genres,
-      visibility,
-      active: true,
+      genre: selectedGenres,
+      isPublic: visibility === "public",
     });
+    const id = result.id;
     saved.savedId = id;
     setMessage("Đã đăng tải bài hát.");
     router.replace({
@@ -198,7 +199,7 @@ export default function UploadSongScreen() {
   }
   return (
     <Page
-      title="Đăng bài hát"
+      title="Đăng tải bài hát"
       titleLeading={
         <BackButton inline fallback="/library" disabled={action.busy} />
       }
@@ -207,7 +208,7 @@ export default function UploadSongScreen() {
     >
       <SurfaceCard>
         <Button
-          title={audio ? `Replace file: ${audio.name}` : "Chọn file âm thanh"}
+          title={audio ? `Thay file: ${audio.name}` : "Chọn file âm thanh"}
           disabled={action.busy}
           onPress={() => void action.run(pickAudio)}
         />
@@ -230,17 +231,57 @@ export default function UploadSongScreen() {
         />
       </SurfaceCard>
 
-      <Field label="Title *" value={title} onChange={setTitle} />
-
-      <AppText variant="muted">
-        Artist: {user?.displayName || "Music lover"}
-      </AppText>
+      <Field label="Tên bài hát *" value={title} onChange={setTitle} />
 
       <Field
-        label="Genre * (ngăn cách bằng dấu phẩy)"
-        value={genre}
-        onChange={setGenre}
+        label="Artist * (ngăn cách bằng dấu phẩy)"
+        value={artists}
+        onChange={setArtists}
       />
+
+      <AppText>Genre *</AppText>
+      <Button
+        title={genres.length ? genres.join(", ") : "Chọn thể loại"}
+        variant="secondary"
+        disabled={action.busy}
+        onPress={() => setGenreOpen(true)}
+      />
+      {genreOpen && (
+        <ModalPanel
+          open
+          onClose={() => setGenreOpen(false)}
+          title="Chọn thể loại"
+          description={`${genres.length}/10 thể loại đã chọn`}
+        >
+          {GENRES.map((value) => {
+            const selected = genres.includes(value);
+            return (
+              <Action
+                key={value}
+                role="checkbox"
+                aria-checked={selected}
+                disabled={!selected && genres.length >= 10}
+                padding="3"
+                flexDirection="row"
+                alignItems="center"
+                gap="3"
+                onPress={() =>
+                  setGenres((current) =>
+                    current.includes(value)
+                      ? current.filter((item) => item !== value)
+                      : current.length < 10
+                        ? [...current, value]
+                        : current,
+                  )
+                }
+              >
+                <AppIcon name={selected ? "radio-on" : "radio-off"} />
+                <AppText>{value}</AppText>
+              </Action>
+            );
+          })}
+        </ModalPanel>
+      )}
 
       <SectionTitle>Album</SectionTitle>
 
@@ -274,13 +315,7 @@ export default function UploadSongScreen() {
       />
 
       <Field
-        label="Tags (ngăn cách bằng dấu phẩy)"
-        value={tags}
-        onChange={setTags}
-      />
-
-      <Field
-        label="Description"
+        label="Mô tả"
         value={description}
         onChange={setDescription}
         multiline
@@ -288,7 +323,7 @@ export default function UploadSongScreen() {
 
       <Field label="Lời bài hát" value={lyric} onChange={setLyric} multiline />
 
-      <SectionTitle>Privacy</SectionTitle>
+      <SectionTitle>Quyền riêng tư</SectionTitle>
 
       {options.map((option) => (
         <Action
@@ -331,7 +366,7 @@ export default function UploadSongScreen() {
       <AppText variant="muted">{message}</AppText>
 
       <Button
-        title={action.busy ? "Đang lưu..." : "Save"}
+        title={action.busy ? "Đang lưu..." : "Lưu"}
         disabled={action.busy}
         onPress={() => void action.run(save)}
       />

@@ -1,9 +1,16 @@
-import { router } from "expo-router";
 import { YStack } from "tamagui";
 import { useProfileForm } from "../hooks/useProfileForm";
 import Artwork from "./Artwork";
 import { BackButton } from "./discovery/BackButton";
-import { AppText, Button, ErrorText, Field, Page, SectionTitle } from "./UI";
+import {
+  AppText,
+  Button,
+  ErrorText,
+  Field,
+  Page,
+  IconButton,
+  AppIcon,
+} from "./UI";
 
 export default function ProfileScreen() {
   const form = useProfileForm();
@@ -18,14 +25,23 @@ export default function ProfileScreen() {
     >
       <YStack alignItems="center" marginBottom="4">
         <Artwork uri={form.photo} size={96} radius={48} fallback="person" />
+        <IconButton
+          aria-label="Đổi ảnh đại diện"
+          disabled={form.busy}
+          onPress={() => void form.pickAvatar()}
+          position="absolute"
+          bottom={0}
+          marginLeft={76}
+          backgroundColor="surface"
+          borderRadius={22}
+        >
+          <AppIcon name="edit" size={20} />
+        </IconButton>
       </YStack>
-      <AppText variant="muted">{form.user?.email}</AppText>
-      <AppText variant="caption" userSelect="text">
-        UID: {form.user?.uid}
+      <AppText variant="muted">Địa chỉ email: {form.user?.email}</AppText>
+      <AppText variant="caption">
+        follower: {form.followerCount} · following: {form.followingCount}
       </AppText>
-      <SectionTitle>
-        {form.isAdmin ? "Quản trị viên" : "Người dùng"}
-      </SectionTitle>
       <Field
         label="Tên hiển thị"
         value={form.name}
@@ -33,9 +49,10 @@ export default function ProfileScreen() {
         disabled={form.busy}
       />
       <Field
-        label="URL ảnh đại diện (HTTPS, không bắt buộc)"
-        value={form.photo}
-        onChange={form.setPhoto}
+        label="Tiểu sử"
+        value={form.biography}
+        onChange={form.setBiography}
+        multiline
         disabled={form.busy}
       />
       <ErrorText message={form.error} />
@@ -43,29 +60,6 @@ export default function ProfileScreen() {
         title="Lưu hồ sơ"
         loading={form.busy}
         onPress={() => void form.save()}
-      />
-      <Button
-        title="Làm mới quyền tài khoản"
-        variant="secondary"
-        disabled={form.busy}
-        onPress={() => void form.refresh()}
-      />
-      {form.isAdmin ? (
-        <Button
-          title="Quản trị bài hát / nghệ sĩ"
-          disabled={form.busy}
-          onPress={() => router.push("/admin")}
-        />
-      ) : null}
-      <Button
-        title="Đăng xuất"
-        variant="secondary"
-        disabled={form.busy}
-        onPress={() =>
-          void form.logout().then((success) => {
-            if (success) router.replace("/");
-          })
-        }
       />
     </Page>
   );

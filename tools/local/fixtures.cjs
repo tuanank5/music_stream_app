@@ -3,12 +3,11 @@ const PASSWORD = "LocalMusic123!";
 function buildFixtures() {
   const now = new Date("2026-11-01T12:00:00Z");
   const users = [
-    { uid: "local-listener", displayName: "Người nghe local", admin: false },
-    { uid: "local-admin", displayName: "Quản trị local", admin: true },
+    { uid: "local-listener", displayName: "Người nghe local" },
+    { uid: "local-member", displayName: "Thành viên local" },
     ...Array.from({ length: 24 }, (_, i) => ({
       uid: `local-artist-${String(i + 1).padStart(2, "0")}`,
       displayName: `${["An", "Bình", "Chi", "Dương"][i % 4]} ${i + 1}`,
-      admin: false,
     })),
   ];
   const documents = [];

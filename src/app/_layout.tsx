@@ -7,11 +7,21 @@ import { AppText, Page } from "../components/UI";
 import { AuthProvider } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
 import { PlayerProvider } from "../contexts/PlayerContext";
+import { AlbumFavoritesProvider } from "../contexts/AlbumFavoritesContext";
 import { isFirebaseConfigured } from "../services/firebase";
 import { getFirebaseSetupError } from "../services/firebase/config";
+import { AppThemeProvider, useAppTheme } from "../contexts/ThemeContext";
 export default function Layout() {
   return (
-    <TamaguiProvider config={tamaguiConfig} defaultTheme="light">
+    <AppThemeProvider>
+      <ThemedLayout />
+    </AppThemeProvider>
+  );
+}
+function ThemedLayout() {
+  const { theme } = useAppTheme();
+  return (
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
       <AppLayout />
     </TamaguiProvider>
   );
@@ -21,37 +31,37 @@ function AppLayout() {
     return (
       <SafeAreaProvider>
         <Page title="Thiết lập Firebase">
-          <AppText variant="muted">
-            {getFirebaseSetupError()}
-          </AppText>
+          <AppText variant="muted">{getFirebaseSetupError()}</AppText>
         </Page>
       </SafeAreaProvider>
     );
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <DataProvider>
-          <PlayerProvider>
-            <AppFrame>
-              <Stack screenOptions={{ headerShown: false }}>
-                {/* Retain Home and its native scroll views beneath detail routes. */}
-                <Stack.Screen name="home" options={{ freezeOnBlur: true }} />
-                <Stack.Screen
-                  name="player"
-                  options={{ animation: "slide_from_bottom" }}
-                />
-                <Stack.Screen
-                  name="comments"
-                  options={{
-                    presentation: "transparentModal",
-                    animation: "slide_from_bottom",
-                    contentStyle: { backgroundColor: "transparent" },
-                  }}
-                />
-              </Stack>
-            </AppFrame>
-          </PlayerProvider>
-        </DataProvider>
+        <AlbumFavoritesProvider>
+          <DataProvider>
+            <PlayerProvider>
+              <AppFrame>
+                <Stack screenOptions={{ headerShown: false }}>
+                  {/* Retain Home and its native scroll views beneath detail routes. */}
+                  <Stack.Screen name="home" options={{ freezeOnBlur: true }} />
+                  <Stack.Screen
+                    name="player"
+                    options={{ animation: "slide_from_bottom" }}
+                  />
+                  <Stack.Screen
+                    name="comments"
+                    options={{
+                      presentation: "transparentModal",
+                      animation: "slide_from_bottom",
+                      contentStyle: { backgroundColor: "transparent" },
+                    }}
+                  />
+                </Stack>
+              </AppFrame>
+            </PlayerProvider>
+          </DataProvider>
+        </AlbumFavoritesProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

@@ -109,7 +109,7 @@ function fakeEngine() {
 }
 
 const catalog = {
-  watchSongs: (next, fail, admin) => subscribe(`songs:${admin}`, next, fail),
+  watchSongs: (next, fail) => subscribe("songs", next, fail),
   watchArtists: (next, fail) => subscribe("artists", next, fail),
   watchAlbums: (next, fail) => subscribe("albums", next, fail),
   watchSong: (id, next, fail) => subscribe(`song:${id}`, next, fail),
@@ -211,7 +211,6 @@ after(async () => {
 const user = (uid) => ({
   user: uid ? { uid } : null,
   loading: false,
-  isAdmin: false,
 });
 async function mount(content, uid = "alice") {
   await act(async () =>
@@ -235,7 +234,7 @@ function dataTree(extra) {
 }
 async function readyData() {
   await act(async () => {
-    emit("songs:false", [song("public")]);
+    emit("songs", [song("public")]);
     emit("artists", [{ id: "artist", name: "Artist" }]);
     emit("albums", [{ id: "album", title: "Album" }]);
     emit("favorites:alice", []);
@@ -269,7 +268,7 @@ test("history and library updates do not render catalog consumers or rebuild the
 
 test("catalog remains loading until its individual sources have settled", async () => {
   await mount(dataTree());
-  await act(async () => emit("songs:false", []));
+  await act(async () => emit("songs", []));
   assert.equal(seen.catalog.loadingSources.songs, false);
   assert.equal(seen.catalog.loading, true);
   await act(async () => {
@@ -378,7 +377,7 @@ test("logout clears listeners and late detail responses cannot enter the next ac
   assert.deepEqual(seen.library.favoriteIds, []);
   await mount(content, "bob");
   await act(async () => {
-    old.find((item) => item.name === "songs:false").next([song("old")]);
+    old.find((item) => item.name === "songs").next([song("old")]);
     waiting.resolve(song("old"));
     await observed;
   });
@@ -420,9 +419,9 @@ test("a stopped detail listener cannot invalidate a request belonging to its rep
     await seen.catalog.ensureSong("detail");
   });
   const old = active("song:detail");
-  await act(async () => emit("songs:false", [song("public"), song("detail")]));
+  await act(async () => emit("songs", [song("public"), song("detail")]));
   assert.equal(old.stopped, 1);
-  await act(async () => emit("songs:false", [song("public")]));
+  await act(async () => emit("songs", [song("public")]));
   assert.notEqual(active("song:detail"), old);
   const waiting = deferred();
   loadSong = () => waiting.promise;
@@ -472,13 +471,13 @@ test("StrictMode restart leaves one active subscription per source and rejects o
     ),
   );
   assert.equal(
-    registrations.filter((item) => item.name === "songs:false" && !item.stopped)
+    registrations.filter((item) => item.name === "songs" && !item.stopped)
       .length,
     1,
   );
   await readyData();
   const previous = registrations.find(
-    (item) => item.name === "songs:false" && item.stopped,
+    (item) => item.name === "songs" && item.stopped,
   );
   assert.ok(previous);
   await act(async () => previous.next([song("stale")]));
@@ -574,6 +573,40 @@ test("stable player actions use latest status for pause, seek, next/previous and
   await act(async () => engine.update({ didJustFinish: true }));
   assert.equal(seen.state.current.id, "b");
   assert.equal(seen.actions, actions);
+});
+
+test("repeat-all wraps the queue including a single song; normal playback stops at its end", async () => {
+  await mount(playerTree());
+  const actions = seen.actions,
+    engine = engines[0];
+  const a = song("a"),
+    b = song("b");
+  await act(async () => actions.play(b, [a, b]));
+  const calls = engine.calls.length;
+  await act(async () => engine.update({ didJustFinish: true }));
+  assert.equal(seen.state.current.id, "b");
+  assert.equal(engine.calls.length, calls);
+  await act(async () => engine.update({ didJustFinish: false }));
+  await act(async () => actions.setRepeatAll(true));
+  await act(async () => engine.update({ didJustFinish: true }));
+  assert.equal(seen.state.current.id, "a");
+  await act(async () => actions.play(a, [a]));
+  const singleCalls = engine.calls.length;
+  await act(async () => engine.update({ didJustFinish: true }));
+  assert.ok(engine.calls.length > singleCalls);
+  assert.equal(seen.state.current.id, "a");
+  assert.equal(seen.actions, actions);
+});
+
+test("removing current song clears playback and prevents it from remaining in the queue", async () => {
+  await mount(playerTree());
+  const a = song("a"),
+    b = song("b");
+  await act(async () => seen.actions.play(a, [a, b]));
+  await act(async () => seen.actions.removeSong("a"));
+  assert.equal(seen.state.current, null);
+  await act(async () => seen.actions.next());
+  assert.equal(seen.state.current.id, "b");
 });
 
 test("logout releases the old engine; captured actions cannot play into the new account", async () => {

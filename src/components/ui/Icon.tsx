@@ -26,6 +26,9 @@ import {
   Check,
   Circle,
   CircleDot,
+  CircleArrowUp,
+  Pencil,
+  Infinity as InfinityIcon,
   type LucideProps,
 } from "lucide-react-native";
 import { useTheme } from "tamagui";
@@ -60,6 +63,9 @@ const icons = {
   check: Check,
   "radio-on": CircleDot,
   "radio-off": Circle,
+  upload: CircleArrowUp,
+  edit: Pencil,
+  infinity: InfinityIcon,
 } as const;
 
 export type AppIconName = keyof typeof icons;

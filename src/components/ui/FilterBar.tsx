@@ -8,7 +8,7 @@ export function FilterBar<T extends string>({
   onChange,
 }: {
   options: readonly { value: T; label: string }[];
-  value: T;
+  value: T | null;
   onChange: (value: T) => void;
 }) {
   return (

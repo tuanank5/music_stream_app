@@ -1,114 +1,63 @@
-import {
-  addDoc,
-  collection,
-  doc,
-  deleteDoc,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-import { getFirebaseDb } from "./firebase";
-import { Comment, FeedPost } from "../types/domain";
+import { collection, doc } from "firebase/firestore";
+import { getFirebaseDb, getFirebaseAuth } from "./firebase";
 import { cleanText } from "../utils/validation";
-export function watchPosts(
-  next: (p: FeedPost[]) => void,
-  fail: (e: Error) => void,
-) {
-  return onSnapshot(
-    query(
-      collection(getFirebaseDb(), "posts"),
-      orderBy("createdAt", "desc"),
-      limit(50),
-    ),
-    (s) =>
-      next(
-        s.docs.map((d) => {
-          const x = d.data();
-          return {
-            id: d.id,
-            ownerId: x.ownerId,
-            authorName: x.authorName,
-            content: x.content,
-            songId: x.songId,
-            active: x.active,
-            createdAt: x.createdAt?.toMillis?.() ?? 0,
-          };
-        }),
-      ),
-    fail,
-  );
+import { backendPost, backendPatch, backendDelete } from "./backendService";
+export function newSubmissionId() {
+  return doc(collection(getFirebaseDb(), "posts")).id;
 }
-export function createPost(
+function requireAccount(uid: string) {
+  if (getFirebaseAuth().currentUser?.uid !== uid)
+    throw new Error("Phiên đăng nhập đã thay đổi.");
+}
+export async function createPost(
   uid: string,
-  authorName: string,
   content: string,
   songId: string,
+  key?: string,
 ) {
-  return addDoc(collection(getFirebaseDb(), "posts"), {
-    ownerId: uid,
-    authorName: authorName || "Người dùng",
-    content: cleanText(content, "nội dung", 2000),
-    songId,
-    active: true,
-    createdAt: serverTimestamp(),
-  });
+  requireAccount(uid);
+  return backendPost(
+    "/posts",
+    {
+      content: cleanText(content, "nội dung", 2000),
+      songId,
+    },
+    key,
+  );
 }
 export function updatePost(id: string, content: string) {
-  return updateDoc(doc(getFirebaseDb(), "posts", id), {
+  return backendPatch(`/posts/${encodeURIComponent(id)}`, {
     content: cleanText(content, "nội dung", 2000),
   });
 }
 export function archivePost(id: string) {
-  return updateDoc(doc(getFirebaseDb(), "posts", id), { active: false });
+  return backendDelete(`/posts/${encodeURIComponent(id)}`);
 }
-export function watchComments(
-  postId: string,
-  next: (c: Comment[]) => void,
-  fail: (e: Error) => void,
-) {
-  return onSnapshot(
-    query(
-      collection(getFirebaseDb(), "posts", postId, "comments"),
-      orderBy("createdAt", "desc"),
-      limit(100),
-    ),
-    (s) =>
-      next(
-        s.docs.map((d) => {
-          const x = d.data();
-          return {
-            id: d.id,
-            ownerId: x.ownerId,
-            authorName: x.authorName,
-            content: x.content,
-            createdAt: x.createdAt?.toMillis?.() ?? 0,
-          };
-        }),
-      ),
-    fail,
-  );
-}
-export function createComment(
+export async function createComment(
   postId: string,
   uid: string,
-  authorName: string,
   content: string,
+  key?: string,
 ) {
-  return addDoc(collection(getFirebaseDb(), "posts", postId, "comments"), {
-    ownerId: uid,
-    authorName: authorName || "Người dùng",
-    content: cleanText(content, "bình luận", 1000),
-    createdAt: serverTimestamp(),
-  });
+  requireAccount(uid);
+  return backendPost(
+    `/posts/${encodeURIComponent(postId)}/comments`,
+    {
+      content: cleanText(content, "bình luận", 1000),
+    },
+    key,
+  );
 }
 export function updateComment(postId: string, id: string, content: string) {
-  return updateDoc(doc(getFirebaseDb(), "posts", postId, "comments", id), {
-    content: cleanText(content, "bình luận", 1000),
-  });
+  return backendPatch(
+    `/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(id)}`,
+    {
+      content: cleanText(content, "bình luận", 1000),
+    },
+  );
 }
 export function deleteComment(postId: string, id: string) {
-  return deleteDoc(doc(getFirebaseDb(), "posts", postId, "comments", id));
+  return backendDelete(
+    `/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(id)}`,
+  );
 }

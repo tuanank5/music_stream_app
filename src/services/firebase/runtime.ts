@@ -35,7 +35,7 @@ function port(value: string | undefined, name: string): number {
     Number(value) < 1 ||
     Number(value) > 65535
   )
-    throw new Error(`Thiếu hoặc sai ${name}. Xem docs/LOCAL_DEVELOPMENT.md.`);
+    throw new Error(`Thiếu hoặc sai ${name}. Xem README.md (mục Chạy local).`);
   return Number(value);
 }
 
@@ -46,7 +46,7 @@ export function resolveFirebaseRuntime(
   const mode = env.EXPO_PUBLIC_FIREBASE_MODE;
   if (mode !== "emulator" && mode !== "cloud")
     throw new Error(
-      "Chọn Firebase mode rõ ràng: npm run start:local hoặc EXPO_PUBLIC_FIREBASE_MODE=cloud. Xem docs/LOCAL_DEVELOPMENT.md.",
+      "Chọn Firebase mode rõ ràng: npm run start:local hoặc EXPO_PUBLIC_FIREBASE_MODE=cloud. Xem README.md (mục Chạy local).",
     );
 
   if (mode === "emulator") {
@@ -118,7 +118,24 @@ export function resolveFirebaseRuntime(
     throw new Error(
       "Cloud mode cần đầy đủ Firebase Web config của project thật.",
     );
-  return { mode, config };
+  const backend = env.EXPO_PUBLIC_BACKEND_URL;
+  if (backend) {
+    const parsed = new URL(backend);
+    if (
+      parsed.protocol !== "https:" ||
+      parsed.username ||
+      parsed.password ||
+      parsed.pathname !== "/" ||
+      parsed.search ||
+      parsed.hash
+    )
+      throw new Error("Backend cloud cần HTTPS origin hợp lệ.");
+  }
+  return {
+    mode,
+    config,
+    backendUrl: backend ? new URL(backend).origin : undefined,
+  };
 }
 
 export function assertExternalUploadsAllowed(runtime: FirebaseRuntime): void {

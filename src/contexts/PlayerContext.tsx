@@ -27,10 +27,13 @@ type PlayerState = {
   loading: boolean;
   error: string;
   repeat: boolean;
+  repeatAll: boolean;
 };
 type PlayerProgress = { position: number; duration: number };
 type PlayerActions = {
   setRepeat: (v: boolean) => void;
+  setRepeatAll: (v: boolean) => void;
+  removeSong: (id: string) => void;
   play: (s: Song, queue?: Song[]) => void;
   toggle: () => void;
   next: () => void;
@@ -51,6 +54,7 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
     [session, setSession] = useState(0),
     [error, setError] = useState(""),
     [repeat, setRepeat] = useState(false);
+  const [repeatAll, setRepeatAll] = useState(false);
   usePlaybackHistory(current, session, status, setError);
   const queue = useRef<Song[]>([]);
   const now = useRef<Song | null>(null);
@@ -118,10 +122,14 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
     ended.current = true;
     if (repeat && now.current) {
       play(now.current);
-    } else if (queue.current.length > 1) {
+    } else if (
+      repeatAll ||
+      queue.current.findIndex((song) => song.id === now.current?.id) <
+        queue.current.length - 1
+    ) {
       move(1);
     }
-  }, [status.didJustFinish, repeat, move, player, play]);
+  }, [status.didJustFinish, repeat, repeatAll, move, player, play]);
 
   useEffect(() => {
     if (!current || status.isLoaded) return;
@@ -181,14 +189,44 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
   );
   const next = useCallback(() => move(1), [move]);
   const previous = useCallback(() => move(-1), [move]);
+  const removeSong = useCallback(
+    (id: string) => {
+      if (!live.current) return;
+      queue.current = queue.current.filter((song) => song.id !== id);
+      if (now.current?.id === id) {
+        player.pause();
+        now.current = null;
+        generation.current++;
+        setCurrent(null);
+        setError("");
+      }
+    },
+    [player],
+  );
   const actions = useMemo(
-    () => ({ play, toggle, next, previous, seek, setRepeat }),
-    [play, toggle, next, previous, seek],
+    () => ({
+      play,
+      toggle,
+      next,
+      previous,
+      seek,
+      setRepeat,
+      setRepeatAll,
+      removeSong,
+    }),
+    [play, toggle, next, previous, seek, removeSong],
   );
   const loading = !!current && !status.isLoaded;
   const state = useMemo(
-    () => ({ current, playing: status.playing, loading, error, repeat }),
-    [current, status.playing, loading, error, repeat],
+    () => ({
+      current,
+      playing: status.playing,
+      loading,
+      error,
+      repeat,
+      repeatAll,
+    }),
+    [current, status.playing, loading, error, repeat, repeatAll],
   );
   const progress = useMemo(
     () => ({

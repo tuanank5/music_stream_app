@@ -4,6 +4,7 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { XStack, YStack, styled } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
+import { useAppTheme } from "../contexts/ThemeContext";
 import { useCatalogData } from "../contexts/DataContext";
 import MiniPlayer from "./MiniPlayer";
 import { Action, AppIcon, AppText, ErrorText } from "./UI";
@@ -13,6 +14,7 @@ const SafeFrame = styled(SafeAreaView, {
   backgroundColor: "background",
 });
 export function AppFrame({ children }: { children: React.ReactNode }) {
+  const { theme } = useAppTheme();
   const path = usePathname(),
     { user } = useAuth(),
     data = useCatalogData();
@@ -26,7 +28,11 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
       }
     >
       <StatusBar
-        style={path === "/" || path === "/player" ? "light" : "dark"}
+        style={
+          path === "/" || path === "/player" || theme === "dark"
+            ? "light"
+            : "dark"
+        }
       />
       <YStack
         flex={1}

@@ -1,14 +1,13 @@
-import { useCatalogData } from "../contexts/DataContext";
-import { useMemo } from "react";
-import { genreCharts } from "../utils/recommendations";
-
+import type { MusicChart } from "../types/discovery";
+import { useBackendResource, useDiscoverySeed } from "./useBackendResource";
 export function useCharts() {
-  const data = useCatalogData();
-  const charts = useMemo(() => genreCharts(data.songs), [data.songs]);
-
+  const seed = useDiscoverySeed();
+  const state = useBackendResource<{ charts: MusicChart[] }>("/charts", {
+    seed,
+  });
   return {
-    charts,
-    loading: data.loadingSources.songs,
-    error: data.errors.filter((error) => error.startsWith("Songs:")).join("\n"),
+    charts: state.value?.charts ?? [],
+    loading: state.loading,
+    error: state.error,
   };
 }

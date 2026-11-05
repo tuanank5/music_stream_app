@@ -1,10 +1,18 @@
-import React from "react";
+import { useLocalSearchParams } from "expo-router";
 import Guard from "../components/Guard";
-import { PlaylistDetailScreen } from "../components/LibraryScreens";
+import BackendPlaylistScreen from "../components/BackendPlaylistScreen";
 export default function Route() {
+  const { id, ownerId } = useLocalSearchParams<{
+    id?: string;
+    ownerId?: string;
+  }>();
   return (
     <Guard>
-      <PlaylistDetailScreen />
+      <BackendPlaylistScreen
+        key={`${ownerId}:${id}`}
+        id={id || ""}
+        ownerId={ownerId}
+      />
     </Guard>
   );
 }

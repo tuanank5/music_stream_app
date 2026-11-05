@@ -27,7 +27,7 @@ export function SongDetailScreen() {
       </YStack>
       <AppText variant="muted">
         Album: {song.album || "Chưa có"}
-        {"\n"}Thời lượng dự kiến: {formatDuration(song.durationSeconds)}
+        {"\n"}Thời lượng: {formatDuration(song.durationSeconds)}
       </AppText>
       <Button
         title="Phát bài hát"
@@ -36,7 +36,7 @@ export function SongDetailScreen() {
             song,
             data.songs.filter((s) => s.active),
           );
-          router.push("/player");
+
         }}
       />
       {song.artistId ? (

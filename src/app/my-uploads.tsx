@@ -1,9 +1,4 @@
-import Guard from "../components/Guard";
-import MyUploadsScreen from "../components/MyUploadsScreen";
+import { Redirect } from "expo-router";
 export default function Route() {
-  return (
-    <Guard>
-      <MyUploadsScreen />
-    </Guard>
-  );
+  return <Redirect href="/uploads" />;
 }

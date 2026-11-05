@@ -11,7 +11,6 @@
 //   lyrics: string;
 //   active: boolean;
 // };
-// export type SongInput = Omit<Song, "id" | "cover"> & { coverUrl: string };
 // export type Artist = {
 //   id: string;
 //   name: string;
@@ -43,11 +42,7 @@
 // };
 
 //Update Date 10/30/2026
-export type Visibility =
-  | "public"
-  | "unlisted"
-  | "private"
-  | "followers";
+export type Visibility = "public" | "unlisted" | "private" | "followers";
 
 export type Song = {
   id: string;
@@ -69,26 +64,6 @@ export type Song = {
   active: boolean;
 };
 
-export type SongInput = Pick<
-  Song,
-  | "title"
-  | "artist"
-  | "artistId"
-  | "album"
-  | "audioUrl"
-  | "audioKey"
-  | "durationSeconds"
-  | "lyrics"
-  | "active"
-> & {
-  coverUrl: string;
-  albumId?: string;
-  genre?: string[];
-  visibility?: Visibility;
-  description?: string;
-  tags?: string[];
-};
-
 export type Artist = {
   id: string;
   name: string;
@@ -106,6 +81,10 @@ export type Album = {
   artistName: string;
   coverUrl: string;
   isPublished: boolean;
+  isPublic?: boolean;
+  description?: string;
+  songCount?: number;
+  durationSeconds?: number;
 };
 
 export type Playlist = {
@@ -113,6 +92,7 @@ export type Playlist = {
   name: string;
   description: string;
   songIds: string[];
+  isPublic?: boolean;
 };
 
 export type HistoryEntry = {

@@ -1,0 +1,19 @@
+import { useAlbumFavorites } from "../contexts/AlbumFavoritesContext";
+import { AppIcon, IconButton } from "./UI";
+export default function AlbumFavoriteButton({ id }: { id: string }) {
+  const favorites = useAlbumFavorites();
+  const selected = favorites.albums.some((album) => album.id === id);
+  return (
+    <IconButton
+      aria-label={selected ? "Bỏ yêu thích album" : "Yêu thích album"}
+      aria-pressed={selected}
+      disabled={favorites.loading || favorites.pending.has(id)}
+      onPress={() => void favorites.toggle(id)}
+    >
+      <AppIcon
+        name={selected ? "heart" : "heart-outline"}
+        color={selected ? "danger" : "textMuted"}
+      />
+    </IconButton>
+  );
+}

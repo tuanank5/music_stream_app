@@ -1,5 +1,6 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
+import { Switch } from "react-native";
 import { XStack, YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
@@ -13,6 +14,8 @@ import type { Album, Artist, Playlist, Song } from "../types/domain";
 import { confirmDelete } from "../utils/feedback";
 import { normalizeSearch } from "../utils/validation";
 import Artwork from "./Artwork";
+import { useAlbumFavorites } from "../contexts/AlbumFavoritesContext";
+import AlbumFavoriteButton from "./AlbumFavoriteButton";
 import { MediaRow } from "./MediaRow";
 import SongRow from "./SongRow";
 import {
@@ -44,6 +47,7 @@ function PlaylistItem({
   onMore?: () => void;
 }) {
   const { songs } = useData();
+  const { user } = useAuth();
   const cover =
     playlist.songIds
       .map((id) => songs.find((song) => song.id === id)?.cover)
@@ -51,7 +55,7 @@ function PlaylistItem({
   return (
     <MediaRow
       title={playlist.name}
-      subtitle={`${playlist.songIds.length} bài hát${playlist.description ? ` · ${playlist.description}` : ""}`}
+      subtitle={`${user?.displayName || "Người dùng"} · Playlist · ${playlist.songIds.length} bài hát`}
       leading={<Artwork uri={cover} size={60} radius={4} />}
       onPress={() =>
         router.push({ pathname: "/playlist", params: { id: playlist.id } })
@@ -71,22 +75,27 @@ function PlaylistItem({
 }
 
 const libraryFilters = [
-  { value: "all", label: "Tất cả" },
-  { value: "playlists", label: "Playlist" },
   { value: "songs", label: "Bài hát" },
   { value: "albums", label: "Album" },
   { value: "artists", label: "Nghệ sĩ" },
 ] as const;
 type LibraryTab = (typeof libraryFilters)[number]["value"];
 type LibraryItem =
-  | { kind: "playlist"; item: Playlist }
   | { kind: "song"; item: Song }
   | { kind: "album"; item: Album }
   | { kind: "artist"; item: Artist };
 
 export function LibraryScreen() {
+  const { user } = useAuth();
+  const albumFavorites = useAlbumFavorites();
+  const reloadAlbumFavorites = albumFavorites.reload;
+  useFocusEffect(
+    useCallback(() => {
+      reloadAlbumFavorites();
+    }, [reloadAlbumFavorites]),
+  );
   const data = useData();
-  const [tab, setTab] = useState<LibraryTab>("all");
+  const [tab, setTab] = useState<LibraryTab | null>(null);
   const [keyword, setKeyword] = useState("");
   const [tools, setTools] = useState(false);
   const q = normalizeSearch(keyword);
@@ -94,19 +103,12 @@ export function LibraryScreen() {
   const favorites = data.songs.filter(
     (song) => song.active && data.favoriteIds.includes(song.id),
   );
-  const albumIds = new Set(favorites.map((song) => song.albumId));
   const items: LibraryItem[] = [
-    ...data.playlists
-      .filter((p) => matches(p.name))
-      .map((item) => ({ kind: "playlist" as const, item })),
     ...favorites
       .filter((song) => matches(`${song.title} ${song.artist}`))
       .map((item) => ({ kind: "song" as const, item })),
-    ...data.albums
-      .filter(
-        (album) =>
-          tab === "albums" && albumIds.has(album.id) && matches(album.title),
-      )
+    ...albumFavorites.albums
+      .filter((album) => matches(`${album.title} ${album.artistName}`))
       .map((item) => ({ kind: "album" as const, item })),
     ...data.artists
       .filter(
@@ -118,13 +120,20 @@ export function LibraryScreen() {
       .map((item) => ({ kind: "artist" as const, item })),
   ].filter(
     (item) =>
-      tab === "all" ||
-      (tab === "playlists" && item.kind === "playlist") ||
+      tab === null ||
       (tab === "songs" && item.kind === "song") ||
       (tab === "albums" && item.kind === "album") ||
       (tab === "artists" && item.kind === "artist"),
   );
-  function openTool(path: "/upload" | "/my-uploads" | "/profile" | "/premium") {
+  function openTool(
+    path:
+      | "/upload"
+      | "/uploads"
+      | "/profile"
+      | "/premium"
+      | "/account"
+      | "/settings",
+  ) {
     setTools(false);
     router.push(path);
   }
@@ -133,10 +142,7 @@ export function LibraryScreen() {
       <ListPage<LibraryItem>
         title="Thư viện"
         titleTrailing={
-          <IconButton
-            aria-label="Tài khoản và công cụ"
-            onPress={() => setTools(true)}
-          >
+          <IconButton aria-label="Cài đặt" onPress={() => setTools(true)}>
             <AppIcon name="more" />
           </IconButton>
         }
@@ -149,29 +155,39 @@ export function LibraryScreen() {
               onChange={setKeyword}
               placeholder="Tìm trong thư viện"
             />
-            <FilterBar options={libraryFilters} value={tab} onChange={setTab} />
-            <XStack gap="3" flexWrap="wrap" marginBottom="3">
+            <FilterBar
+              options={libraryFilters}
+              value={tab}
+              onChange={(value) => setTab(tab === value ? null : value)}
+            />
+            <XStack gap="2" marginBottom="3" flexWrap="wrap">
               <Button
                 title="Playlist của bạn"
                 variant="secondary"
                 onPress={() => router.push("/playlists")}
               />
               <Button
-                title="Yêu thích"
+                title="Lịch sử"
                 variant="secondary"
-                onPress={() => router.push("/favorites")}
+                onPress={() => router.push("/history")}
+              />
+              <Button
+                title="Bài hát đã đăng tải"
+                variant="secondary"
+                onPress={() => router.push("/uploads")}
               />
             </XStack>
-            {tab === "albums" && (
-              <AppText variant="caption" marginBottom="3">
-                Album có bài hát bạn đã yêu thích.
-              </AppText>
-            )}
+            <ErrorText message={albumFavorites.error} />
+            {albumFavorites.error ? (
+              <Button
+                title="Thử tải lại album yêu thích"
+                variant="secondary"
+                onPress={albumFavorites.reload}
+              />
+            ) : null}
           </>
         }
         renderItem={(result) => {
-          if (result.kind === "playlist")
-            return <PlaylistItem playlist={result.item} />;
           if (result.kind === "song")
             return <SongRow song={result.item} queue={favorites} />;
           if (result.kind === "artist")
@@ -191,6 +207,7 @@ export function LibraryScreen() {
           return (
             <MediaRow
               title={result.item.title}
+              trailing={<AlbumFavoriteButton id={result.item.id} />}
               subtitle={result.item.artistName}
               leading={
                 <Artwork uri={result.item.coverUrl} size={60} radius={4} />
@@ -198,7 +215,12 @@ export function LibraryScreen() {
               onPress={() =>
                 router.push({
                   pathname: "/album",
-                  params: { id: result.item.id },
+                  params: {
+                    id: result.item.id,
+                    ...(result.item.artistId === user?.uid
+                      ? { owned: "1" }
+                      : {}),
+                  },
                 })
               }
             />
@@ -212,7 +234,7 @@ export function LibraryScreen() {
               message={
                 keyword
                   ? "Không có kết quả trong thư viện."
-                  : "Lưu bài hát, tạo playlist hoặc theo dõi nghệ sĩ để xây dựng thư viện của bạn."
+                  : "Yêu thích bài hát hoặc theo dõi nghệ sĩ để xây dựng thư viện của bạn."
               }
             />
           ) : null
@@ -222,29 +244,33 @@ export function LibraryScreen() {
         <ModalPanel
           open
           onClose={() => setTools(false)}
-          title="Tài khoản và công cụ"
-          description="Quản lý nội dung và tài khoản của bạn"
+          title="Cài đặt"
+          description=""
         >
-          <Button title="Đăng bài hát" onPress={() => openTool("/upload")} />
           <Button
-            title="Bài hát tôi đã đăng"
-            variant="secondary"
-            onPress={() => openTool("/my-uploads")}
-          />
-          <Button
-            title="Hồ sơ và tài khoản"
+            title="Hồ sơ"
             variant="secondary"
             onPress={() => openTool("/profile")}
           />
           <Button
-            title="Giới thiệu Premium (demo)"
+            title="Tài khoản"
             variant="secondary"
-            onPress={() => openTool("/premium")}
+            onPress={() => openTool("/account")}
           />
           <Button
-            title="Đóng"
+            title="Cài đặt cơ bản"
             variant="secondary"
-            onPress={() => setTools(false)}
+            onPress={() => openTool("/settings")}
+          />
+          <Button
+            title="Đăng tải bài hát"
+            variant="secondary"
+            onPress={() => openTool("/upload")}
+          />
+          <Button
+            title="Premium"
+            variant="secondary"
+            onPress={() => openTool("/premium")}
           />
         </ModalPanel>
       )}
@@ -260,11 +286,13 @@ export function PlaylistsScreen() {
   const [selected, setSelected] = useState<Playlist | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isPublic, setPublic] = useState(false);
   function openForm(playlist: Playlist | null) {
     action.setError("");
     setSelected(playlist);
     setName(playlist?.name || "");
     setDescription(playlist?.description || "");
+    setPublic(playlist?.isPublic ?? false);
     setPanel("form");
   }
   return (
@@ -313,15 +341,11 @@ export function PlaylistsScreen() {
           title={
             panel === "form"
               ? selected
-                ? "Sửa playlist"
+                ? "Chỉnh sửa playlist"
                 : "Playlist mới"
               : selected?.name || "Playlist"
           }
-          description={
-            panel === "form"
-              ? "Đặt tên và mô tả cho bộ sưu tập của bạn."
-              : `${selected?.songIds.length ?? 0} bài hát`
-          }
+          description=""
         >
           <ErrorText message={action.error} />
           {panel === "form" ? (
@@ -349,18 +373,55 @@ export function PlaylistsScreen() {
                       selected?.id ?? null,
                       name,
                       description,
+                      isPublic,
                     );
                     setPanel(null);
                   })
                 }
               />
+              <XStack alignItems="center" justifyContent="space-between">
+                <AppText>Công khai</AppText>
+                <Switch
+                  accessibilityLabel="Công khai playlist"
+                  value={isPublic}
+                  disabled={action.busy}
+                  onValueChange={setPublic}
+                />
+              </XStack>
             </>
           ) : selected ? (
             <>
               <Button
-                title="Sửa playlist"
+                title="Chỉnh sửa playlist"
                 variant="secondary"
                 onPress={() => openForm(selected)}
+              />
+              <Button
+                title={selected.isPublic ? "Riêng tư" : "Công khai"}
+                variant="secondary"
+                disabled={action.busy}
+                onPress={() =>
+                  void action.run(async () => {
+                    if (!user) return;
+                    await savePlaylist(
+                      user.uid,
+                      selected.id,
+                      selected.name,
+                      selected.description,
+                      !selected.isPublic,
+                    );
+                    setPanel(null);
+                  })
+                }
+              />
+              <Button
+                title="Thêm bài hát"
+                variant="secondary"
+                disabled={action.busy}
+                onPress={() => {
+                  setPanel(null);
+                  router.push("/search");
+                }}
               />
               <Button
                 title="Xóa playlist"
@@ -368,24 +429,19 @@ export function PlaylistsScreen() {
                 disabled={action.busy}
                 onPress={() =>
                   confirmDelete(
-                    "Xóa playlist? Bài hát gốc không bị xóa.",
+                    "Thao tác này sẽ xóa vĩnh viễn playlist này. Bạn có chắc chắn muốn tiếp tục không?",
                     () =>
                       void action.run(async () => {
                         if (!user) return;
                         await deletePlaylist(user.uid, selected.id);
                         setPanel(null);
                       }),
+                    "Xóa playlist?",
                   )
                 }
               />
             </>
           ) : null}
-          <Button
-            title="Đóng"
-            variant="secondary"
-            disabled={action.busy}
-            onPress={() => setPanel(null)}
-          />
         </ModalPanel>
       )}
     </>
@@ -480,10 +536,7 @@ export function PlaylistDetailScreen() {
           {!songs.length && (
             <EmptyState message="Playlist chưa có bài khả dụng. Mở menu … của bài hát để thêm vào playlist." />
           )}
-          <Button
-            title="Tìm bài để thêm"
-            onPress={() => router.push("/search")}
-          />
+          <Button title="Thêm bài hát" onPress={() => router.push("/search")} />
         </>
       }
     />

@@ -16,7 +16,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useHomeDiscovery } from "../hooks/useHomeDiscovery";
 
 export default function HomeScreen() {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const discovery = useHomeDiscovery();
   const hour = new Date().getHours();
   const greeting =
@@ -101,24 +101,23 @@ export default function HomeScreen() {
         </Action>
       </YStack>
 
+      <YStack paddingHorizontal="gutter">
+        <Button
+          title="Làm mới khám phá"
+          variant="secondary"
+          onPress={discovery.refresh}
+        />
+      </YStack>
       <HomeDiscovery state={discovery} />
 
       <YStack paddingHorizontal="gutter">
-        {/* Keep the existing quick access to public songs and admin tools. */}
         {discovery.songs.length > 0 && (
           <>
             <SectionHeading title="Bài hát" />
-            {discovery.songs.slice(0, 10).map((song) => (
+            {discovery.songs.map((song) => (
               <SongRow key={song.id} song={song} queue={discovery.songs} />
             ))}
           </>
-        )}
-        {isAdmin && (
-          <Button
-            title="Quản lý danh mục"
-            variant="secondary"
-            onPress={() => router.push("/admin")}
-          />
         )}
       </YStack>
     </ScrollView>

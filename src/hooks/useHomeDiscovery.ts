@@ -1,41 +1,25 @@
-import { useMemo } from "react";
-import { useCatalogData, useHistoryData } from "../contexts/DataContext";
-import { popularArtists } from "../utils/discovery";
-import { suggestSongs, trendingAlbums } from "../utils/recommendations";
-
-// Derive Home content from the existing shared data session; no extra listeners.
+import { useState } from "react";
+import type { Song, Artist, Album } from "../types/domain";
+import { useBackendResource, useDiscoverySeed } from "./useBackendResource";
+type Discovery = {
+  songs: Song[];
+  suggestions: Song[];
+  artists: Artist[];
+  albums: (Album & { totalPlayCount: number })[];
+};
 export function useHomeDiscovery() {
-  const data = useCatalogData();
-  const { history } = useHistoryData();
-  const songs = useMemo(
-    () =>
-      data.songs.filter(
-        (song) =>
-          song.active && song.isPublished && song.visibility === "public",
-      ),
-    [data.songs],
-  );
-  const suggestions = useMemo(
-    () => suggestSongs(songs, history),
-    [songs, history],
-  );
-  const albums = useMemo(
-    () => trendingAlbums(songs, data.albums),
-    [songs, data.albums],
-  );
-  const artists = useMemo(() => {
-    const artistIds = new Set(songs.map((song) => song.artistId));
-    return popularArtists(data.artists, data.songs).filter((artist) =>
-      artistIds.has(artist.id),
-    );
-  }, [data.artists, data.songs, songs]);
-
+  const [refreshCount, setRefresh] = useState(0);
+  const seed = useDiscoverySeed();
+  const state = useBackendResource<Discovery>("/discovery", {
+    seed: seed + ":" + refreshCount,
+  });
   return {
-    songs,
-    suggestions,
-    albums,
-    artists,
-    loading: data.loading,
-    errors: data.errors,
+    songs: state.value?.songs ?? [],
+    suggestions: state.value?.suggestions ?? [],
+    artists: state.value?.artists ?? [],
+    albums: state.value?.albums ?? [],
+    loading: state.loading,
+    errors: state.error ? ["Songs: " + state.error] : [],
+    refresh: () => setRefresh((value) => value + 1),
   };
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Song } from "../types/domain";
 
-import { newHistoryId, savePlayback } from "../services/historyService";
+import { createPlaybackSession } from "../services/historyService";
 
 import { useAuth } from "../contexts/AuthContext";
 import { errorMessage } from "../utils/feedback";
@@ -29,100 +29,66 @@ export function usePlaybackHistory(
     latest.current = { song, status };
   }, [song, status]);
 
+  const flushRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (!user || !song) return;
-
-    const uid = user.uid;
     const track = song;
-    const id = newHistoryId(uid);
-
-    let heard = 0;
-    let lastPosition = 0;
-    let lastTime = Date.now();
-    let lastSaved = 0;
-
-    let saving = false;
-    let queued = false;
-    let closed = false;
-
-    let capturedStatus = latest.current.status;
-
-    const flush = async () => {
-      if (saving) {
-        queued = true;
-        return;
-      }
-
-      saving = true;
-
-      const currentStatus = capturedStatus;
-      const heardNow = heard;
-
-      try {
-        await savePlayback(
-          uid,
-          id,
-          track,
-          currentStatus.currentTime || 0,
-          currentStatus.duration || track.durationSeconds,
-          heardNow,
-          currentStatus.didJustFinish ||
-            (currentStatus.duration > 0 &&
-              currentStatus.currentTime >= currentStatus.duration - 1),
-        );
-
-        lastSaved = heardNow;
-      } catch (e) {
-        if (!closed) {
-          fail(`Lịch sử: ${errorMessage(e)}`);
-        }
-      } finally {
-        saving = false;
-
-        if (queued) {
-          queued = false;
-          void flush();
-        }
-      }
-    };
-
-    void flush();
-
-    const timer = setInterval(() => {
-      const now = Date.now();
-      const currentStatus = latest.current.status;
-      const elapsed = (now - lastTime) / 1000;
-
-      capturedStatus = currentStatus;
-
-      const delta = currentStatus.currentTime - lastPosition;
-
-      if (
-        currentStatus.isLoaded &&
-        currentStatus.playing &&
-        !currentStatus.isBuffering &&
+    const sender = createPlaybackSession(user.uid, track.id);
+    let closed = false,
+      ticks = 0;
+    let lastTime = Date.now(),
+      lastPosition = latest.current.status.currentTime || 0;
+    let wasPlaying = latest.current.status.playing;
+    const sample = () => {
+      if (latest.current.song?.id !== track.id) return;
+      const current = latest.current.status,
+        now = Date.now();
+      const elapsed = (now - lastTime) / 1000,
+        delta = current.currentTime - lastPosition;
+      const position = Math.max(
+        0,
+        Math.min(track.durationSeconds, current.currentTime || 0),
+      );
+      const valid =
+        wasPlaying &&
+        (current.playing || current.didJustFinish) &&
+        current.isLoaded &&
+        !current.isBuffering &&
         elapsed > 0 &&
         elapsed <= 3 &&
         delta > 0 &&
-        delta <= elapsed + 0.75
-      ) {
-        heard += Math.min(delta, elapsed);
-      }
-
+        delta <= elapsed + 0.2;
+      sender.sample(
+        position,
+        valid
+          ? [Math.max(0, position - Math.min(delta, elapsed)), position]
+          : undefined,
+      );
       lastTime = now;
-      lastPosition = currentStatus.currentTime;
-
-      if (heard - lastSaved >= 10) {
-        void flush();
-      }
+      lastPosition = current.currentTime;
+      wasPlaying = current.playing;
+    };
+    const flush = () => {
+      sample();
+      void sender.flush().catch((error) => {
+        if (!closed) fail(errorMessage(error));
+      });
+    };
+    flushRef.current = flush;
+    flush();
+    const timer = setInterval(() => {
+      sample();
+      if (++ticks % 10 === 0) flush();
     }, 1000);
-
     return () => {
       closed = true;
       clearInterval(timer);
-      void flush();
+      flush();
+      if (flushRef.current === flush) flushRef.current = null;
     };
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid, song?.id, session]);
+  useEffect(() => {
+    flushRef.current?.();
+  }, [status.playing, status.didJustFinish]);
 }

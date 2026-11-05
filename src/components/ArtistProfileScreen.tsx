@@ -1,199 +1,123 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { useWindowDimensions } from "react-native";
-import { ScrollView, XStack, YStack } from "tamagui";
-import { useCatalogData } from "../contexts/DataContext";
-import { usePlayerActions } from "../contexts/PlayerContext";
-import { artistAlbums, artistSongs, shuffleSongs } from "../utils/discovery";
+import { MediaRow } from "./MediaRow";
 import Artwork from "./Artwork";
-import SongRow from "./SongRow";
-import {
-  Action,
-  AppIcon,
-  AppText,
-  IconButton,
-  ListPage,
-  Loading,
-  Page,
-  PageTitle,
-  TextLink,
-  MediaTitle,
-  MediaSubtitle,
-} from "./UI";
+import AlbumFavoriteButton from "./AlbumFavoriteButton";
+import { PublicPlaylistsSection } from "./UserPlaylists";
+import RelatedArtistsSection from "./RelatedArtistsSection";
+import { useCatalogData } from "../contexts/DataContext";
+import { XStack, YStack } from "tamagui";
+import { usePublicProfile } from "../hooks/usePublicProfile";
+import { useCursorList } from "../hooks/useCursorList";
+import { usePlayerActions } from "../contexts/PlayerContext";
 import {
   ArtistAvatar,
-  BackButton,
   FollowButton,
-  SectionHeading,
+  BackButton,
 } from "./discovery/DiscoveryCards";
+import {
+  AppText,
+  Button,
+  EmptyState,
+  ErrorText,
+  ListPage,
+  Loading,
+  PageTitle,
+} from "./UI";
+import SongRow from "./SongRow";
+import LoadMore from "./LoadMore";
 export default function ArtistProfileScreen() {
-  const params = useLocalSearchParams<{
-    id?: string | string[];
-  }>();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const data = useCatalogData();
-  const { width } = useWindowDimensions();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const profile = usePublicProfile(id || "");
+  const state = useCursorList("/collection", { artistId: id || "" }, !!id);
   const player = usePlayerActions();
-  const [selection, setSelection] = useState({
-    artistId: "",
-    album: "",
-  });
-  const artist = data.artists.find((item) => item.id === id && item.active);
-  const allSongs = artistSongs(data.songs, id ?? "");
-  const albums = artistAlbums(allSongs);
-  const selectedAlbum = selection.artistId === id ? selection.album : "";
-  const songs = selectedAlbum
-    ? allSongs.filter((song) => song.album.trim() === selectedAlbum)
-    : allSongs;
-  function play(shuffle = false) {
-    const queue = shuffle ? shuffleSongs(songs) : songs;
-    if (queue.length === 0) return;
-    player.play(queue[0], queue);
-    router.push("/player");
-  }
-  if (!artist) {
-    return (
-      <Page title="Artist">
-        <BackButton />
-
-        {data.loading ? (
-          <Loading />
-        ) : (
-          <AppText variant="muted">
-            Không tìm thấy nghệ sĩ hoặc nghệ sĩ chưa được tải.
-          </AppText>
-        )}
-      </Page>
-    );
-  }
+  const songs = state.items.flatMap((result) =>
+    result.kind === "song" ? [result.item] : [],
+  );
+  const catalog = useCatalogData();
+  const albums = catalog.albums.filter(
+    (album) => album.artistId === id && album.isPublished,
+  );
   return (
     <ListPage
-      contentWidth="reading"
       data={songs}
-      renderItem={(song) => <SongRow key={song.id} song={song} queue={songs} />}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(song) => song.id}
+      renderItem={(song) => <SongRow song={song} queue={songs} />}
+      onEndReached={() => {
+        if (state.started && !state.error) void state.loadMore();
+      }}
       header={
         <>
           <BackButton />
-
-          <YStack alignItems="center" paddingTop="2">
-            <ArtistAvatar
-              artist={artist}
-              size={Math.min(240, Math.round(width * 0.62))}
-            />
-
-            <PageTitle marginTop="4" textAlign="center" alignSelf="stretch">
-              {artist.name}
-            </PageTitle>
-
-            <AppText
-              variant="muted"
-              marginTop={5}
-              alignSelf="stretch"
-              textAlign="center"
-            >
-              {artist.followerCount ?? 0} followers · {allSongs.length} bài hát
-              · {albums.length} album
-            </AppText>
-          </YStack>
-
-          <XStack
-            justifyContent="space-between"
-            alignItems="center"
-            marginTop="5.5"
-            marginBottom="4.5"
-          >
-            <FollowButton artistId={artist.id} inline />
-
-            <XStack alignItems="center" gap="5">
-              <IconButton
-                role="button"
-                aria-label="Phát ngẫu nhiên"
-                disabled={songs.length === 0}
-                onPress={() => play(true)}
-                padding="2"
-                opacity={songs.length ? 1 : 0.35}
-              >
-                <AppIcon name="shuffle" size={26} color="textMuted" />
-              </IconButton>
-
-              <IconButton
-                tone="play"
-                role="button"
-                aria-label="Phát tất cả"
-                disabled={songs.length === 0}
-                onPress={() => play()}
-                width={52}
-                height={52}
-                borderRadius={26}
-                backgroundColor="contrast"
-                alignItems="center"
-                justifyContent="center"
-                opacity={songs.length ? 1 : 0.35}
-              >
-                <AppIcon name="play" size={25} color="white" />
-              </IconButton>
-            </XStack>
-          </XStack>
-
-          <SectionHeading title={selectedAlbum || "Popular"} />
-
-          {selectedAlbum ? (
-            <Action
-              onPress={() =>
-                setSelection({
-                  artistId: artist.id,
-                  album: "",
-                })
-              }
-            >
-              <TextLink>← Tất cả bài hát của nghệ sĩ</TextLink>
-            </Action>
-          ) : null}
+          <ErrorText message={profile.error} />
+          <Button
+            title="Làm mới hồ sơ"
+            variant="secondary"
+            disabled={profile.loading}
+            onPress={profile.refresh}
+          />
+          {profile.loading ? (
+            <Loading />
+          ) : profile.profile ? (
+            <>
+              <YStack alignItems="center" gap="3">
+                <ArtistAvatar artist={profile.profile} size={180} />
+                <PageTitle>{profile.profile.name}</PageTitle>
+                <AppText variant="muted">
+                  {profile.profile.followerCount ?? 0} người theo dõi
+                </AppText>
+              </YStack>
+              <XStack gap="3" marginVertical="4">
+                <FollowButton artistId={id} />
+                <Button
+                  title="Phát bài hát"
+                  disabled={!songs.length}
+                  onPress={() => {
+                    player.play(songs[0], songs);
+                  }}
+                />
+              </XStack>
+              <AppText variant="muted">
+                {profile.profile.biography || "Chưa có giới thiệu."}
+              </AppText>
+              <AppText fontWeight="700" marginVertical="3">
+                Bài hát
+              </AppText>
+            </>
+          ) : (
+            <EmptyState message="Hồ sơ không còn khả dụng." />
+          )}
         </>
       }
       footer={
         <>
-          {songs.length === 0 ? (
-            <AppText variant="muted">Nghệ sĩ này chưa có bài hát.</AppText>
-          ) : null}
-
-          <SectionHeading title="Albums" />
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {albums.map((album) => (
-              <Action
-                key={album.name}
-                role="button"
-                aria-label={`Xem album ${album.name}`}
-                onPress={() =>
-                  setSelection({
-                    artistId: artist.id,
-                    album: album.name,
-                  })
-                }
-                width={140}
-                marginRight="3.5"
-              >
-                <Artwork uri={album.cover} size={140} />
-
-                <MediaTitle marginTop="2">{album.name}</MediaTitle>
-
-                <MediaSubtitle>{album.songs.length} bài hát</MediaSubtitle>
-              </Action>
-            ))}
-          </ScrollView>
-
-          {albums.length === 0 ? (
-            <AppText variant="muted">Chưa có thông tin album.</AppText>
-          ) : null}
-
-          <SectionHeading title="About" />
-
-          <AppText variant="muted">
-            {artist.biography.trim() ||
-              "Nghệ sĩ chưa cập nhật phần giới thiệu."}
-          </AppText>
+          <LoadMore {...state} />
+          <PublicPlaylistsSection ownerId={id || ""} />
+          {id ? <RelatedArtistsSection id={id} /> : null}
+          {!state.loading && state.started && !songs.length && (
+            <EmptyState message="Chưa có bài hát công khai." />
+          )}
+          {!!albums.length && (
+            <>
+              <AppText fontWeight="700">Album</AppText>
+              {albums.map((album) => (
+                <MediaRow
+                  key={album.id}
+                  title={album.title || "Album"}
+                  subtitle={album.artistName}
+                  leading={
+                    <Artwork uri={album.coverUrl} size={60} radius={4} />
+                  }
+                  trailing={<AlbumFavoriteButton id={album.id} />}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/album",
+                      params: { id: album.id },
+                    })
+                  }
+                />
+              ))}
+            </>
+          )}
         </>
       }
     />

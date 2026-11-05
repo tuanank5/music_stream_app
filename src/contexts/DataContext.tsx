@@ -57,14 +57,10 @@ const LibraryContext = createContext<LibraryData | null>(null);
 const HistoryContext = createContext<HistoryData | null>(null);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, loading } = useAuth();
   const uid = loading ? undefined : user?.uid;
   return (
-    <DataSession
-      key={`${uid ?? "guest"}-${isAdmin}`}
-      uid={uid}
-      isAdmin={isAdmin}
-    >
+    <DataSession key={uid ?? "guest"} uid={uid}>
       {children}
     </DataSession>
   );
@@ -73,11 +69,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 function DataSession({
   children,
   uid,
-  isAdmin,
 }: {
   children: React.ReactNode;
   uid?: string;
-  isAdmin: boolean;
 }) {
   const [songs, setSongs] = useState<Song[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -243,7 +237,6 @@ function DataSession({
       watchSongs(
         guarded(success("songs", "Songs", setSongs)),
         guarded(failure("songs", "Songs")),
-        isAdmin,
       ),
       watchArtists(
         guarded(success("artists", "Artists", setArtists)),
@@ -284,7 +277,6 @@ function DataSession({
     };
   }, [
     uid,
-    isAdmin,
     clearError,
     fail,
     pending,

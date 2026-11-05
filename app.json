@@ -5,7 +5,7 @@
     "scheme": "musicstream",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "plugins": [
       "expo-router",
       [
@@ -16,7 +16,7 @@
         }
       ],
       [
-      "expo-image-picker",
+        "expo-image-picker",
         {
           "photosPermission": "Cho phép chọn ảnh bìa bài hát.",
           "cameraPermission": false,
@@ -26,6 +26,6 @@
     ],
     "web": {
       "bundler": "metro"
-    } 
+    }
   }
 }

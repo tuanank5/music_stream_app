@@ -38,10 +38,14 @@ const args = [
   "--project",
   "demo-music-stream",
   "--config",
-  resolve(root, "firebase.json"),
+  action === "test" && process.env.LOCAL_TEST_CONFIG
+    ? resolve(root, process.env.LOCAL_TEST_CONFIG)
+    : resolve(root, "firebase.json"),
 ];
 if (action === "test")
-  args.push("node --test tests/local-integration.test.cjs");
+  args.push(
+    "node --test --test-concurrency=1 tests/local-integration.test.cjs tests/firestore.rules.test.cjs",
+  );
 const child = spawn(process.execPath, args, {
   cwd: root,
   env,

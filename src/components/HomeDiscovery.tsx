@@ -117,7 +117,7 @@ export default function HomeDiscovery({
                 height={Math.round(portraitWidth * 1.33)}
                 onPress={() => {
                   player.play(song, suggestions);
-                  router.push("/player");
+
                 }}
                 width={portraitWidth}
               />

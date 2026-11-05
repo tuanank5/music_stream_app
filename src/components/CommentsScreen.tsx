@@ -1,11 +1,13 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { createSubmissionKey } from "../utils/submission";
 import { FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { XStack, YStack, styled } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useAction } from "../hooks/useAction";
 import { useBackNavigation } from "../hooks/useBackNavigation";
-import { useRealtimeList } from "../hooks/useRealtimeList";
+import { useFeedPage } from "../hooks/useFeedPage";
+import LoadMore from "./LoadMore";
 import * as feed from "../services/feedService";
 import type { Comment } from "../types/domain";
 import { confirmDelete } from "../utils/feedback";
@@ -25,15 +27,16 @@ import {
 const KeyboardFrame = styled(KeyboardAvoidingView, { flex: 1 });
 export default function CommentsScreen({ postId }: { postId: string }) {
   const closeComments = useBackNavigation("/feed");
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const action = useAction();
-  const insets = useSafeAreaInsets();
-  const subscribe = useCallback(
-    (next: (items: Comment[]) => void, fail: (error: Error) => void) =>
-      feed.watchComments(postId, next, fail),
-    [postId],
+  const [submission] = useState(() =>
+    createSubmissionKey(feed.newSubmissionId),
   );
-  const { items: comments, loading, error } = useRealtimeList(subscribe);
+  const insets = useSafeAreaInsets();
+  const page = useFeedPage<Comment>(
+    `/posts/${encodeURIComponent(postId)}/comments`,
+  );
+  const { items: comments, loading, error } = page;
   const [text, setText] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [selected, setSelected] = useState<Comment | null>(null);
@@ -72,6 +75,16 @@ export default function CommentsScreen({ postId }: { postId: string }) {
           <ErrorText message={error} />
           <FlatList
             data={comments}
+            ListFooterComponent={
+              <>
+                <Button
+                    title="Làm mới"
+                  variant="secondary"
+                  onPress={page.refresh}
+                />
+                <LoadMore {...page} />
+              </>
+            }
             style={{ flex: 1 }}
             contentContainerStyle={{ paddingHorizontal: 20 }}
             keyExtractor={(comment) => comment.id}
@@ -101,7 +114,7 @@ export default function CommentsScreen({ postId }: { postId: string }) {
                       : "Đang gửi..."}
                   </AppText>
                 </YStack>
-                {(comment.ownerId === user?.uid || isAdmin) && (
+                {comment.ownerId === user?.uid && (
                   <IconButton
                     aria-label="Sửa hoặc xóa bình luận"
                     onPress={() => {
@@ -157,9 +170,11 @@ export default function CommentsScreen({ postId }: { postId: string }) {
                         await feed.createComment(
                           postId,
                           user.uid,
-                          user.displayName ?? "",
                           text,
+                          submission.get(user.uid, postId, text.trim()),
                         );
+                      submission.clear();
+                      page.refresh();
                       setText("");
                       setEditing(null);
                     })
@@ -211,6 +226,7 @@ export default function CommentsScreen({ postId }: { postId: string }) {
                 () =>
                   void action.run(async () => {
                     await feed.deleteComment(postId, selected.id);
+                    page.refresh();
                     setSelected(null);
                     if (editing === selected.id) {
                       setEditing(null);
@@ -219,12 +235,6 @@ export default function CommentsScreen({ postId }: { postId: string }) {
                   }),
               )
             }
-          />
-          <Button
-            title="Đóng"
-            variant="secondary"
-            disabled={action.busy}
-            onPress={() => setSelected(null)}
           />
         </ModalPanel>
       )}

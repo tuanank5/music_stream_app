@@ -1,5 +1,6 @@
 import { Alert, Platform } from "react-native";
 const messages: Record<string, string> = {
+  "auth/user-disabled": "Tài khoản của bạn đã bị vô hiệu hóa.",
   "auth/invalid-credential": "Email hoặc mật khẩu không đúng.",
   "auth/email-already-in-use": "Email đã được đăng ký.",
   "auth/invalid-email": "Email không hợp lệ.",
@@ -20,11 +21,15 @@ export function notify(message: string) {
   if (Platform.OS === "web") window.alert(message);
   else Alert.alert("Music Stream", message);
 }
-export function confirmDelete(message: string, action: () => void) {
+export function confirmDelete(
+  message: string,
+  action: () => void,
+  title = "Xác nhận",
+) {
   if (Platform.OS === "web") {
-    if (window.confirm(message)) action();
+    if (window.confirm(`${title}\n\n${message}`)) action();
   } else
-    Alert.alert("Xác nhận", message, [
+    Alert.alert(title, message, [
       { text: "Hủy", style: "cancel" },
       { text: "Xóa", style: "destructive", onPress: action },
     ]);

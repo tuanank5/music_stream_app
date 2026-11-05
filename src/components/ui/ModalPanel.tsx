@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { BackHandler, KeyboardAvoidingView, Platform } from "react-native";
-import { Dialog, ScrollView, styled } from "tamagui";
+import { Dialog, ScrollView, XStack, styled } from "tamagui";
+import { AppIcon } from "./Icon";
+import { IconButton } from "./IconButton";
 const KeyboardFrame = styled(KeyboardAvoidingView, {
   width: "100%",
   height: "100%",
@@ -53,14 +55,20 @@ export function ModalPanel({
               gap="3"
               minWidth={0}
             >
-              <Dialog.Title
-                color="color"
-                fontSize="heading"
-                lineHeight="heading"
-                fontWeight="700"
-              >
-                {title}
-              </Dialog.Title>
+              <XStack alignItems="center" gap="2">
+                <Dialog.Title
+                  flex={1}
+                  color="color"
+                  fontSize="heading"
+                  lineHeight="heading"
+                  fontWeight="700"
+                >
+                  {title}
+                </Dialog.Title>
+                <IconButton aria-label="Đóng" onPress={onClose}>
+                  <AppIcon name="close" size={20} />
+                </IconButton>
+              </XStack>
               <Dialog.Description
                 color="textMuted"
                 fontSize="body"

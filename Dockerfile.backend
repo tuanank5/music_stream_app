@@ -1,0 +1,11 @@
+FROM node:24.12.0-bookworm-slim
+WORKDIR /app
+COPY tools/package.json tools/package-lock.json ./tools/
+RUN npm ci --prefix tools --omit=dev --no-audit --no-fund
+COPY tools/backend ./tools/backend
+COPY src/utils/recommendations.ts ./src/utils/recommendations.ts
+COPY src/services/firebase/runtime.ts ./src/services/firebase/runtime.ts
+USER node
+ENV NODE_ENV=production
+EXPOSE 8080
+CMD ["node", "tools/backend/main.cjs"]

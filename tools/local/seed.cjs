@@ -18,7 +18,6 @@ async function seedLocal() {
       if (error.code !== "auth/uid-already-exists") throw error;
       await auth.updateUser(user.uid, fields);
     }
-    await auth.setCustomUserClaims(user.uid, user.admin ? { admin: true } : {});
   }
   for (let start = 0; start < documents.length; start += 400) {
     const batch = db.batch();
@@ -26,6 +25,8 @@ async function seedLocal() {
       batch.set(db.doc(document.path), document.data);
     await batch.commit();
   }
+  const { projectProfile } = require("../backend/profiles.cjs");
+  for (const user of users) await projectProfile(db, user.uid);
   console.log(
     `Seeded ${users.length} local Auth accounts, ${documents.length} fixture documents. No collections deleted.`,
   );

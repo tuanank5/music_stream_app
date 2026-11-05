@@ -6,7 +6,6 @@ import { errorMessage } from "../utils/feedback";
 type AuthValue = {
   user: User | null;
   loading: boolean;
-  isAdmin: boolean;
   error: string;
   register: typeof service.register;
   login: typeof service.login;
@@ -17,17 +16,14 @@ const Context = createContext<AuthValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null),
     [loading, setLoading] = useState(true),
-    [isAdmin, setAdmin] = useState(false),
     [error, setError] = useState("");
   const [, force] = useState(0);
   async function refresh() {
     const u = getFirebaseAuth().currentUser;
     if (!u) return;
     await u.reload();
-    const t = await u.getIdTokenResult(true);
     if (getFirebaseAuth().currentUser?.uid === u.uid) {
       setUser(u);
-      setAdmin(t.claims.admin === true);
       force((v) => v + 1);
     }
   }
@@ -37,7 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const stop = onAuthStateChanged(getFirebaseAuth(), (u) => {
       const id = ++generation;
       setUser(u);
-      setAdmin(false);
       setError("");
       if (!u) {
         setLoading(false);
@@ -46,10 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       service
         .ensureProfile()
-        .then(() => u.getIdTokenResult())
-        .then((token) => {
-          if (live && id === generation) setAdmin(token.claims.admin === true);
-        })
         .catch((e) => {
           if (live && id === generation) setError(errorMessage(e));
         })
@@ -67,7 +58,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
-        isAdmin,
         error,
         register: service.register,
         login: service.login,

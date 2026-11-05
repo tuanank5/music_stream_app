@@ -1,12 +1,14 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import { createSubmissionKey } from "../utils/submission";
 import { Share, useWindowDimensions } from "react-native";
 import { XStack, YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
 import { usePlayerActions } from "../contexts/PlayerContext";
 import { useAction } from "../hooks/useAction";
-import { useRealtimeList } from "../hooks/useRealtimeList";
+import { useFeedPage } from "../hooks/useFeedPage";
+import LoadMore from "./LoadMore";
 import * as feed from "../services/feedService";
 import type { FeedPost } from "../types/domain";
 import { confirmDelete } from "../utils/feedback";
@@ -30,12 +32,16 @@ import {
 } from "./UI";
 
 export default function FeedScreen() {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const data = useData();
   const player = usePlayerActions();
   const action = useAction();
+  const [submission] = useState(() =>
+    createSubmissionKey(feed.newSubmissionId),
+  );
   const { width } = useWindowDimensions();
-  const { items: posts, loading, error } = useRealtimeList(feed.watchPosts);
+  const page = useFeedPage<FeedPost>("/posts");
+  const { items: posts, loading, error } = page;
   const [composer, setComposer] = useState(false);
   const [menu, setMenu] = useState<FeedPost | null>(null);
   const [text, setText] = useState("");
@@ -129,7 +135,6 @@ export default function FeedScreen() {
                   subtitle={song.artist}
                   onPress={() => {
                     player.play(song);
-                    router.push("/player");
                   }}
                 />
               ) : post.songId ? (
@@ -172,17 +177,25 @@ export default function FeedScreen() {
           );
         }}
         footer={
-          loading ? (
-            <Loading />
-          ) : !shown.length ? (
-            <EmptyState
-              message={
-                error
-                  ? "Chưa tải được bảng tin."
-                  : "Chưa có bài đăng. Hãy chia sẻ cảm nhận đầu tiên của bạn."
-              }
+          <>
+            <Button
+              title="Làm mới"
+              variant="secondary"
+              onPress={page.refresh}
             />
-          ) : null
+            <LoadMore {...page} />
+            {loading ? (
+              <Loading />
+            ) : !shown.length ? (
+              <EmptyState
+                message={
+                  error
+                    ? "Chưa tải được bảng tin."
+                    : "Chưa có bài đăng. Hãy chia sẻ cảm nhận đầu tiên của bạn."
+                }
+              />
+            ) : null}
+          </>
         }
       />
       {composer && (
@@ -257,10 +270,12 @@ export default function FeedScreen() {
                 else
                   await feed.createPost(
                     user.uid,
-                    user.displayName ?? "",
                     text,
                     songId,
+                    submission.get(user.uid, text.trim(), songId),
                   );
+                submission.clear();
+                page.refresh();
                 setComposer(false);
                 setText("");
                 setSongId("");
@@ -310,7 +325,7 @@ export default function FeedScreen() {
               onPress={() => openComposer(menu)}
             />
           )}
-          {(menu.ownerId === user?.uid || isAdmin) && (
+          {menu.ownerId === user?.uid && (
             <Button
               title="Ẩn bài đăng"
               variant="danger"
@@ -321,18 +336,13 @@ export default function FeedScreen() {
                   () =>
                     void action.run(async () => {
                       await feed.archivePost(menu.id);
+                      page.refresh();
                       setMenu(null);
                     }),
                 )
               }
             />
           )}
-          <Button
-            title="Đóng"
-            variant="secondary"
-            disabled={action.busy}
-            onPress={() => setMenu(null)}
-          />
         </ModalPanel>
       )}
     </>

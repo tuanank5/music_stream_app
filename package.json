@@ -19,6 +19,7 @@
     "expo-linking": "~58.0.14",
     "expo-router": "~58.0.27",
     "expo-status-bar": "~58.0.4",
+    "expo-system-ui": "~58.0.7",
     "firebase": "^12.19.0",
     "lucide-react-native": "^1.66.0",
     "react": "19.3.0",
@@ -48,14 +49,17 @@
     "local:backend": "node tools/local/backend.cjs",
     "test:local": "node --test tests/local-environment.test.cjs",
     "test:local:integration": "node tools/local/cli.cjs test",
+    "test:local:isolated": "node tools/local/isolated-test.cjs",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs",
-    "test:rules": "node --test tests/firestore.rules.test.cjs"
+    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs tests/m2.test.cjs tests/milestones.test.cjs tests/search-hooks.test.cjs tests/genres.test.cjs tests/uploads-queue.test.cjs tests/backend-http.test.cjs tests/related-artists.test.cjs tests/audio-assets.test.cjs tests/playback-policy.test.cjs",
+    "test:rules": "node --test tests/firestore.rules.test.cjs",
+    "backend:cloud": "node tools/backend/main.cjs",
+    "profiles:dry-run": "node tools/backend/backfill.cjs"
   },
   "private": true
 }

@@ -3,18 +3,12 @@ service cloud.firestore {
  match /databases/{database}/documents {
   function signed() { return request.auth != null; }
   function owner(uid) { return signed() && request.auth.uid == uid; }
-  function admin() { return signed() && request.auth.token.get('admin', false) == true; }
   function text(v,max) { return v is string && v.size() <= max; }
   function url(v) { return text(v,2048) && (v == '' || v.matches('https://.+')); }
-  function userPath(uid) { return /databases/$(database)/documents/users/$(uid); }
   function followPath(uid,target) { return /databases/$(database)/documents/users/$(uid)/following/$(target); }
   function follows(uid,target) { return exists(followPath(uid,target)); }
-  function relationDelta(uid,target) {
-   return !exists(followPath(uid,target)) && existsAfter(followPath(uid,target)) ? 1
-    : exists(followPath(uid,target)) && !existsAfter(followPath(uid,target)) ? -1 : 0;
-  }
   function readable(d) {
-   return signed() && (admin() || owner(d.artistId) || (d.active == true && (
+   return signed() && (owner(d.artistId) || (d.active == true && (
     (d.visibility == 'public' && d.isPublished == true) || d.visibility == 'unlisted'
     || (d.visibility == 'followers' && follows(request.auth.uid,d.artistId)))));
   }
@@ -25,7 +19,8 @@ service cloud.firestore {
     && d.songId == id && text(d.title,150) && d.title.size()>0
     && text(d.artistId,128) && exists(/databases/$(database)/documents/users/$(d.artistId))
     && d.artistNames is list && d.artistNames.size()>0 && d.artistNames.size()<=10
-    && text(d.albumId,128) && (d.albumId == '' || get(/databases/$(database)/documents/albums/$(d.albumId)).data.artistId == d.artistId)
+    && text(d.albumId,128) && (d.albumId == '' || (get(/databases/$(database)/documents/albums/$(d.albumId)).data.artistId == d.artistId
+     && get(/databases/$(database)/documents/albums/$(d.albumId)).data.get('deleting',false) == false))
     && url(d.coverUrl) && url(d.audioUrl) && d.audioKey in ['', 'demo1','demo2','demo3']
     && (d.audioUrl != '' || d.audioKey != '')
     && d.durationSeconds is number && d.durationSeconds > 0 && d.durationSeconds <= 86400
@@ -36,42 +31,32 @@ service cloud.firestore {
     && d.isPublished == (d.visibility == 'public' && d.active == true)
     && d.playCount is int && d.playCount>=0 && d.createdAt is timestamp && d.releaseDate is timestamp;
   }
-  function countedPlay(songId) {
-   let d = request.resource.data;
-   let uid = request.auth.uid;
-   let h = /databases/$(database)/documents/users/$(uid)/history/$(d.lastPlayHistoryId);
-   let r = /databases/$(database)/documents/users/$(uid)/playReceipts/$(songId);
-   return signed() && readable(resource.data)
-    && d.diff(resource.data).affectedKeys().hasOnly(['playCount','lastPlayUid','lastPlayHistoryId'])
-    && d.lastPlayUid == uid && d.playCount == resource.data.playCount + 1
-    && exists(h) && get(h).data.counted == false
-    && getAfter(h).data.counted == true && getAfter(h).data.songId == songId
-    && getAfter(r).data.historyId == d.lastPlayHistoryId && getAfter(r).data.countedAt == request.time;
-  }
   match /songs/{songId} {
    allow get: if readable(resource.data);
-   allow list: if signed() && (admin() || owner(resource.data.artistId) || (resource.data.visibility == 'public' && resource.data.isPublished == true)
+   allow list: if signed() && (owner(resource.data.artistId) || (resource.data.visibility == 'public' && resource.data.isPublished == true)
     || (resource.data.visibility == 'followers' && resource.data.active == true && follows(request.auth.uid,resource.data.artistId)));
-   allow create: if signed() && (owner(request.resource.data.artistId) || admin()) && validSong(songId)
-    && request.resource.data.playCount == 0 && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
-   allow update: if ((owner(resource.data.artistId) || admin()) && validSong(songId)
+   allow create: if false;
+   allow update: if (owner(resource.data.artistId) && validSong(songId)
+    && (request.resource.data.durationSeconds == resource.data.durationSeconds
+      && request.resource.data.audioUrl == resource.data.audioUrl && request.resource.data.audioKey == resource.data.audioKey
+      && (resource.data.active == true || request.resource.data.active == false))
     && request.resource.data.artistId == resource.data.artistId && request.resource.data.createdAt == resource.data.createdAt
     && request.resource.data.playCount == resource.data.playCount
     && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['lastPlayUid','lastPlayHistoryId'])
-    && request.resource.data.updatedAt == request.time) || countedPlay(songId);
-   allow delete: if owner(resource.data.artistId) || admin();
+    && request.resource.data.updatedAt == request.time);
+   allow delete: if owner(resource.data.artistId);
   }
   match /albums/{albumId} {
-   allow get: if signed() && (resource.data.isPublished == true || owner(resource.data.artistId) || admin());
-   allow list: if signed() && (resource.data.isPublished == true || owner(resource.data.artistId) || admin());
+   allow get: if signed() && (resource.data.isPublished == true || owner(resource.data.artistId));
+   allow list: if signed() && (resource.data.isPublished == true || owner(resource.data.artistId));
    allow create: if signed() && request.resource.data.albumId == albumId && owner(request.resource.data.artistId)
     && text(request.resource.data.title,150) && request.resource.data.title.size()>0
     && url(request.resource.data.coverUrl) && request.resource.data.isPublished is bool
     && request.resource.data.createdAt == request.time && request.resource.data.releaseDate is timestamp;
-   allow update: if (owner(resource.data.artistId) || admin())
+   allow update: if (owner(resource.data.artistId))
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title','coverUrl','isPublished'])
     && text(request.resource.data.title,150) && url(request.resource.data.coverUrl) && request.resource.data.isPublished is bool;
-   allow delete: if admin();
+   allow delete: if false;
   }
   function validUser(uid) {
    let d = request.resource.data;
@@ -80,50 +65,27 @@ service cloud.firestore {
     && d.followerCount is int && d.followerCount>=0 && d.followingCount is int && d.followingCount>=0
     && d.active is bool && d.createdAt is timestamp && d.updatedAt is timestamp;
   }
-  function followingChange(uid) {
-   let d = request.resource.data;
-   // Other users' follower updates do not carry lastFollowingId. Check the
-   // operation/field before evaluating a relation path for this branch.
-   return owner(uid) && d.keys().hasAll(['lastFollowingId'])
-    && text(d.lastFollowingId,128) && d.lastFollowingId.size()>0 && uid != d.lastFollowingId
-    && d.diff(resource.data).affectedKeys().hasOnly(['followingCount','lastFollowingId'])
-    && relationDelta(uid,d.lastFollowingId) != 0
-    && d.followingCount == resource.data.followingCount + relationDelta(uid,d.lastFollowingId) && d.followingCount >= 0;
-  }
-  function followerChange(uid) {
-   let delta = relationDelta(request.auth.uid,uid);
-   return signed() && uid != request.auth.uid && delta != 0
-    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followerCount'])
-    && request.resource.data.followerCount == resource.data.followerCount + delta
-    && request.resource.data.followerCount >= 0;
+  match /publicProfiles/{uid} {
+   allow read: if signed();
+   // Projection and social counters are written by the backend only.
+   allow write: if false;
   }
   match /users/{uid} {
-   // All signed-in users can read full user documents, INCLUDING email.
-   allow get, list: if signed();
+   allow get, list: if owner(uid);
    allow create: if owner(uid) && validUser(uid) && request.resource.data.email == request.auth.token.email
+    && request.resource.data.keys().hasOnly(['userId','displayName','email','avatarUrl','biography','followerCount','followingCount','active','createdAt','updatedAt','lastFollowingId'])
     && request.resource.data.followerCount == 0 && request.resource.data.followingCount == 0
     && request.resource.data.createdAt == request.time;
    allow update: if (owner(uid) && validUser(uid)
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','avatarUrl','biography','updatedAt'])
-    && request.resource.data.updatedAt == request.time) || followingChange(uid) || followerChange(uid)
-    || (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','avatarUrl','biography','active','updatedAt']));
+    && request.resource.data.updatedAt == request.time);
    match /following/{target} {
     allow read: if owner(uid);
-    function counters(delta) {
-     return getAfter(userPath(uid)).data.followingCount == get(userPath(uid)).data.followingCount + delta
-      && getAfter(userPath(target)).data.followerCount == get(userPath(target)).data.followerCount + delta
-      && getAfter(userPath(uid)).data.lastFollowingId == target;
-    }
-    allow create: if owner(uid) && uid != target && exists(userPath(target))
-     && request.resource.data.keys().hasOnly(['userId','followedAt']) && request.resource.data.userId == target
-     && request.resource.data.followedAt == request.time && counters(1);
-    allow delete: if owner(uid) && counters(-1);
+    allow write: if false;
    }
    match /favorites/{songId} {
-    allow read, delete: if owner(uid);
-    allow create, update: if owner(uid) && readableSong(songId)
-     && request.resource.data.keys().hasOnly(['songId','favoritedAt']) && request.resource.data.songId == songId
-     && request.resource.data.favoritedAt == request.time;
+    allow read: if owner(uid);
+    allow write: if false;
    }
    match /playlists/{playlistId} {
     allow read, delete: if owner(uid);
@@ -141,77 +103,18 @@ service cloud.firestore {
       || (request.resource.data.songIds.removeAll(resource.data.songIds).size()==1
        && readableSong(request.resource.data.songIds.removeAll(resource.data.songIds)[0])));
    }
-   match /history/{historyId} {
-    allow read, delete: if owner(uid);
-    function valid() {
-     let d = request.resource.data;
-     return d.keys().hasOnly(['historyId','songId','playedAt','progressSeconds','durationSeconds','listenedSeconds','completed','counted','startedAt'])
-      && d.historyId == historyId && text(d.songId,128) && d.playedAt == request.time
-      && d.durationSeconds is number && d.durationSeconds >= 0 && d.durationSeconds <= 86400
-      && d.progressSeconds is number && d.progressSeconds>=0 && d.progressSeconds<=d.durationSeconds
-      && d.listenedSeconds is number && d.listenedSeconds>=0 && d.completed is bool && d.counted is bool;
-    }
-    allow create: if owner(uid) && valid() && readableSong(request.resource.data.songId)
-     && request.resource.data.startedAt == request.time && request.resource.data.counted == false && request.resource.data.listenedSeconds == 0;
-    allow update: if owner(uid) && valid() && request.resource.data.songId == resource.data.songId
-     && request.resource.data.startedAt == resource.data.startedAt
-     && request.resource.data.listenedSeconds >= resource.data.listenedSeconds
-     && (request.resource.data.counted == resource.data.counted || (resource.data.counted == false
-      && request.resource.data.counted == true && request.resource.data.listenedSeconds>=60
-      && request.time >= resource.data.startedAt + duration.value(60,'s')
-      && getAfter(/databases/$(database)/documents/songs/$(resource.data.songId)).data.playCount == get(/databases/$(database)/documents/songs/$(resource.data.songId)).data.playCount+1
-      && getAfter(/databases/$(database)/documents/songs/$(resource.data.songId)).data.lastPlayHistoryId == historyId
-      && getAfter(/databases/$(database)/documents/songs/$(resource.data.songId)).data.lastPlayUid == uid));
-   }
-   match /playReceipts/{songId} {
-    allow read: if owner(uid);
-    function validReceipt() {
-     let d = request.resource.data;
-     let h = /databases/$(database)/documents/users/$(uid)/history/$(d.historyId);
-     return d.keys().hasOnly(['historyId','countedAt']) && d.countedAt == request.time
-      && exists(h) && get(h).data.counted == false && getAfter(h).data.counted == true
-      && getAfter(h).data.songId == songId
-      && getAfter(/databases/$(database)/documents/songs/$(songId)).data.lastPlayHistoryId == d.historyId
-      && getAfter(/databases/$(database)/documents/songs/$(songId)).data.lastPlayUid == uid;
-    }
-    allow create: if owner(uid) && validReceipt();
-    allow update: if owner(uid) && validReceipt() && request.time >= resource.data.countedAt + duration.value(60,'s');
-   }
+   match /history/{historyId} { allow read: if owner(uid); allow write: if false; }
+   match /playReceipts/{songId} { allow read: if owner(uid); allow write: if false; }
   }
   // Old collections remain for rollback only. App v2 does not read/write them.
   match /artists/{id} { allow read, write: if false; }
   match /charts/{id} { allow read, write: if false; }
   match /posts/{postId} {
    allow read: if signed();
-   allow create: if signed()
-    && request.resource.data.keys().hasAll(['ownerId','authorName','content','songId','active','createdAt'])
-    && request.resource.data.keys().hasOnly(['ownerId','authorName','content','songId','active','createdAt'])
-    && request.resource.data.ownerId==request.auth.uid
-    && text(request.resource.data.authorName,80) && request.resource.data.authorName.size()>0
-    && text(request.resource.data.content,2000) && request.resource.data.content.size()>0
-    && text(request.resource.data.songId,128)
-    && (request.resource.data.songId=='' || exists(/databases/$(database)/documents/songs/$(request.resource.data.songId)))
-    && request.resource.data.active==true && request.resource.data.createdAt==request.time;
-   allow update: if (owner(resource.data.ownerId) || admin())
-    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['content','active'])
-    && text(request.resource.data.content,2000) && request.resource.data.content.size()>0
-    && request.resource.data.active is bool;
-   // Soft delete retains comments; archived posts are filtered in UI (not private).
-   allow delete: if false;
+   allow write: if false;
    match /comments/{commentId} {
-    function postActive() { return get(/databases/$(database)/documents/posts/$(postId)).data.active==true; }
-    allow read: if signed() && postActive();
-    allow create: if signed() && postActive()
-     && request.resource.data.keys().hasAll(['ownerId','authorName','content','createdAt'])
-     && request.resource.data.keys().hasOnly(['ownerId','authorName','content','createdAt'])
-     && request.resource.data.ownerId==request.auth.uid
-     && text(request.resource.data.authorName,80) && request.resource.data.authorName.size()>0
-     && text(request.resource.data.content,1000) && request.resource.data.content.size()>0
-     && request.resource.data.createdAt==request.time;
-    allow update: if owner(resource.data.ownerId) && postActive()
-     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['content'])
-     && text(request.resource.data.content,1000) && request.resource.data.content.size()>0;
-    allow delete: if owner(resource.data.ownerId) || admin();
+    allow read: if signed() && get(/databases/$(database)/documents/posts/$(postId)).data.active == true;
+    allow write: if false;
    }
   }
  }

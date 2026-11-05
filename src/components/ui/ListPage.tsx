@@ -13,6 +13,7 @@ type ListPageProps<T> = {
   header?: ReactNode;
   footer?: ReactNode;
   contentWidth?: "form" | "reading" | "full";
+  onEndReached?: () => void;
 };
 // The list owns vertical scrolling; never mount this inside Page's ScrollView.
 export function ListPage<T>({
@@ -25,6 +26,7 @@ export function ListPage<T>({
   header,
   footer,
   contentWidth = "full",
+  onEndReached,
 }: ListPageProps<T>) {
   const maxWidth =
     contentWidth === "form"
@@ -53,6 +55,8 @@ export function ListPage<T>({
         initialNumToRender={10}
         maxToRenderPerBatch={10}
         windowSize={7}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.3}
         ListHeaderComponent={
           <PageContent
             maxWidth={maxWidth}
