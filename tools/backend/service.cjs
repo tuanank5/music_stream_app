@@ -15,6 +15,9 @@ const { createRelatedArtistsRouter } = require("./related-artists.cjs");
 const recommendations = require("../../src/utils/recommendations.ts");
 const publicSong = (x) => x?.active === true && x?.isPublic === true;
 const { mapSong, mapArtist, mapAlbum } = require("./dto.cjs");
+// Keep the watch query within the cloud's 10,000-result limit. Reserve one
+// result to detect overflow rather than serve a silently truncated graph.
+const FOLLOW_GRAPH_CAPACITY = 9999;
 async function createBackend({
   db,
   auth,
@@ -28,7 +31,7 @@ async function createBackend({
     songs = new Map(),
     albums = new Map(),
     profiles = new Map(),
-    followGraph = new FollowGraph();
+    followGraph = new FollowGraph(FOLLOW_GRAPH_CAPACITY);
   const stops = [],
     snapshots = new Map();
   let healthy = true,
@@ -128,14 +131,17 @@ async function createBackend({
         for (const [id, value] of albums)
           if (changed.has(value.artistId)) indexAlbum(id, value);
       }),
-      watch(db.collectionGroup("following").limit(250001), (snapshot) => {
-        if (snapshot.size > 250000)
-          throw new Error(
-            "Follow graph capacity exceeded; refusing partial recommendations.",
-          );
-        for (const change of snapshot.docChanges())
-          followGraph.change(change.doc.ref.path, change.type === "removed");
-      }),
+      watch(
+        db.collectionGroup("following").limit(FOLLOW_GRAPH_CAPACITY + 1),
+        (snapshot) => {
+          if (snapshot.size > FOLLOW_GRAPH_CAPACITY)
+            throw new Error(
+              "Follow graph capacity exceeded; refusing partial recommendations.",
+            );
+          for (const change of snapshot.docChanges())
+            followGraph.change(change.doc.ref.path, change.type === "removed");
+        },
+      ),
       watch("albums", (snapshot) => {
         for (const change of snapshot.docChanges()) {
           const id = change.doc.id,

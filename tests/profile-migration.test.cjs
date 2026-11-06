@@ -199,19 +199,61 @@ test("profile startup guard accepts clean/completed stores and refuses incomplet
   );
 });
 
+test("backend accepts an empty graph and the last complete cloud-sized graph", async () => {
+  const { createBackend } = require("../tools/backend/service.cjs");
+  for (const count of [0, 9999]) {
+    const stopped = [];
+    const query = (name) => ({
+      limit(size) {
+        assert.ok(size <= 10000);
+        return this;
+      },
+      get: async () => ({ empty: true }),
+      onSnapshot(next) {
+        const changes =
+          name === "following"
+            ? Array.from({ length: count }, (_, i) => ({
+                type: "added",
+                doc: { ref: { path: `users/fan-${i}/following/artist` } },
+              }))
+            : [];
+        queueMicrotask(() =>
+          next({ size: changes.length, docChanges: () => changes }),
+        );
+        return () => stopped.push(name);
+      },
+    });
+    const server = await createBackend({
+      db: {
+        doc: () => ({ get: async () => ({ exists: false }) }),
+        collection: query,
+        collectionGroup: query,
+      },
+      auth: {},
+      projectId: "demo-graph-boundary",
+    });
+    server.emit("close");
+    assert.deepEqual(
+      new Set(stopped),
+      new Set(["users", "following", "albums", "songs"]),
+    );
+  }
+});
+
 test("backend refuses a truncated graph and releases all startup listeners", async () => {
   const { createBackend } = require("../tools/backend/service.cjs");
   const stopped = [],
     limits = [];
   const query = (name) => ({
     limit(size) {
+      assert.ok(size <= 10000, "Cloud Firestore rejects larger watch limits");
       limits.push([name, size]);
       return this;
     },
     get: async () => ({ empty: true }),
     onSnapshot(next) {
       queueMicrotask(() =>
-        next({ size: name === "following" ? 250001 : 0, docChanges: () => [] }),
+        next({ size: name === "following" ? 10000 : 0, docChanges: () => [] }),
       );
       return () => stopped.push(name);
     },
@@ -230,6 +272,6 @@ test("backend refuses a truncated graph and releases all startup listeners", asy
     new Set(["users", "following", "albums", "songs"]),
   );
   assert.ok(
-    limits.some(([name, size]) => name === "following" && size === 250001),
+    limits.some(([name, size]) => name === "following" && size === 10000),
   );
 });

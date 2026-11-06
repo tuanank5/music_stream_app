@@ -400,6 +400,14 @@ Render Free có thể ngủ sau 15 phút không có traffic và filesystem khôn
 
 Nguồn: [Render Blueprint](https://render.com/docs/blueprint-spec), [Docker secrets](https://render.com/docs/docker-secrets), [Health checks](https://render.com/docs/health-checks), [Free limits](https://render.com/docs/free).
 
+### Sửa lỗi Render: giới hạn truy vấn follow
+
+Log cloud mới nhất đã qua bước đọc credentials, nhưng listener collectionGroup following dùng limit(250001) bị Firestore từ chối với maximum value of 10000. Đây là giới hạn tham số truy vấn, không phải bằng chứng database có hơn 10.000 document; xóa dữ liệu không sửa được query này.
+
+Backend hiện giới hạn graph đầy đủ ở 9.999 quan hệ follow. Watch dùng limit(10000), dành một bản ghi để phát hiện overflow: snapshot >=10.000 làm startup thất bại hoặc health chuyển 503 khi đang chạy; không trả gợi ý dựa trên graph bị cắt. FollowGraph được khởi tạo với cùng capacity 9999. Muốn hỗ trợ lớn hơn phải thiết kế lại phân vùng/listener hoặc cách tính fan signals; không tăng limit vượt mức cloud hoặc bỏ kiểm tra overflow. Các giới hạn 250.000 của audit/cursor snapshot độc lập, không thay trong bản sửa này.
+
+Test regression kiểm tra database trống, 9.999 quan hệ và từ chối snapshot 10.000, đồng thời mock từ chối query limit >10.000; kiểm tra cleanup cả bốn listeners. Bản sửa cần commit/push tới nhánh Render đang theo dõi (hiện log là main) rồi deploy commit mới. Không cần dọn Firestore hay thay Firebase Secret File cho lỗi limit này. Đối chiếu /health sau deploy; chưa tự xác nhận endpoint Render thật khi chưa có URL service.
+
 ### Luồng lưu bài
 
 1. Client gọi GET `/audio-upload-config` có Firebase ID token.
@@ -424,7 +432,7 @@ planTargetMigration loại audioKey bằng whitelist target; nếu bài cũ thi�
 - History tìm kiếm AsyncStorage theo UID/version, tối đa 20 mục đã mở: kind/id/title/subtitle, không email/token/media URL. Mở lại revalidate quyền; query rỗng hiện history, filter bấm lại bỏ chọn.
 - Cursor search HMAC theo UID/query/filter/scope/version/epoch; snapshot RAM 120 giây, tối đa 256 snapshot/tổng 250.000 ID. Restart/eviction/hết hạn tải lại đầu. Endpoint dùng document cursor không tự có cùng cơ chế HMAC.
 - Home tối đa 20 mỗi nhóm; suggestions history/favorites/following + diversity/dedupe; seed ổn định trong phiên. Top 50 thể loại chọn trước shuffle, album totals lấy toàn nguồn đúng quyền. Không giả tăng trưởng tuần từ playCount tích lũy.
-- Follow graph từ document path, cap 250.000 quan hệ, mẫu 50 fan × 50 following, cache 30 giây/256 target và revalidate quyền. Vượt cap/lỗi sync trả unhealthy, không coi graph cắt là đầy đủ.
+- Follow graph từ document path, backend cap 9.999 quan hệ (watch 10.000 để phát hiện overflow), mẫu 50 fan × 50 following, cache 30 giây/256 target và revalidate quyền. Vượt cap/lỗi sync trả unhealthy, không coi graph cắt là đầy đủ.
 - POST album/playlist/feed/comments có Idempotency-Key, song có requestId. Retry key theo account/payload trong phiên form, chưa outbox/tombstone bền qua restart/xóa tài nguyên.
 - Chủ bài đổi cover hoặc soft-delete active=false: giữ file/lịch sử/lượt nghe/refs, loại khỏi queue thiết bị thao tác. Không ghi isPublished legacy hoặc gọi đây là xóa file vĩnh viễn.
 
