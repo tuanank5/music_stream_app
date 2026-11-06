@@ -408,6 +408,20 @@ Backend hiện giới hạn graph đầy đủ ở 9.999 quan hệ follow. Watch
 
 Test regression kiểm tra database trống, 9.999 quan hệ và từ chối snapshot 10.000, đồng thời mock từ chối query limit >10.000; kiểm tra cleanup cả bốn listeners. Bản sửa cần commit/push tới nhánh Render đang theo dõi (hiện log là main) rồi deploy commit mới. Không cần dọn Firestore hay thay Firebase Secret File cho lỗi limit này. Đối chiếu /health sau deploy; chưa tự xác nhận endpoint Render thật khi chưa có URL service.
 
+### Upload native SDK 58 và Metro Windows
+
+Lỗi Unsupported FormDataPart implementation xảy ra ở client native: global fetch của Expo SDK 58 dùng WinterCG, serializer từ chối object file kiểu React Native cũ {uri,name,type}. mediaUploadService nay tạo File từ expo-file-system trên native rồi append vào FormData; đọc size thật để kiểm tra giới hạn. Ảnh vẫn đi qua chuyển đổi PNG trước khi tạo File; audio đọc URI cache của DocumentPicker. Web giữ Blob/File trình duyệt. expo-file-system được khai báo dependency trực tiếp, cài bằng expo install theo SDK. Không tự đặt Content-Type multipart vì fetch phải sinh boundary.
+
+tests/media-upload.test.cjs chạy source encoder convertFormDataAsync và FormData patch thật từ Expo đang cài, tái hiện object URI cũ bị từ chối, xác nhận bytes ảnh PNG/audio native đi qua encoder và nhánh Web/local vẫn giữ nội dung/signature/auth header. Đây không thay test upload trên điện thoại thật hoặc Cloudinary thật. Cần restart Metro sau npm install; development APK thiếu native module phải build lại, Expo Go phải tương thích SDK.
+
+Lỗi EMFILE tại Temp/metro-cache là cạn file handles trong quá trình Metro đọc cache song song, không phải Firebase/Cloudinary. Trên Windows metro.config.js giới hạn maxWorkers=2 và giữ store mặc định của Expo nhưng bọc get/set bằng tools/metro-cache.cjs để giới hạn tổng 32 cache operations đang chạy trong một process. Chỉ giảm maxWorkers chưa chặn được cached-module traversal song song. Resolver chọn auth/native và Portal không đổi. Không patch node_modules hoặc tắt cache. Test kiểm tra giới hạn concurrency, lỗi một operation không khóa queue và private state/clear vẫn hoạt động.
+
+Sau thay đổi: Ctrl+C ở terminal Metro cũ, đóng các Expo/Metro thừa của dự án, rồi chạy `npm run start -- --clear --max-workers 2` cho cloud hoặc `npm run start:local -- --clear --max-workers 2` cho Emulator. Không xóa dữ liệu .local/uploads hoặc .local/emulator-data. Cache concurrency là theo process; chạy nhiều Metro cùng lúc vẫn tăng tổng số handles. Để kiểm tra Web thêm --web vào lệnh start.
+
+Nguồn: [Expo SDK 58 fetch](https://docs.expo.dev/versions/v58.0.0/sdk/expo/), [File upload FormData](https://docs.expo.dev/versions/v58.0.0/sdk/filesystem/), [Metro cache configuration](https://metrobundler.dev/docs/configuration/).
+
+Kiểm chứng đợt upload/EMFILE: lint/typecheck đạt, unit 101/101 (.local/upload-metro-unit.log). Android export .local/upload-fix-android đạt; Web lần đầu fallback full crawl vì file-map cache cũ không deserialize được, lần export lại .local/upload-fix-web-repeat.log exit 0 và không EMFILE. Script check-auth-bundle tiếp tục xác nhận native Auth/SDK rn trong bundle Android. Chưa thay kiểm thử upload Cloudinary trên thiết bị người dùng.
+
 ### Luồng lưu bài
 
 1. Client gọi GET `/audio-upload-config` có Firebase ID token.

@@ -62,11 +62,11 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
 
     form.append("file", blob, prepared.name);
   } else {
-    form.append("file", {
-      uri: prepared.uri,
-      name: prepared.name,
-      type: prepared.mimeType,
-    } as unknown as Blob);
+    // SDK 58's global fetch encodes Blob/File parts, not RN's legacy URI object.
+    const { File } = await import("expo-file-system");
+    const file = new File(prepared.uri);
+    if (file.size > max) throw new Error("File vượt giới hạn dung lượng.");
+    form.append("file", file);
   }
 
   if (signed) {

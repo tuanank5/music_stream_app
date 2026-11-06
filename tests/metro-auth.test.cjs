@@ -13,6 +13,8 @@ test("Metro delegates auth resolution with the original platform and only adjust
     return { type: "sourceFile", filePath: "selected-by-Metro" };
   };
   mod.require = (request) => {
+    if (request === "./tools/metro-cache.cjs")
+      return require("../tools/metro-cache.cjs");
     if (request === "expo/metro-config")
       return {
         getDefaultConfig: () => ({ resolver: { resolveRequest: resolve } }),
@@ -35,4 +37,49 @@ test("Metro delegates auth resolution with the original platform and only adjust
     require.resolve("tamagui/package.json"),
   );
   assert.equal(calls.at(-1)[2], "android");
+});
+
+test("Metro cache bounds concurrent reads/writes and recovers slots after errors", async () => {
+  const { limitCacheConcurrency } = require("../tools/metro-cache.cjs");
+  let active = 0,
+    peak = 0,
+    writes = 0;
+  class Store {
+    #value = "cached";
+    async #io(key) {
+      active++;
+      peak = Math.max(peak, active);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        if (key === "bad") throw Error("cache read failed");
+        return this.#value;
+      } finally {
+        active--;
+      }
+    }
+    get(key) {
+      return this.#io(key);
+    }
+    async set() {
+      await this.#io("write");
+      writes++;
+    }
+    clear() {
+      this.#value = "cleared";
+    }
+  }
+  const [store] = limitCacheConcurrency([new Store()], 3);
+  const results = await Promise.allSettled(
+    Array.from({ length: 50 }, (_, i) =>
+      i % 5 === 0 ? store.set("key", i) : store.get(i === 1 ? "bad" : "key"),
+    ),
+  );
+  assert.ok(peak <= 3);
+  assert.equal(
+    results.filter((result) => result.status === "rejected").length,
+    1,
+  );
+  assert.equal(writes, 10);
+  store.clear();
+  assert.equal(await store.get("after-error"), "cleared");
 });
