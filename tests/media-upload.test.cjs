@@ -38,6 +38,45 @@ class RNFormData {
 }
 const NativeFormData = installFormDataPatch(RNFormData);
 
+test("audio staging cleans partial copies and rejects oversized or unreadable selections", async () => {
+  for (const denied of [false, true]) {
+    let deleted = 0;
+    class FakeFile {
+      constructor(...parts) {
+        this.uri = parts.join("/");
+        this.exists = false;
+      }
+      async copy(target) {
+        target.exists = true;
+        if (denied) throw Error("Missing READ permission");
+      }
+      get size() {
+        return 31 * 1024 * 1024;
+      }
+      delete() {
+        assert.ok(this.uri.startsWith("file:///sandbox/cache/"));
+        deleted++;
+        this.exists = false;
+      }
+    }
+    const { stageAudioUpload } = compile(
+      require.resolve("../src/services/stageAudioUpload.ts"),
+      () => ({
+        File: FakeFile,
+        Paths: { cache: "file:///sandbox/cache" },
+      }),
+    );
+    await assert.rejects(
+      stageAudioUpload(
+        { uri: "content://picked/audio", name: "../track.mp3" },
+        30 * 1024 * 1024,
+      ),
+      denied ? /chọn lại file/ : /vượt giới hạn/,
+    );
+    assert.equal(deleted, 1);
+  }
+});
+
 test("Expo's real encoder rejects legacy URI parts (reproduces upload failure)", async () => {
   const form = new NativeFormData();
   form.append("file", {
@@ -52,23 +91,42 @@ test("media uploads serialize native images/audio and Web files using SDK-compat
   const originalFetch = global.fetch,
     originalFormData = global.FormData;
   try {
-    for (const [platform, kind, local] of [
+    for (const [platform, kind, local, networkFailure] of [
       ["android", "image", false],
       ["ios", "video", false],
       ["android", "video", true],
       ["web", "video", false],
+      ["android", "video", false, true],
     ]) {
       const payload = Buffer.from(
         kind === "image" ? "converted PNG bytes" : "audio bytes",
       );
       const uri =
-        kind === "image" ? "file:///converted.png" : "file:///picked.mp3";
+        kind === "image"
+          ? "file:///converted.png"
+          : platform === "android"
+            ? "content://documents/picked.mp3"
+            : "file:///picked.mp3";
       const user = { getIdToken: async () => "local-token" };
       let nativeFileReads = 0,
-        posted = false;
+        posted = false,
+        cleaned = 0;
       class NativeFile {
-        constructor(value) {
-          assert.equal(value, uri);
+        constructor(...parts) {
+          this.uri = parts.join("/");
+          this.present = parts.length === 1;
+          if (parts.length === 1) assert.equal(this.uri, uri);
+          else assert.equal(parts[0], "file:///sandbox/cache");
+        }
+        get exists() {
+          return this.present;
+        }
+        async copy(destination) {
+          destination.present = true;
+        }
+        delete() {
+          this.present = false;
+          cleaned++;
         }
         get name() {
           return kind === "image" ? "converted.png" : "picked.mp3";
@@ -80,6 +138,12 @@ test("media uploads serialize native images/audio and Web files using SDK-compat
           return payload.length;
         }
         async bytes() {
+          if (kind === "video")
+            assert.ok(
+              this.uri.startsWith("file:///sandbox/cache/"),
+              "Only the app-scoped copy may be read by the encoder",
+            );
+          assert.ok(this.present);
           nativeFileReads++;
           return new Uint8Array(payload);
         }
@@ -111,6 +175,17 @@ test("media uploads serialize native images/audio and Web files using SDK-compat
             assert.notEqual(platform, "web");
             return { File: NativeFile };
           }
+          if (request === "./stageAudioUpload")
+            return compile(
+              require.resolve("../src/services/stageAudioUpload.ts"),
+              (name) => {
+                assert.equal(name, "expo-file-system");
+                return {
+                  File: NativeFile,
+                  Paths: { cache: "file:///sandbox/cache" },
+                };
+              },
+            );
           if (request === "./backendService")
             return {
               backendGet: async () => ({
@@ -156,6 +231,7 @@ test("media uploads serialize native images/audio and Web files using SDK-compat
           );
         }
         posted = true;
+        if (networkFailure) throw Error("network failed");
         return {
           ok: true,
           json: async () =>
@@ -167,7 +243,7 @@ test("media uploads serialize native images/audio and Web files using SDK-compat
                 },
         };
       };
-      await uploadMedia(
+      const upload = uploadMedia(
         {
           uri: kind === "image" ? "file:///original.heic" : uri,
           name: "picked",
@@ -178,8 +254,11 @@ test("media uploads serialize native images/audio and Web files using SDK-compat
         },
         kind,
       );
+      if (networkFailure) await assert.rejects(upload, /network failed/);
+      else await upload;
       assert.ok(posted);
       assert.equal(nativeFileReads, platform === "web" ? 0 : 1);
+      assert.equal(cleaned, platform !== "web" && kind === "video" ? 1 : 0);
     }
   } finally {
     global.fetch = originalFetch;

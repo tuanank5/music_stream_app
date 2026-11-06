@@ -4,6 +4,7 @@ import { assertExternalUploadsAllowed } from "./firebase/runtime";
 import { backendGet } from "./backendService";
 import { getFirebaseAuth } from "./firebase";
 import { prepareImageUpload } from "./prepareImageUpload";
+import { stageAudioUpload } from "./stageAudioUpload";
 
 export type PickedMedia = {
   uri: string;
@@ -52,38 +53,47 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
   if (getFirebaseAuth().currentUser !== user)
     throw new Error("Phiên đăng nhập đã thay đổi.");
   const form = new FormData();
+  let cleanup: (() => void) | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    if (Platform.OS === "web") {
+      const blob = prepared.file ?? (await (await fetch(prepared.uri)).blob());
 
-  if (Platform.OS === "web") {
-    const blob = prepared.file ?? (await (await fetch(prepared.uri)).blob());
+      if (blob.size > max) {
+        throw new Error("File vượt giới hạn dung lượng.");
+      }
 
-    if (blob.size > max) {
-      throw new Error("File vượt giới hạn dung lượng.");
+      form.append("file", blob, prepared.name);
+    } else {
+      if (kind === "video") {
+        const staged = await stageAudioUpload(prepared, max);
+        cleanup = staged.cleanup;
+        form.append("file", staged.file);
+      } else {
+        // SDK 58's global fetch encodes Blob/File parts, not RN's legacy URI object.
+        const { File } = await import("expo-file-system");
+        const file = new File(prepared.uri);
+        if (file.size > max) throw new Error("File vượt giới hạn dung lượng.");
+        form.append("file", file);
+      }
     }
 
-    form.append("file", blob, prepared.name);
-  } else {
-    // SDK 58's global fetch encodes Blob/File parts, not RN's legacy URI object.
-    const { File } = await import("expo-file-system");
-    const file = new File(prepared.uri);
-    if (file.size > max) throw new Error("File vượt giới hạn dung lượng.");
-    form.append("file", file);
-  }
+    if (signed) {
+      form.append("api_key", signed.apiKey);
+      form.append("timestamp", String(signed.timestamp));
+      form.append("signature", signed.signature);
+      form.append("public_id", signed.publicId);
+      if (signed.overwrite) form.append("overwrite", signed.overwrite);
+      if (signed.allowedFormats)
+        form.append("allowed_formats", signed.allowedFormats);
+    }
 
-  if (signed) {
-    form.append("api_key", signed.apiKey);
-    form.append("timestamp", String(signed.timestamp));
-    form.append("signature", signed.signature);
-    form.append("public_id", signed.publicId);
-    if (signed.overwrite) form.append("overwrite", signed.overwrite);
-    if (signed.allowedFormats)
-      form.append("allowed_formats", signed.allowedFormats);
-  }
+    const abort = new AbortController();
 
-  const abort = new AbortController();
+    timer = setTimeout(() => abort.abort(), 120000);
 
-  const timer = setTimeout(() => abort.abort(), 120000);
-
-  try {
+    if (getFirebaseAuth().currentUser !== user)
+      throw new Error("Phiên đăng nhập đã thay đổi.");
     const response = await fetch(
       local
         ? `${runtime.backendUrl}/local-media/upload/${kind === "video" ? "audio" : "image"}`
@@ -115,5 +125,6 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
     };
   } finally {
     clearTimeout(timer);
+    cleanup?.();
   }
 }

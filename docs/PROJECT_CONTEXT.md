@@ -410,7 +410,7 @@ Test regression kiểm tra database trống, 9.999 quan hệ và từ chối sna
 
 ### Upload native SDK 58 và Metro Windows
 
-Lỗi Unsupported FormDataPart implementation xảy ra ở client native: global fetch của Expo SDK 58 dùng WinterCG, serializer từ chối object file kiểu React Native cũ {uri,name,type}. mediaUploadService nay tạo File từ expo-file-system trên native rồi append vào FormData; đọc size thật để kiểm tra giới hạn. Ảnh vẫn đi qua chuyển đổi PNG trước khi tạo File; audio đọc URI cache của DocumentPicker. Web giữ Blob/File trình duyệt. expo-file-system được khai báo dependency trực tiếp, cài bằng expo install theo SDK. Không tự đặt Content-Type multipart vì fetch phải sinh boundary.
+Lỗi Unsupported FormDataPart implementation xảy ra ở client native: global fetch của Expo SDK 58 dùng WinterCG, serializer từ chối object file kiểu React Native cũ {uri,name,type}. mediaUploadService nay tạo File từ expo-file-system trên native rồi append vào FormData; đọc size thật để kiểm tra giới hạn. Ảnh vẫn đi qua chuyển đổi PNG trước khi tạo File; audio được stage vào Paths.cache riêng trước khi encoder đọc. Web giữ Blob/File trình duyệt. expo-file-system được khai báo dependency trực tiếp, cài bằng expo install theo SDK. Không tự đặt Content-Type multipart vì fetch phải sinh boundary.
 
 tests/media-upload.test.cjs chạy source encoder convertFormDataAsync và FormData patch thật từ Expo đang cài, tái hiện object URI cũ bị từ chối, xác nhận bytes ảnh PNG/audio native đi qua encoder và nhánh Web/local vẫn giữ nội dung/signature/auth header. Đây không thay test upload trên điện thoại thật hoặc Cloudinary thật. Cần restart Metro sau npm install; development APK thiếu native module phải build lại, Expo Go phải tương thích SDK.
 
@@ -421,6 +421,10 @@ Sau thay đổi: Ctrl+C ở terminal Metro cũ, đóng các Expo/Metro thừa c�
 Nguồn: [Expo SDK 58 fetch](https://docs.expo.dev/versions/v58.0.0/sdk/expo/), [File upload FormData](https://docs.expo.dev/versions/v58.0.0/sdk/filesystem/), [Metro cache configuration](https://metrobundler.dev/docs/configuration/).
 
 Kiểm chứng đợt upload/EMFILE: lint/typecheck đạt, unit 101/101 (.local/upload-metro-unit.log). Android export .local/upload-fix-android đạt; Web lần đầu fallback full crawl vì file-map cache cũ không deserialize được, lần export lại .local/upload-fix-web-repeat.log exit 0 và không EMFILE. Script check-auth-bundle tiếp tục xác nhận native Auth/SDK rn trong bundle Android. Chưa thay kiểm thử upload Cloudinary trên thiết bị người dùng.
+
+Người dùng xác nhận ảnh Android đã upload được, audio còn lỗi FileSystemFile.bytes Missing READ permission. Đối chiếu source SDK: DocumentPicker Android copyToCacheDirectory dùng context.cacheDir, FileSystem.Paths.cache dùng appContext.cacheDirectory; hai đường dẫn có thể khác phạm vi trong Expo Go. Android nay đặt copyToCacheDirectory=false để lấy content URI do system picker cấp quyền. stageAudioUpload sao chép URI này sang File mới trong Paths.cache, kiểm tra size thật, gửi bản sao và dọn file tạm trong finally cả khi lỗi mạng/session. iOS giữ picker copyToCacheDirectory=true, vẫn stage bản sao riêng; Web giữ File trình duyệt. Không xin quyền quản lý toàn bộ bộ nhớ hoặc bỏ sandbox checks. Cần chọn lại audio sau reload; URI cache cũ có thể vẫn thiếu quyền. Nếu provider thu hồi quyền, báo chọn lại file; không giả vờ upload thành công.
+
+Kiểm chứng bổ sung: unit 102/102 (.local/audio-read-unit.log), lint/typecheck đạt. Tests dùng encoder Expo thật cùng filesystem giả chỉ cho đọc bản sao trong sandbox, kiểm tra cleanup thành công/lỗi mạng/partial copy và quá 30 MB. Chưa xác nhận audio thành công trên Android thật; tiếp tục QA trên thiết bị sau restart/chọn lại file.
 
 ### Luồng lưu bài
 

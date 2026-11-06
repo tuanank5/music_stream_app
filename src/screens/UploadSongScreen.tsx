@@ -2,6 +2,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
+import { Platform } from "react-native";
 import { YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useCatalogData } from "../contexts/DataContext";
@@ -74,7 +75,9 @@ export default function UploadSongScreen() {
   async function pickAudio() {
     const result = await DocumentPicker.getDocumentAsync({
       type: "audio/*",
-      copyToCacheDirectory: true,
+      // On Android retain the system-granted content URI; the upload service
+      // stages it in FileSystem.Paths.cache instead of the picker's shared cache.
+      copyToCacheDirectory: Platform.OS !== "android",
       multiple: false,
       base64: false,
     });
