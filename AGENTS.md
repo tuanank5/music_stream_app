@@ -23,6 +23,18 @@ npx expo install --fix      # fix incompatible package versions
 
 Run lint and typecheck before declaring any task done.
 
+## Git workflow — user preference
+
+- Commit and push completed, verified work as part of the normal workflow, unless the user explicitly asks otherwise. Do not stop solely to ask for another commit/push confirmation within the authorized task.
+- Commit messages must use one of these prefixes, followed by a concise description:
+  - `feat:` — add functionality.
+  - `fix:` — fix a bug.
+  - `ui:` — change the interface or visual presentation.
+  - `refactor:` — reorganize code or project structure without adding functionality.
+- Example: `fix: stage Android audio uploads in app cache`.
+- Stage only files relevant to the task. Preserve unrelated local edits, and never commit credentials or private local data.
+- Push to the branch agreed for the task; Render currently deploys from `main`. Do not force-push or rewrite published commits to change their message.
+
 ## Navigation & Routing
 
 - Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
