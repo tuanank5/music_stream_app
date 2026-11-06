@@ -1,11 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
-import Guard from "../components/Guard";
-import PublicProfileScreen from "../components/PublicProfileScreen";
+import RequireAuth from "../components/RequireAuth";
+import PublicProfileScreen from "../screens/PublicProfileScreen";
 export default function Route() {
   const { id } = useLocalSearchParams<{ id: string }>();
   return (
-    <Guard>
+    <RequireAuth>
       <PublicProfileScreen id={id || ""} />
-    </Guard>
+    </RequireAuth>
   );
 }

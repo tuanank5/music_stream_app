@@ -1,6 +1,7 @@
 const express = require("express");
 const { FieldValue } = require("firebase-admin/firestore");
 const { imageUrl, localMediaPath } = require("./local-media.cjs");
+const { prepareImage, stageImageChange } = require("./image-assets.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function createSongOwnerRouter({ db, mode }) {
   const router = express.Router({ caseSensitive: true, strict: true });
@@ -32,6 +33,14 @@ function createSongOwnerRouter({ db, mode }) {
       }
     } else req.resume();
     const ref = db.doc(`songs/${id}`);
+    const prepared = !remove
+      ? await prepareImage(
+          req.auth.uid,
+          coverUrl,
+          mode,
+          mode === "cloud" ? (await ref.get()).data()?.coverUrl : undefined,
+        )
+      : null;
     await db.runTransaction(async (tx) => {
       const [profile, song] = await Promise.all([
         tx.get(db.doc(`users/${req.auth.uid}`)),
@@ -44,8 +53,17 @@ function createSongOwnerRouter({ db, mode }) {
         throw fail(403, "Bạn không sở hữu bài hát này.");
       if (!remove && song.data().active !== true)
         throw fail(409, "Bài hát đã được gỡ.");
+      const change = !remove
+        ? await stageImageChange(tx, db, req.auth.uid, ref.path, prepared, {
+            url: song.data().coverUrl,
+            publicId: song.data().coverPublicId,
+          })
+        : null;
+      change?.write();
       tx.update(ref, {
-        ...(remove ? { active: false } : { coverUrl, coverPublicId: null }),
+        ...(remove
+          ? { active: false }
+          : { coverUrl, coverPublicId: change.publicId }),
         updatedAt: FieldValue.serverTimestamp(),
       });
     });

@@ -197,13 +197,12 @@ before(async () => {
           reload: reloadFavorites,
         }),
       };
-    if (request === "./AlbumFavoriteButton")
+    if (request === "../components/AlbumFavoriteButton")
       return { __esModule: true, default: () => null };
     if (request.endsWith("/DataContext"))
       return {
         useCatalogData: () => data,
         useData: () => data,
-        useHistoryData: () => history,
       };
     if (request.endsWith("/useSearch"))
       return {
@@ -274,10 +273,10 @@ before(async () => {
     if (request.endsWith("/libraryService")) return {};
     if (request === "tamagui")
       return { XStack: passthrough, YStack: passthrough };
-    if (request === "./UI") return UI;
-    if (request === "./Artwork")
+    if (request.endsWith("/ui/index")) return UI;
+    if (request === "../components/Artwork")
       return { __esModule: true, default: () => null };
-    if (request === "./SongRow")
+    if (request === "../components/SongRow")
       return {
         __esModule: true,
         default: ({ song, queue, onOpen }) =>
@@ -293,7 +292,7 @@ before(async () => {
             song.title,
           ),
       };
-    if (request === "./MediaRow")
+    if (request === "../components/MediaRow")
       return {
         MediaRow: ({ title, subtitle, onPress, trailing }) =>
           h(
@@ -303,7 +302,13 @@ before(async () => {
             trailing,
           ),
       };
-    if (request === "./discovery/DiscoveryCards")
+    if (
+      [
+        "../components/discovery/ArtistAvatar",
+        "../components/discovery/FollowButton",
+        "../components/ui/BackButton",
+      ].includes(request)
+    )
       return {
         ArtistAvatar: () => null,
         FollowButton: () => null,
@@ -317,9 +322,9 @@ before(async () => {
       };
     return load.call(this, request, parent, main);
   };
-  Search = require("../src/components/SearchScreen.tsx").default;
-  Library = require("../src/components/LibraryScreens.tsx").LibraryScreen;
-  History = require("../src/components/HistoryScreen.tsx").default;
+  Search = require("../src/screens/SearchScreen.tsx").default;
+  Library = require("../src/screens/LibraryScreen.tsx").LibraryScreen;
+  History = require("../src/screens/HistoryScreen.tsx").default;
 });
 beforeEach(() => {
   disk = storage();

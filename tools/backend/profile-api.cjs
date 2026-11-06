@@ -1,5 +1,6 @@
 const { FieldValue } = require("firebase-admin/firestore");
 const { imageUrl, localMediaPath } = require("./local-media.cjs");
+const { prepareImage, stageImageChange } = require("./image-assets.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 async function readProfileBody(request, { uid, mode } = {}) {
   if (
@@ -57,22 +58,34 @@ async function readProfileBody(request, { uid, mode } = {}) {
     biography: biography.trim(),
   };
 }
-async function ownProfile(db, uid, fields) {
+async function ownProfile(db, uid, fields, mode = "emulator") {
   const ref = db.doc(`users/${uid}`);
+  const prepared = fields
+    ? await prepareImage(
+        uid,
+        fields.avatarUrl,
+        mode,
+        mode === "cloud" ? (await ref.get()).data()?.avatarUrl : undefined,
+      )
+    : null;
   return db.runTransaction(async (tx) => {
     const snapshot = await tx.get(ref);
     if (!snapshot.exists) throw fail(404, "Không tìm thấy hồ sơ.");
     const source = snapshot.data();
     if (source.active === false)
       throw fail(403, "Tài khoản của bạn đã bị vô hiệu hóa.");
-    if (fields)
+    if (fields) {
+      const change = await stageImageChange(tx, db, uid, ref.path, prepared, {
+        url: source.avatarUrl,
+        publicId: source.avatarPublicId,
+      });
+      change.write();
       tx.update(ref, {
         ...fields,
-        ...(fields.avatarUrl !== source.avatarUrl
-          ? { avatarPublicId: null }
-          : {}),
+        avatarPublicId: change.publicId,
         updatedAt: FieldValue.serverTimestamp(),
       });
+    }
     const value = { ...source, ...fields };
     return {
       userId: uid,

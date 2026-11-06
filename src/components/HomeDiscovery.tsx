@@ -8,7 +8,8 @@ import type { useHomeDiscovery } from "../hooks/useHomeDiscovery";
 import { uiSpacing } from "../../tamagui.config";
 import Artwork from "./Artwork";
 import { MediaCoverCard } from "./MediaCoverCard";
-import { ArtistCard, ChartCard } from "./discovery/DiscoveryCards";
+import { ArtistCard } from "./discovery/ArtistCard";
+import { ChartCard } from "./discovery/ChartCard";
 import {
   Action,
   MediaTitle,
@@ -17,7 +18,7 @@ import {
   ErrorText,
   Loading,
   SectionHeading,
-} from "./UI";
+} from "./ui/index";
 
 function Section({
   title,
@@ -117,7 +118,6 @@ export default function HomeDiscovery({
                 height={Math.round(portraitWidth * 1.33)}
                 onPress={() => {
                   player.play(song, suggestions);
-
                 }}
                 width={portraitWidth}
               />

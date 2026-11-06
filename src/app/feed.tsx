@@ -1,9 +1,9 @@
-import Guard from "../components/Guard";
-import FeedScreen from "../components/FeedScreen";
+import RequireAuth from "../components/RequireAuth";
+import FeedScreen from "../screens/FeedScreen";
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <FeedScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

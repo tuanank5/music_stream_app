@@ -5,7 +5,7 @@
 | File | Nội dung |
 | --- | --- |
 | users.json | 26 hồ sơ: tên, email demo, tiểu sử, trạng thái, counters |
-| songs.json | 123 bài: tên, nghệ sĩ, album, thể loại, lời và quyền |
+| songs.json | 120 bài hiện tại: tên, nghệ sĩ, album, thể loại, lời và quyền |
 | albums.json | 12 album |
 | playlists.json | Playlist có songIds theo thứ tự |
 | following.json | Quan hệ theo dõi |
@@ -42,7 +42,7 @@ Có thể sửa dữ liệu đã nạp bằng UI thật của app (playlist/yêu
 
 ## Media hiện tại
 
-Audio mẫu vẫn là WAV tổng hợp 12/45 giây, không phải bản thu thương mại. Nay có thể upload audio/ảnh riêng bằng form trong app; backend lưu `.local/uploads`. Với ảnh trong JSON, có thể dùng đường dẫn tương đối trong workspace như `assets/images/Artist Profile/Image 63.png`; data:apply sẽ sao chép vào kho local và lưu URI dùng được trên điện thoại. Không đặt đường dẫn ổ đĩa trực tiếp vào audioUrl: chọn audio qua form để backend đọc duration thật. Xem [ghi chú storage tạm và việc sửa sau](../../docs/LOCAL_UPLOAD_STORAGE.md).
+Dataset JSON hiện tham chiếu audio trong assets/audio; loader đo duration thực và chuyển sang URI kho local khi apply. Guitar đã đủ g01.mp3–g48.mp3; data:check đọc đủ 120 audio, 394 document, 0 lỗi. Còn 158 cảnh báo media_ownership_unverified cho ảnh HTTPS bên ngoài (26 avatar, 120 cover bài, 12 cover album); chấp nhận để thử local, chưa chứng minh quyền sở hữu Cloudinary hoặc khả năng truy cập URL thật. Giữ ảnh đã chọn và publicId=null, không tạo publicId giả để xóa cảnh báo. Fixture local:seed riêng vẫn dùng WAV tổng hợp 12/45 giây; không đồng nhất hai nguồn. Có thể upload audio/ảnh qua app hoặc dùng path nguồn trong workspace ở JSON; /audio/... ánh xạ assets/audio/.... Backend lưu .local/uploads. Xem [ngữ cảnh tổng hợp và storage](../../docs/PROJECT_CONTEXT.md).
 
 ## Giữ dữ liệu sau khi tắt
 

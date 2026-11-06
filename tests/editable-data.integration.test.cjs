@@ -3,14 +3,20 @@ const assert = require("node:assert/strict");
 const { spawn } = require("node:child_process");
 const { configureLocalAdmin } = require("../tools/local/environment.cjs");
 const { loadEditableData } = require("../tools/local/editable-data.cjs");
-test("editable dataset imports through local-only CLI, synchronizes Auth names and backs up documents", async () => {
+const { editableFixture } = require("./helpers/editable-fixture.cjs");
+test("editable dataset imports through local-only CLI, synchronizes Auth names and backs up documents", async (t) => {
+  const directory = editableFixture(t);
   assert.ok(process.env.FIRESTORE_EMULATOR_HOST);
   const { app, db, auth } = configureLocalAdmin();
   try {
     const result = await new Promise((resolve, reject) => {
       const child = spawn(
         process.execPath,
-        ["tools/local/editable-data.cjs", "apply"],
+        [
+          "-e",
+          "require('./tools/local/editable-data.cjs').main(['apply'], process.argv[1]).catch(error => { console.error(error.message); process.exitCode = 1; })",
+          directory,
+        ],
         {
           cwd: require("node:path").resolve(__dirname, ".."),
           env: process.env,
@@ -32,7 +38,7 @@ test("editable dataset imports through local-only CLI, synchronizes Auth names a
           : reject(new Error(error || output)),
       );
     });
-    const { documents } = await loadEditableData();
+    const { documents } = await loadEditableData(directory);
     assert.equal(result.projectId, "demo-music-stream");
     assert.equal(result.written, documents.length);
     assert.equal(result.deleted, 0);

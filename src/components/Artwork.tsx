@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { YStack } from "tamagui";
-import { AppIcon, AppImage } from "./UI";
+import { AppIcon, AppImage } from "./ui/index";
 export default function Artwork({
   uri,
   size = 54,

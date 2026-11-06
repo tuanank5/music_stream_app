@@ -4,6 +4,7 @@ COPY tools/package.json tools/package-lock.json ./tools/
 RUN npm ci --prefix tools --omit=dev --no-audit --no-fund
 COPY tools/backend ./tools/backend
 COPY src/utils/recommendations.ts ./src/utils/recommendations.ts
+COPY src/utils/genres.ts ./src/utils/genres.ts
 COPY src/services/firebase/runtime.ts ./src/services/firebase/runtime.ts
 USER node
 ENV NODE_ENV=production

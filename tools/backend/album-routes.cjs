@@ -2,6 +2,7 @@ const express = require("express");
 const { FieldValue } = require("firebase-admin/firestore");
 const { createRequestId } = require("./create-request.cjs");
 const { imageUrl, localMediaPath } = require("./local-media.cjs");
+const { prepareImage, stageImageChange } = require("./image-assets.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function validateAlbum(value, { uid, mode } = {}) {
   if (
@@ -56,6 +57,14 @@ function createAlbumRouter({ db, mode }) {
         ? db.collection("albums").doc(requestId)
         : db.collection("albums").doc()
       : db.doc(`albums/${id}`);
+    const prepared = await prepareImage(
+      req.auth.uid,
+      fields.coverUrl,
+      mode,
+      !creating && mode === "cloud"
+        ? (await ref.get()).data()?.coverUrl
+        : undefined,
+    );
     const value = await db.runTransaction(async (tx) => {
       const profile = await tx.get(db.doc(`users/${req.auth.uid}`));
       if (!profile.exists || profile.data().active === false)
@@ -82,6 +91,7 @@ function createAlbumRouter({ db, mode }) {
         }
       }
       let coverPublicId = null;
+      let previous = {};
       if (!creating) {
         const album = await tx.get(ref);
         if (!album.exists) throw fail(404, "Không tìm thấy album.");
@@ -90,7 +100,21 @@ function createAlbumRouter({ db, mode }) {
         if (album.data().deleting) throw fail(409, "Album đang được xóa.");
         if (album.data().coverUrl === fields.coverUrl)
           coverPublicId = album.data().coverPublicId ?? null;
+        previous = {
+          url: album.data().coverUrl,
+          publicId: album.data().coverPublicId,
+        };
       }
+      const change = await stageImageChange(
+        tx,
+        db,
+        req.auth.uid,
+        ref.path,
+        prepared,
+        previous,
+      );
+      coverPublicId = change.publicId;
+      change.write();
       const changes = {
         ...fields,
         coverPublicId,
@@ -197,6 +221,18 @@ function createAlbumRouter({ db, mode }) {
             "Album có liên kết dữ liệu không hợp lệ. Vui lòng thử lại sau.",
           );
         if (linked.empty) {
+          const change = await stageImageChange(
+            tx,
+            db,
+            req.auth.uid,
+            ref.path,
+            { url: "", publicId: null },
+            {
+              url: album.data().coverUrl,
+              publicId: album.data().coverPublicId,
+            },
+          );
+          change.write();
           tx.delete(ref);
           return true;
         }

@@ -1,11 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
-import Guard from "../components/Guard";
-import UserPlaylistsScreen from "../components/UserPlaylists";
+import RequireAuth from "../components/RequireAuth";
+import UserPlaylistsScreen from "../screens/UserPlaylistsScreen";
 export default function Route() {
   const { ownerId } = useLocalSearchParams<{ ownerId?: string }>();
   return (
-    <Guard>
+    <RequireAuth>
       <UserPlaylistsScreen ownerId={ownerId || ""} />
-    </Guard>
+    </RequireAuth>
   );
 }

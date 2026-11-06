@@ -44,7 +44,7 @@ before(async () => {
     EXPO_PUBLIC_BACKEND_URL: "http://127.0.0.1:8787",
   });
   await seedLocal();
-  ({ getFirebaseAuth } = require("../src/services/firebase/auth.web.ts"));
+  ({ getFirebaseAuth } = require("../src/services/firebase/auth.ts"));
   ({ getFirebaseDb } = require("../src/services/firebase/firestore.ts"));
   auth = getFirebaseAuth();
   db = getFirebaseDb();
@@ -2508,7 +2508,9 @@ test("M4 History uses stable document cursors across duplicate sessions and retu
     JSON.stringify(recent),
     /email|@example|password|audioUrl/,
   );
-  const { watchHistory } = require("../src/services/libraryService.ts");
+  const {
+    subscribePrivateList,
+  } = require("../src/services/playlistSubscriptions.ts");
   let stopHistory;
   try {
     const observed = await new Promise((resolve, reject) => {
@@ -2516,8 +2518,9 @@ test("M4 History uses stable document cursors across duplicate sessions and retu
         () => reject(new Error("History subscription timeout")),
         5000,
       );
-      stopHistory = watchHistory(
+      stopHistory = subscribePrivateList(
         "local-listener",
+        "/recent-history",
         (items) => {
           clearTimeout(timer);
           resolve(items);

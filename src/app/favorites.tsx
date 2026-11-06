@@ -1,10 +1,9 @@
-import React from "react";
-import Guard from "../components/Guard";
-import { FavoritesScreen } from "../components/LibraryScreens";
+import RequireAuth from "../components/RequireAuth";
+import { FavoritesScreen } from "../screens/FavoritesScreen";
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <FavoritesScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

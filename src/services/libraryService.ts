@@ -6,7 +6,7 @@ import {
 } from "./playlistSubscriptions";
 
 import { getFirebaseAuth } from "./firebase";
-import { HistoryEntry, Playlist } from "../types/domain";
+import { Playlist } from "../types/domain";
 import {
   backendDelete,
   backendPatch,
@@ -46,14 +46,6 @@ export function watchFollowing(
     (items) => next(items.map((item) => item.id)),
     fail,
   );
-}
-
-export function watchHistory(
-  uid: string,
-  next: (v: HistoryEntry[]) => void,
-  fail: (e: Error) => void,
-) {
-  return subscribePrivateList(uid, "/recent-history", next, fail);
 }
 
 function requireAccount(uid: string) {

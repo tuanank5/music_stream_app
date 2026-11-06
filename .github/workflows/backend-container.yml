@@ -1,0 +1,25 @@
+name: Backend container smoke
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24.12.0"
+          package-manager-cache: false
+      - name: Build image and run isolated smoke checks
+        run: node tools/backend/check-container.cjs

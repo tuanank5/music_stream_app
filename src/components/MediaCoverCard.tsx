@@ -1,6 +1,6 @@
 import { YStack } from "tamagui";
 import Artwork from "./Artwork";
-import { Action, MediaTitle, MediaSubtitle } from "./UI";
+import { Action, MediaTitle, MediaSubtitle } from "./ui/index";
 
 export function MediaCoverCard({
   cover,

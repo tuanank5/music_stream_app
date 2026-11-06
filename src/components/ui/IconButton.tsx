@@ -1,4 +1,4 @@
-import { YStack, styled, type GetProps } from "tamagui";
+import { YStack, styled } from "tamagui";
 // Layout pressables must not inherit Button's skin, theme or text sizing.
 export const IconButton = styled(YStack, {
   displayName: "IconButton",
@@ -21,7 +21,6 @@ export const IconButton = styled(YStack, {
   } as const,
   defaultVariants: { tone: "plain" },
 });
-export type IconButtonProps = GetProps<typeof IconButton>;
 // Cards and rows own their content geometry; onPress keeps native press behavior.
 export const Action = styled(YStack, {
   displayName: "Action",

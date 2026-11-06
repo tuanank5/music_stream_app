@@ -85,10 +85,7 @@ function createHttpApp({
         mode === "emulator" &&
         projectId === "demo-music-stream" &&
         req.method === "HEAD" &&
-        (
-          req.path.startsWith("/local-audio/") ||
-          req.path.startsWith("/audio/")
-        )
+        (req.path.startsWith("/local-audio/") || req.path.startsWith("/audio/"))
       ) &&
       !(req.method === "POST" && req.path === "/songs") &&
       !(req.method === "POST" && req.path === "/me/ensure") &&
@@ -237,6 +234,7 @@ function createHttpApp({
         db,
         req.auth.uid,
         await readProfileBody(req, { mode, uid: req.auth.uid }),
+        mode,
       ),
     ),
   );

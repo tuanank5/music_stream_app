@@ -1,10 +1,10 @@
-import Guard from "../components/Guard";
-import PlayerScreen from "../components/PlayerScreen";
+import RequireAuth from "../components/RequireAuth";
+import PlayerScreen from "../screens/PlayerScreen";
 
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <PlayerScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

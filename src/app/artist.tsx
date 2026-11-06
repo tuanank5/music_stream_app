@@ -1,10 +1,9 @@
-import React from "react";
-import Guard from "../components/Guard";
-import ArtistProfileScreen from "../components/ArtistProfileScreen";
+import RequireAuth from "../components/RequireAuth";
+import ArtistProfileScreen from "../screens/ArtistProfileScreen";
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <ArtistProfileScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

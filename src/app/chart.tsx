@@ -1,11 +1,10 @@
-import React from "react";
-import Guard from "../components/Guard";
-import { ChartDetailScreen } from "../components/ChartScreens";
+import RequireAuth from "../components/RequireAuth";
+import { ChartScreen } from "../screens/ChartScreen";
 
 export default function Route() {
   return (
-    <Guard>
-      <ChartDetailScreen />
-    </Guard>
+    <RequireAuth>
+      <ChartScreen />
+    </RequireAuth>
   );
 }

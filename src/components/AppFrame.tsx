@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useAppTheme } from "../contexts/ThemeContext";
 import { useCatalogData } from "../contexts/DataContext";
 import MiniPlayer from "./MiniPlayer";
-import { Action, AppIcon, AppText, ErrorText } from "./UI";
+import { Action, AppIcon, AppText, ErrorText } from "./ui/index";
 const SafeFrame = styled(SafeAreaView, {
   displayName: "SafeFrame",
   flex: 1,

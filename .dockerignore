@@ -1,0 +1,24 @@
+# Only send backend image inputs to the build context.
+**
+!Dockerfile.backend
+!.dockerignore
+!tools/
+!tools/package.json
+!tools/package-lock.json
+!tools/backend/
+!tools/backend/**
+!src/
+!src/utils/
+!src/utils/recommendations.ts
+!src/utils/genres.ts
+!src/services/
+!src/services/firebase/
+!src/services/firebase/runtime.ts
+# Backend COPY must never include developer credentials or local env files.
+**/.env
+**/.env.*
+**/backend.env
+**/*service-account*.json
+**/*firebase-adminsdk*.json
+**/*.pem
+**/*.key

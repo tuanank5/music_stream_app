@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
-import { Action, MediaTitle, MediaSubtitle } from "./UI";
+import { Action, MediaTitle, MediaSubtitle } from "./ui/index";
 
 // One width contract for album, playlist and artist rows.
 export function MediaRow({

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { YStack } from "tamagui";
 import type { Artist } from "../../types/domain";
-import { AppIcon, AppImage, AppText } from "../UI";
+import { AppIcon, AppImage, AppText } from "../ui/index";
 // Ảnh chân dung nghệ sĩ.
 export function ArtistAvatar({
   artist,

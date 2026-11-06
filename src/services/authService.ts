@@ -1,4 +1,3 @@
-//Update Date 10/30/2026
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

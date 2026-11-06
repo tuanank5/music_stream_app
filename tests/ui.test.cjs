@@ -231,7 +231,6 @@ test("Player renders normal, error and demo states without raw text nodes in lay
         };
       if (request.endsWith("/contexts/PlayerContext"))
         return {
-          usePlayer: () => player,
           usePlayerActions: () => player,
           usePlayerState: () => player,
           usePlayerProgress: () => player,
@@ -252,7 +251,7 @@ test("Player renders normal, error and demo states without raw text nodes in lay
         );
       return currentLoader.call(this, request, parent, isMain);
     };
-    PlayerScreen = require("../src/components/PlayerScreen.tsx").default;
+    PlayerScreen = require("../src/screens/PlayerScreen.tsx").default;
     console.error = (...args) => {
       diagnostics.push(args);
     };
@@ -271,7 +270,7 @@ test("Player renders normal, error and demo states without raw text nodes in lay
   } finally {
     Module._load = currentLoader;
     console.error = currentError;
-    delete require.cache[require.resolve("../src/components/PlayerScreen.tsx")];
+    delete require.cache[require.resolve("../src/screens/PlayerScreen.tsx")];
   }
 });
 

@@ -1,10 +1,10 @@
-import Guard from "../components/Guard";
-import DiscoveryListScreen from "../components/DiscoveryListScreen";
+import RequireAuth from "../components/RequireAuth";
+import DiscoveryListScreen from "../screens/DiscoveryListScreen";
 
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <DiscoveryListScreen kind="albums" />
-    </Guard>
+    </RequireAuth>
   );
 }

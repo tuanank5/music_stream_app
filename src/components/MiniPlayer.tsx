@@ -10,7 +10,7 @@ import {
   IconButton,
   MediaTitle,
   MediaSubtitle,
-} from "./UI";
+} from "./ui/index";
 
 export default function MiniPlayer() {
   const player = usePlayerState();
