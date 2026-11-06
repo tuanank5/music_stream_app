@@ -14,10 +14,14 @@ import {
 } from "../components/ui/index";
 import { useAuth } from "../contexts/AuthContext";
 import { useHomeDiscovery } from "../hooks/useHomeDiscovery";
+import { useBackendResource } from "../hooks/useBackendResource";
+import { useState } from "react";
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const discovery = useHomeDiscovery();
+  const profile = useBackendResource<{ avatarUrl: string }>("/me");
+  const [muted, setMuted] = useState(false);
   const hour = new Date().getHours();
   const greeting =
     hour < 12
@@ -49,18 +53,18 @@ export default function HomeScreen() {
           />
           <XStack alignItems="center" gap="2">
             <IconButton
-              disabled
-              aria-label="Thông báo chưa khả dụng"
-              aria-disabled
+              aria-label={muted ? "Bật thông báo" : "Tắt thông báo"}
+              aria-pressed={muted}
+              onPress={() => setMuted((value) => !value)}
             >
-              <AppIcon name="bell" color="textMuted" />
+              <AppIcon name={muted ? "bell-off" : "bell"} color="textMuted" />
             </IconButton>
             <IconButton
               onPress={() => router.push("/profile")}
               aria-label="Mở hồ sơ cá nhân"
             >
               <Artwork
-                uri={user?.photoURL ?? ""}
+                uri={profile.value?.avatarUrl || user?.photoURL || ""}
                 size={36}
                 radius={18}
                 fallback="person"
@@ -84,7 +88,7 @@ export default function HomeScreen() {
           onPress={() =>
             router.push({ pathname: "/search", params: { autoFocus: "1" } })
           }
-          aria-label="Tìm bài hát, nghệ sĩ hoặc album"
+          aria-label="Tìm bài hát, nghệ sĩ hoặc Album"
           flexDirection="row"
           alignItems="center"
           gap="3"

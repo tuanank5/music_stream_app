@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { YStack } from "tamagui";
 import { useCursorList } from "../hooks/useCursorList";
 import { useBackendResource } from "../hooks/useBackendResource";
 import { useAction } from "../hooks/useAction";
@@ -46,25 +47,25 @@ export default function AlbumAddSongsScreen({ id }: { id: string }) {
         if (data.started && !data.error) void data.loadMore();
       }}
       header={
-        <>
-          <AppText>{info.value?.album.title || "Album"}</AppText>
+        <YStack gap="3" marginBottom="2">
           <SearchField
             value={query}
             onChange={setQuery}
-            placeholder="Tìm bài hát chưa thuộc album"
+            placeholder="Tìm bài hát chưa thuộc Album"
           />
+          <AppText fontWeight="700">{info.value?.album.title || "Album"}</AppText>
           <ErrorText message={info.error || action.error} />
-        </>
+        </YStack>
       }
       renderItem={(song) => (
         <MediaRow
           title={song.title}
           subtitle={song.artist}
-          leading={<Artwork uri={song.cover} size={60} radius={4} />}
+          leading={<Artwork uri={song.cover} size={70} radius={4} />}
           onPress={() => {}}
           trailing={
             <IconButton
-              aria-label={`Thêm ${song.title} vào album`}
+              aria-label={`Thêm ${song.title} vào Album`}
               disabled={action.busy}
               onPress={() =>
                 void action.run(async () => {
@@ -88,7 +89,7 @@ export default function AlbumAddSongsScreen({ id }: { id: string }) {
           !data.error &&
           !info.error &&
           !songs.length ? (
-            <EmptyState message="Không có bài hát chưa thuộc album nào." />
+            <EmptyState message="Không có bài hát chưa thuộc Album nào." />
           ) : null}
         </>
       }

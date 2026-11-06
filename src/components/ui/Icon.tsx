@@ -1,6 +1,7 @@
 import {
   AudioLines,
   Bell,
+  BellOff,
   ChevronLeft,
   Heart,
   House,
@@ -49,6 +50,7 @@ const icons = {
   feed: Newspaper,
   library: Library,
   bell: Bell,
+  "bell-off": BellOff,
   waveform: AudioLines,
   more: Ellipsis,
   add: Plus,

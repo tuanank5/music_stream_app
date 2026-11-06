@@ -24,7 +24,7 @@ export function PublicPlaylistsSection({ ownerId }: { ownerId: string }) {
       ) : null}
       {state.items.length || state.hasMore || state.error ? (
         <Button
-          title="Xem tất cả playlist"
+          title="Xem tất cả Playlist"
           variant="secondary"
           onPress={() =>
             router.push({ pathname: "/user-playlists", params: { ownerId } })

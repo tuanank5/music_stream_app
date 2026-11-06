@@ -20,7 +20,6 @@ import {
   ErrorText,
   Field,
   IconButton,
-  Loading,
   ModalPanel,
 } from "../components/ui/index";
 
@@ -80,6 +79,7 @@ export default function CommentsScreen({ postId }: { postId: string }) {
                 <Button
                   title="Làm mới"
                   variant="secondary"
+                  disabled={loading}
                   onPress={page.refresh}
                 />
                 <LoadMore {...page} />
@@ -128,9 +128,7 @@ export default function CommentsScreen({ postId }: { postId: string }) {
               </XStack>
             )}
             ListEmptyComponent={
-              loading ? (
-                <Loading />
-              ) : (
+              !loading ? (
                 <EmptyState
                   message={
                     error
@@ -138,7 +136,7 @@ export default function CommentsScreen({ postId }: { postId: string }) {
                       : "Chưa có bình luận. Hãy bắt đầu cuộc trò chuyện."
                   }
                 />
-              )
+              ) : undefined
             }
           />
           <YStack

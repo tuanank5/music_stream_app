@@ -37,6 +37,8 @@ export default function ArtistProfileScreen() {
   );
   return (
     <ListPage
+      title="Hồ sơ người dùng"
+      titleLeading={<BackButton inline />}
       data={songs}
       keyExtractor={(song) => song.id}
       renderItem={(song) => <SongRow song={song} queue={songs} />}
@@ -45,7 +47,6 @@ export default function ArtistProfileScreen() {
       }}
       header={
         <>
-          <BackButton />
           <ErrorText message={profile.error} />
           <Button
             title="Làm mới hồ sơ"
@@ -64,15 +65,19 @@ export default function ArtistProfileScreen() {
                   {profile.profile.followerCount ?? 0} người theo dõi
                 </AppText>
               </YStack>
-              <XStack gap="3" marginVertical="4">
-                <FollowButton artistId={id} />
-                <Button
-                  title="Phát bài hát"
-                  disabled={!songs.length}
-                  onPress={() => {
-                    player.play(songs[0], songs);
-                  }}
-                />
+              <XStack gap="3" marginVertical="4" alignItems="center">
+                <YStack flex={1} alignItems="center">
+                  <FollowButton artistId={id} inline />
+                </YStack>
+                <YStack flex={1}>
+                  <Button
+                    title="Phát bài hát"
+                    disabled={!songs.length}
+                    onPress={() => {
+                      if (songs.length) player.play(songs[0], songs);
+                    }}
+                  />
+                </YStack>
               </XStack>
               <AppText variant="muted">
                 {profile.profile.biography || "Chưa có giới thiệu."}
@@ -87,7 +92,7 @@ export default function ArtistProfileScreen() {
         </>
       }
       footer={
-        <>
+        <YStack gap="4" marginTop="4">
           <LoadMore {...state} />
           <PublicPlaylistsSection ownerId={id || ""} />
           {id ? <RelatedArtistsSection id={id} /> : null}
@@ -103,7 +108,7 @@ export default function ArtistProfileScreen() {
                   title={album.title || "Album"}
                   subtitle={album.artistName}
                   leading={
-                    <Artwork uri={album.coverUrl} size={60} radius={4} />
+                    <Artwork uri={album.coverUrl} size={70} radius={4} />
                   }
                   trailing={<AlbumFavoriteButton id={album.id} />}
                   onPress={() =>
@@ -116,7 +121,7 @@ export default function ArtistProfileScreen() {
               ))}
             </>
           )}
-        </>
+        </YStack>
       }
     />
   );

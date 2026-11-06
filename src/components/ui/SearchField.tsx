@@ -7,7 +7,7 @@ export function SearchField({
   value,
   onChange,
   autoFocus = false,
-  placeholder = "Tìm bài hát, nghệ sĩ, album",
+  placeholder = "Tìm bài hát, nghệ sĩ, Album",
 }: {
   value: string;
   onChange: (value: string) => void;

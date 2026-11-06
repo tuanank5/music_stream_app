@@ -86,14 +86,14 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
               <Button title="Album" disabled onPress={() => {}} />
             </XStack>
             <Button
-              title="Tạo album"
+              title="Tạo Album"
               variant="secondary"
               onPress={() => edit(null)}
             />
             <SearchField
               value={query}
               onChange={setQuery}
-              placeholder="Tìm album của bạn"
+              placeholder="Tìm Album của bạn"
             />
             <ErrorText message={!panel ? action.error : ""} />
           </>
@@ -102,7 +102,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
           <MediaRow
             title={album.title}
             subtitle={`${album.artistName} · ${album.songCount ?? 0} bài hát`}
-            leading={<Artwork uri={album.coverUrl} size={60} radius={4} />}
+            leading={<Artwork uri={album.coverUrl} size={70} radius={4} />}
             onPress={() =>
               router.push({
                 pathname: "/album",
@@ -130,10 +130,10 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
             !state.error &&
             !state.hasMore &&
             !albums.length ? (
-              <EmptyState message="Chưa có album phù hợp." />
+              <EmptyState message="Chưa có Album phù hợp." />
             ) : null}
             <Button
-              title="Làm mới album"
+              title="Làm mới Album"
               variant="secondary"
               onPress={() => setRevision((value) => value + 1)}
             />
@@ -164,7 +164,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
           <ErrorText message={action.error} />
           {panel === "delete" && selected ? (
             <Button
-              title="Xóa album"
+              title="Xóa Album"
               variant="danger"
               loading={action.busy}
               onPress={() =>
@@ -214,7 +214,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
                 }
               />
               <Field
-                label="Tên album"
+                label="Tên Album"
                 value={title}
                 onChange={setTitle}
                 disabled={action.busy}
@@ -236,7 +236,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
                 />
               </XStack>
               <Button
-                title="Lưu album"
+                title="Lưu Album"
                 loading={action.busy}
                 onPress={() =>
                   void action.run(async () => {
@@ -269,7 +269,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
           ) : selected ? (
             <>
               <Button
-                title="Chỉnh sửa album"
+                title="Chỉnh sửa Album"
                 variant="secondary"
                 disabled={action.busy}
                 onPress={() => edit(selected)}
@@ -305,7 +305,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
                 }}
               />
               <Button
-                title="Xóa album"
+                title="Xóa Album"
                 variant="danger"
                 disabled={action.busy}
                 onPress={() => setPanel("delete")}

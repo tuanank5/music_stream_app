@@ -29,8 +29,8 @@ export function FollowButton({
           void action.run(() => setFollow(user.uid, artistId, !following));
         }}
         borderWidth={1}
-        borderColor="contrast"
-        backgroundColor="contrast"
+        borderColor={following ? "borderColor" : "primary"}
+        backgroundColor={following ? "surface" : "primary"}
         borderRadius={24}
         paddingVertical={7}
         paddingHorizontal="4.5"
@@ -38,9 +38,6 @@ export function FollowButton({
         minWidth={74}
         alignItems="center"
         justifyContent="center"
-        {...(following
-          ? { backgroundColor: "white", borderColor: "borderColor" }
-          : {})}
         {...(action.busy ? { opacity: 0.5 } : {})}
       >
         <AppText

@@ -229,7 +229,7 @@ export default function PlayerScreen() {
                 >
                   <AppIcon
                     name={favorite ? "heart" : "heart-outline"}
-                    color={favorite ? "accent" : "white"}
+                    color={favorite ? "danger" : "white"}
                   />
                 </IconButton>
               </XStack>

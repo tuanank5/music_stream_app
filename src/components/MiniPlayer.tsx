@@ -57,7 +57,7 @@ export default function MiniPlayer() {
         >
           <AppIcon
             name={favorite ? "heart" : "heart-outline"}
-            color={favorite ? "accent" : "white"}
+            color={favorite ? "danger" : "white"}
             size={22}
           />
         </IconButton>

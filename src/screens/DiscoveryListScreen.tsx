@@ -37,7 +37,7 @@ export default function DiscoveryListScreen({
   const errors = state.error ? [state.error] : [];
   return (
     <ListPage<Item>
-      title={kind === "albums" ? "Trending albums" : "Popular artists"}
+      title={kind === "albums" ? "Album thịnh hành" : "Nghệ sĩ phổ biến"}
       titleLeading={<BackButton inline />}
       data={items}
       onEndReached={() => {
@@ -67,7 +67,7 @@ export default function DiscoveryListScreen({
               title={album.title}
               trailing={<AlbumFavoriteButton id={album.id} />}
               subtitle={album.artistName}
-              leading={<Artwork uri={album.coverUrl} size={60} radius={4} />}
+              leading={<Artwork uri={album.coverUrl} size={70} radius={4} />}
               onPress={() =>
                 router.push({ pathname: "/album", params: { id: album.id } })
               }
@@ -79,7 +79,7 @@ export default function DiscoveryListScreen({
           <MediaRow
             title={artist.name}
             subtitle={`${artist.followerCount ?? 0} người theo dõi`}
-            leading={<ArtistAvatar artist={artist} size={60} />}
+            leading={<ArtistAvatar artist={artist} size={70} />}
             trailing={<FollowButton artistId={artist.id} />}
             onPress={() =>
               router.push({ pathname: "/artist", params: { id: artist.id } })

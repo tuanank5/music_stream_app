@@ -42,12 +42,14 @@ export default function ProfileScreen() {
       <AppText variant="caption">
         follower: {form.followerCount} · following: {form.followingCount}
       </AppText>
-      <Field
-        label="Tên hiển thị"
-        value={form.name}
-        onChange={form.setName}
-        disabled={form.busy}
-      />
+      <YStack marginTop="2">
+        <Field
+          label="Tên hiển thị"
+          value={form.name}
+          onChange={form.setName}
+          disabled={form.busy}
+        />
+      </YStack>
       <Field
         label="Tiểu sử"
         value={form.biography}
@@ -60,6 +62,12 @@ export default function ProfileScreen() {
         title="Lưu hồ sơ"
         loading={form.busy}
         onPress={() => void form.save()}
+      />
+      <Button
+        title="Đăng xuất"
+        variant="secondary"
+        disabled={form.busy}
+        onPress={() => void form.logout()}
       />
     </Page>
   );

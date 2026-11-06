@@ -196,7 +196,7 @@ function SearchSession({
             leading={
               <Artwork
                 uri={covers.get(`${item.kind}:${item.id}`) ?? ""}
-                size={60}
+                size={70}
                 radius={item.kind === "artist" ? 30 : 4}
               />
             }
@@ -219,7 +219,7 @@ function SearchSession({
           history.loading ? (
             <Loading />
           ) : !history.items.length ? (
-            <EmptyState message="Chưa có tìm kiếm gần đây. Tìm và mở bài hát, album hoặc nghệ sĩ để lưu tại đây." />
+            <EmptyState message="Chưa có tìm kiếm gần đây. Tìm và mở Bài hát, Album hoặc Nghệ sĩ để lưu tại đây." />
           ) : null
         }
       />
@@ -252,7 +252,7 @@ function SearchSession({
           <AppText variant="caption" marginBottom="3">
             {keyword
               ? `Đã tải ${results.length} kết quả cho “${keyword}”`
-              : "Khám phá bài hát, album và nghệ sĩ"}
+              : "Khám phá Bài hát, Album và Nghệ sĩ"}
           </AppText>
         </>
       }
@@ -278,7 +278,7 @@ function SearchSession({
                   ? "Người dùng"
                   : `Nghệ sĩ · ${artist.followerCount ?? 0} người theo dõi`
               }
-              leading={<ArtistAvatar artist={artist} size={60} />}
+              leading={<ArtistAvatar artist={artist} size={70} />}
               trailing={<FollowButton artistId={artist.id} />}
               onPress={() => {
                 remember(result);
@@ -295,7 +295,7 @@ function SearchSession({
           <MediaRow
             title={album.title}
             subtitle={`Album · ${album.artistName}`}
-            leading={<Artwork uri={album.coverUrl} size={60} radius={4} />}
+            leading={<Artwork uri={album.coverUrl} size={70} radius={4} />}
             onPress={() => {
               remember(result);
               router.push({ pathname: "/album", params: { id: album.id } });

@@ -149,19 +149,19 @@ export default function HomeDiscovery({
         </SectionState>
       </Section>
 
-      <Section title="Trending albums" onPress={() => router.push("/albums")}>
+      <Section title="Album thịnh hành" onPress={() => router.push("/albums")}>
         <SectionState
           loading={loading}
           empty={!albums.length}
           message={
-            albumError ? "Chưa thể tải album." : "Chưa có album được phát hành."
+            albumError ? "Chưa thể tải Album." : "Chưa có Album được phát hành."
           }
         >
           <Rail>
             {albums.map((album) => (
               <Action
                 key={album.id}
-                aria-label={`Mở album ${album.title}, ${album.artistName}`}
+                aria-label={`Mở Album ${album.title}, ${album.artistName}`}
                 onPress={() =>
                   router.push({ pathname: "/album", params: { id: album.id } })
                 }

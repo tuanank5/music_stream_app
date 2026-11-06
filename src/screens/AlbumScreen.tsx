@@ -65,7 +65,7 @@ export default function AlbumScreen({
           song={song}
           queue={songs}
           onChanged={() => setRevision((value) => value + 1)}
-          removeLabel="Gỡ khỏi album"
+          removeLabel="Gỡ khỏi Album"
           onRemove={
             album?.artistId === user?.uid && song.artistId === user?.uid
               ? () => {
@@ -85,16 +85,6 @@ export default function AlbumScreen({
         <YStack gap="3" marginBottom="4">
           <ErrorText message={action.error || info.error} />
           <ErrorText message={albumFavorites.error} />
-          {album ? <AlbumFavoriteButton id={id} /> : null}
-          {owned && album?.artistId === user?.uid ? (
-            <Button
-              title="Thêm bài hát"
-              variant="secondary"
-              onPress={() =>
-                router.push({ pathname: "/album-add", params: { id } })
-              }
-            />
-          ) : null}
           <YStack alignItems="center" gap="3">
             <Artwork
               uri={album?.coverUrl || songs[0]?.cover || ""}
@@ -105,11 +95,12 @@ export default function AlbumScreen({
               {album?.artistName || ""}
             </AppText>
           </YStack>
-          <AppText variant="muted">
-            {songs.reduce((total, song) => total + song.playCount, 0)} lượt nghe
+          <AppText variant="muted" textAlign="center">
+            {info.value?.totalPlayCount ?? 0} lượt nghe
           </AppText>
+          {album ? <AlbumFavoriteButton id={id} /> : null}
           <Button
-            title="Phát album"
+            title="Phát Album"
             disabled={!songs.length}
             onPress={() => {
               if (songs.length) {
@@ -130,6 +121,16 @@ export default function AlbumScreen({
                 owned
                   ? "Album chưa có bài hát khả dụng."
                   : "Album chưa có bài hát công khai khả dụng."
+              }
+            />
+          ) : null}
+          {owned && album?.artistId === user?.uid ? (
+            <Button
+              title="Thêm bài hát"
+              variant="secondary"
+              disabled={action.busy}
+              onPress={() =>
+                router.push({ pathname: "/album-add", params: { id } })
               }
             />
           ) : null}

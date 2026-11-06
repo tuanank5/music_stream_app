@@ -9,7 +9,7 @@ export function PlaylistRow({ item }: { item: PublicPlaylist }) {
     <MediaRow
       title={item.name}
       subtitle={`${item.ownerName} · Playlist · ${item.songCount} bài hát`}
-      leading={<Artwork uri={item.coverUrl} size={60} radius={4} />}
+      leading={<Artwork uri={item.coverUrl} size={70} radius={4} />}
       onPress={() =>
         router.push({
           pathname: "/playlist",

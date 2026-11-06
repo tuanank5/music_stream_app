@@ -12,11 +12,12 @@ import {
   Button,
 } from "../components/ui/index";
 import { FollowButton } from "../components/discovery/FollowButton";
+import { YStack } from "tamagui";
 export default function PublicProfileScreen({ id }: { id: string }) {
   const state = usePublicProfile(id);
   return (
     <Page
-      title={state.profile?.name || "Người dùng"}
+      title="Hồ sơ người dùng"
       titleLeading={<BackButton inline />}
     >
       <ErrorText message={state.error} />
@@ -29,8 +30,9 @@ export default function PublicProfileScreen({ id }: { id: string }) {
       {state.loading ? (
         <Loading />
       ) : state.profile ? (
-        <>
+        <YStack gap="3">
           <Artwork uri={state.profile.imageUrl} size={140} radius={70} />
+          <AppText fontWeight="700">{state.profile.name}</AppText>
           <AppText variant="muted">
             Người dùng · {state.profile.followerCount} người theo dõi
           </AppText>
@@ -38,7 +40,7 @@ export default function PublicProfileScreen({ id }: { id: string }) {
           <FollowButton artistId={id} />
           <PublicPlaylistsSection ownerId={id} />
           <RelatedArtistsSection id={id} />
-        </>
+        </YStack>
       ) : (
         <EmptyState message="Hồ sơ không còn khả dụng." />
       )}

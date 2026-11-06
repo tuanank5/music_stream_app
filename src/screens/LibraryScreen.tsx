@@ -133,7 +133,7 @@ export function LibraryScreen() {
             <ErrorText message={albumFavorites.error} />
             {albumFavorites.error ? (
               <Button
-                title="Thử tải lại album yêu thích"
+                title="Thử tải lại Album yêu thích"
                 variant="secondary"
                 onPress={albumFavorites.reload}
               />
@@ -147,7 +147,7 @@ export function LibraryScreen() {
             return (
               <MediaRow
                 title={result.item.name}
-                leading={<ArtistAvatar artist={result.item} size={60} />}
+                leading={<ArtistAvatar artist={result.item} size={70} />}
                 trailing={<FollowButton artistId={result.item.id} />}
                 onPress={() =>
                   router.push({
@@ -163,7 +163,7 @@ export function LibraryScreen() {
               trailing={<AlbumFavoriteButton id={result.item.id} />}
               subtitle={result.item.artistName}
               leading={
-                <Artwork uri={result.item.coverUrl} size={60} radius={4} />
+                <Artwork uri={result.item.coverUrl} size={70} radius={4} />
               }
               onPress={() =>
                 router.push({

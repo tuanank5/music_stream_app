@@ -26,7 +26,6 @@ import {
   Field,
   IconButton,
   ListPage,
-  Loading,
   ModalPanel,
   SearchField,
 } from "../components/ui/index";
@@ -181,12 +180,11 @@ export default function FeedScreen() {
             <Button
               title="Làm mới"
               variant="secondary"
+              disabled={loading}
               onPress={page.refresh}
             />
             <LoadMore {...page} />
-            {loading ? (
-              <Loading />
-            ) : !shown.length ? (
+            {!loading && !shown.length ? (
               <EmptyState
                 message={
                   error
@@ -301,9 +299,18 @@ export default function FeedScreen() {
           description={menu.authorName}
         >
           <ErrorText message={action.error} />
+          {menu.ownerId === user?.uid && (
+            <Button
+              title="Sửa nội dung"
+              variant="secondary"
+              disabled={action.busy}
+              onPress={() => openComposer(menu)}
+            />
+          )}
           <Button
             title="Bình luận"
             variant="secondary"
+            disabled={action.busy}
             onPress={() => {
               const id = menu.id;
               setMenu(null);
@@ -318,13 +325,6 @@ export default function FeedScreen() {
               void action.run(() => Share.share({ message: menu.content }))
             }
           />
-          {menu.ownerId === user?.uid && (
-            <Button
-              title="Sửa nội dung"
-              variant="secondary"
-              onPress={() => openComposer(menu)}
-            />
-          )}
           {menu.ownerId === user?.uid && (
             <Button
               title="Ẩn bài đăng"

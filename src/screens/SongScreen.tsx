@@ -17,7 +17,7 @@ import {
 export default function SongScreen({ id }: { id: string }) {
   const { error, loading } = useSongDetail(id);
   return (
-    <YStack flex={1} minHeight={0}>
+    <YStack flex={1} minHeight={0} backgroundColor="background">
       <YStack paddingHorizontal="gutter" paddingTop="2">
         <BackButton />
       </YStack>

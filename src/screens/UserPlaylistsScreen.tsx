@@ -24,7 +24,7 @@ export default function UserPlaylistsScreen({ ownerId }: { ownerId: string }) {
           !state.error &&
           !state.hasMore &&
           !state.items.length ? (
-            <EmptyState message="Chưa có playlist công khai khả dụng." />
+            <EmptyState message="Chưa có Playlist công khai khả dụng." />
           ) : null}
         </>
       }

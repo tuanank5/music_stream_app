@@ -46,7 +46,7 @@ function PlaylistItem({
     <MediaRow
       title={playlist.name}
       subtitle={`${user?.displayName || "Người dùng"} · Playlist · ${playlist.songIds.length} bài hát`}
-      leading={<Artwork uri={cover} size={60} radius={4} />}
+      leading={<Artwork uri={cover} size={70} radius={4} />}
       onPress={() =>
         router.push({ pathname: "/playlist", params: { id: playlist.id } })
       }
@@ -90,7 +90,7 @@ export function PlaylistsScreen() {
         titleTrailing={
           <IconButton
             backgroundColor="contrast"
-            aria-label="Tạo playlist"
+            aria-label="Tạo Playlist"
             onPress={() => openForm(null)}
           >
             <AppIcon name="add" color="white" />
@@ -114,7 +114,7 @@ export function PlaylistsScreen() {
             {data.loading ? (
               <Loading />
             ) : !data.playlists.length ? (
-              <EmptyState message="Tạo playlist đầu tiên để lưu những bài hát bạn muốn nghe cùng nhau." />
+              <EmptyState message="Tạo Playlist đầu tiên để lưu những bài hát bạn muốn nghe cùng nhau." />
             ) : null}
           </>
         }
@@ -128,7 +128,7 @@ export function PlaylistsScreen() {
           title={
             panel === "form"
               ? selected
-                ? "Chỉnh sửa playlist"
+                ? "Chỉnh sửa Playlist"
                 : "Playlist mới"
               : selected?.name || "Playlist"
           }
@@ -138,19 +138,35 @@ export function PlaylistsScreen() {
           {panel === "form" ? (
             <>
               <Field
-                label="Tên playlist"
+                label="Tên Playlist"
                 value={name}
                 onChange={setName}
                 autoCapitalize="sentences"
+                disabled={action.busy}
               />
               <Field
                 label="Mô tả"
                 value={description}
                 onChange={setDescription}
                 multiline
+                disabled={action.busy}
               />
+              <XStack
+                alignItems="center"
+                justifyContent="space-between"
+                paddingVertical="2"
+              >
+                <AppText>Công khai</AppText>
+                <Switch
+                  accessibilityLabel="Công khai Playlist"
+                  value={isPublic}
+                  disabled={action.busy}
+                  onValueChange={setPublic}
+                />
+              </XStack>
               <Button
-                title={selected ? "Lưu thay đổi" : "Tạo playlist"}
+                title={selected ? "Lưu thay đổi" : "Tạo Playlist"}
+                disabled={action.busy}
                 loading={action.busy}
                 onPress={() =>
                   void action.run(async () => {
@@ -171,21 +187,13 @@ export function PlaylistsScreen() {
                   })
                 }
               />
-              <XStack alignItems="center" justifyContent="space-between">
-                <AppText>Công khai</AppText>
-                <Switch
-                  accessibilityLabel="Công khai playlist"
-                  value={isPublic}
-                  disabled={action.busy}
-                  onValueChange={setPublic}
-                />
-              </XStack>
             </>
           ) : selected ? (
             <>
               <Button
-                title="Chỉnh sửa playlist"
+                title="Chỉnh sửa Playlist"
                 variant="secondary"
+                disabled={action.busy}
                 onPress={() => openForm(selected)}
               />
               <Button
@@ -216,19 +224,19 @@ export function PlaylistsScreen() {
                 }}
               />
               <Button
-                title="Xóa playlist"
+                title="Xóa Playlist"
                 variant="danger"
                 disabled={action.busy}
                 onPress={() =>
                   confirmDelete(
-                    "Thao tác này sẽ xóa vĩnh viễn playlist này. Bạn có chắc chắn muốn tiếp tục không?",
+                    "Thao tác này sẽ xóa vĩnh viễn Playlist này. Bạn có chắc chắn muốn tiếp tục không?",
                     () =>
                       void action.run(async () => {
                         if (!user) return;
                         await deletePlaylist(user.uid, selected.id);
                         setPanel(null);
                       }),
-                    "Xóa playlist?",
+                    "Xóa Playlist?",
                   )
                 }
               />

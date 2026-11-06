@@ -3,7 +3,7 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Platform } from "react-native";
-import { YStack } from "tamagui";
+import { XStack, YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
 import { useCatalogData } from "../contexts/DataContext";
 import { useAction } from "../hooks/useAction";
@@ -23,6 +23,7 @@ import {
   Button,
   ErrorText,
   Field,
+  IconButton,
   Page,
   SectionTitle,
   SurfaceCard,
@@ -58,6 +59,7 @@ export default function UploadSongScreen() {
   const [artists, setArtists] = useState(user?.displayName || "Music lover");
   const [albumId, setAlbumId] = useState("");
   const [newAlbum, setNewAlbum] = useState("");
+  const [newAlbumOpen, setNewAlbumOpen] = useState(false);
   const [isPublic, setPublic] = useState(true);
   const [message, setMessage] = useState("");
   const cache = useRef<{
@@ -235,19 +237,25 @@ export default function UploadSongScreen() {
         ) : null}
 
         <Button
-          title="Chọn ảnh bìa từ album ảnh"
+          title="Chọn ảnh bìa từ Album ảnh"
           variant="secondary"
           disabled={action.busy}
           onPress={() => void action.run(pickImage)}
         />
       </SurfaceCard>
 
-      <Field label="Tên bài hát *" value={title} onChange={setTitle} />
+      <Field
+        label="Tên bài hát *"
+        value={title}
+        onChange={setTitle}
+        disabled={action.busy}
+      />
 
       <Field
         label="Artist * (ngăn cách bằng dấu phẩy)"
         value={artists}
         onChange={setArtists}
+        disabled={action.busy}
       />
 
       <AppText>Genre *</AppText>
@@ -271,7 +279,7 @@ export default function UploadSongScreen() {
                 key={value}
                 role="checkbox"
                 aria-checked={selected}
-                disabled={!selected && genres.length >= 10}
+                disabled={action.busy || (!selected && genres.length >= 10)}
                 padding="3"
                 flexDirection="row"
                 alignItems="center"
@@ -294,45 +302,108 @@ export default function UploadSongScreen() {
         </ModalPanel>
       )}
 
-      <SectionTitle>Album</SectionTitle>
+      <XStack alignItems="center" justifyContent="space-between" marginTop="2">
+        <SectionTitle>Album</SectionTitle>
+        <IconButton
+          aria-label={newAlbumOpen ? "Đóng tạo Album mới" : "Tạo Album mới"}
+          disabled={action.busy}
+          onPress={() => {
+            setNewAlbumOpen((open) => !open);
+            setAlbumId("");
+            if (newAlbumOpen) setNewAlbum("");
+          }}
+        >
+          <AppIcon name={newAlbumOpen ? "close" : "add"} />
+        </IconButton>
+      </XStack>
 
-      <Button
-        title="Không thuộc album"
-        variant="secondary"
-        onPress={() => {
-          setAlbumId("");
-          setNewAlbum("");
-        }}
-      />
-
-      {data.albums
-        .filter((album) => album.artistId === user?.uid)
-        .map((album) => (
-          <Button
-            key={album.id}
-            title={`${albumId === album.id ? "✓ " : ""}${album.title}`}
-            variant="secondary"
-            onPress={() => {
-              setAlbumId(album.id);
-              setNewAlbum("");
-            }}
+      <YStack gap="1">
+        <Action
+          role="radio"
+          aria-checked={!albumId && !newAlbumOpen}
+          disabled={action.busy}
+          onPress={() => {
+            setAlbumId("");
+            setNewAlbum("");
+            setNewAlbumOpen(false);
+          }}
+          backgroundColor={!albumId && !newAlbumOpen ? "contrast" : "surface"}
+          flexDirection="row"
+          alignItems="center"
+          borderRadius={12}
+          borderWidth={1}
+          borderColor={!albumId && !newAlbumOpen ? "contrast" : "borderColor"}
+          padding="3"
+        >
+          <AppText
+            flex={1}
+            color={!albumId && !newAlbumOpen ? "white" : "color"}
+          >
+            Không thuộc album
+          </AppText>
+          <AppIcon
+            name={!albumId && !newAlbumOpen ? "radio-on" : "radio-off"}
+            color={!albumId && !newAlbumOpen ? "white" : "textMuted"}
           />
-        ))}
-
-      <Field
-        label="Hoặc tạo album mới"
-        value={newAlbum}
-        onChange={setNewAlbum}
-      />
+        </Action>
+        {data.albums
+          .filter((album) => album.artistId === user?.uid)
+          .map((album) => {
+            const selected = albumId === album.id;
+            return (
+              <Action
+                key={album.id}
+                role="radio"
+                aria-checked={selected}
+                disabled={action.busy}
+                onPress={() => {
+                  setAlbumId(album.id);
+                  setNewAlbum("");
+                  setNewAlbumOpen(false);
+                }}
+                backgroundColor={selected ? "contrast" : "surface"}
+                flexDirection="row"
+                alignItems="center"
+                borderRadius={12}
+                borderWidth={1}
+                borderColor={selected ? "contrast" : "borderColor"}
+                padding="3"
+              >
+                <AppText flex={1} color={selected ? "white" : "color"}>
+                  {album.title}
+                </AppText>
+                <AppIcon
+                  name={selected ? "radio-on" : "radio-off"}
+                  color={selected ? "white" : "textMuted"}
+                />
+              </Action>
+            );
+          })}
+        {newAlbumOpen ? (
+          <Field
+            label="Tên Album mới"
+            value={newAlbum}
+            onChange={setNewAlbum}
+            disabled={action.busy}
+          />
+        ) : null}
+      </YStack>
 
       <Field
         label="Mô tả"
         value={description}
         onChange={setDescription}
         multiline
+        disabled={action.busy}
       />
 
-      <Field label="Lời bài hát" value={lyric} onChange={setLyric} multiline />
+      <Field
+        label="Lời bài hát"
+        value={lyric}
+        onChange={setLyric}
+        multiline
+        disabled={action.busy}
+      />
 
       <SectionTitle>Quyền riêng tư</SectionTitle>
 
@@ -366,11 +437,6 @@ export default function UploadSongScreen() {
           />
         </Action>
       ))}
-
-      <AppText variant="caption">
-        Privacy giới hạn quyền đọc dữ liệu trong ứng dụng. URL Cloudinary thông
-        thường vẫn mở được nếu bị chia sẻ ra ngoài.
-      </AppText>
 
       <ErrorText message={action.error} />
 

@@ -163,7 +163,7 @@ export default function SongRow({
               )}
               <Button
                 title={favorite ? "Bỏ yêu thích" : "Yêu thích"}
-                variant="secondary"
+                variant="danger"
                 disabled={favorites.disabled}
                 loading={favorites.busy}
                 onPress={favorites.toggle}
@@ -245,7 +245,7 @@ export default function SongRow({
                   setPlaylistQuery(value);
                   setPlaylistPage(0);
                 }}
-                placeholder="Tìm playlist của bạn"
+                placeholder="Tìm Playlist của bạn"
               />
               {matchingPlaylists
                 .slice(currentPlaylistPage * 10, (currentPlaylistPage + 1) * 10)
@@ -274,7 +274,7 @@ export default function SongRow({
                 ))}
               {!data.playlists.length && (
                 <Button
-                  title="Tạo playlist trước"
+                  title="Tạo Playlist trước"
                   onPress={() => {
                     setPanel(null);
                     router.push("/playlists");
@@ -282,7 +282,7 @@ export default function SongRow({
                 />
               )}
               {data.playlists.length > 0 && !matchingPlaylists.length ? (
-                <AppText>Không tìm thấy playlist.</AppText>
+                <AppText>Không tìm thấy Playlist.</AppText>
               ) : null}
               {matchingPlaylists.length > 10 ? (
                 <XStack gap="2">
