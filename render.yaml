@@ -1,0 +1,33 @@
+# Add firebase-admin-key.json in Render Environment > Secret Files before
+# expecting a successful deploy. Never commit the real JSON file here.
+services:
+  - type: web
+    name: music-stream-backend
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: GOOGLE_CLOUD_PROJECT
+        value: musicstreamapp-5a527
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/secrets/firebase-admin-key.json
+      - key: CURSOR_SECRET
+        generateValue: true
+      # Native APK requests have no browser Origin. Add exact browser origins
+      # here in Render when testing/deploying the web app (comma separated).
+      - key: ALLOWED_ORIGINS
+        value: ""
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

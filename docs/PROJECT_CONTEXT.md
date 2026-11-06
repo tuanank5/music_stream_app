@@ -355,6 +355,51 @@ scripts/check-auth-bundle.cjs đọc sourcemap cả flat/indexed, yêu cầu Web
 
 Đã push nhánh ci/project-checks-20261106, chưa merge main. [Lượt đầu 42252151087](https://github.com/tuanank5/music_stream_app/actions/runs/42252151087): Docker và Web/Android bundle + Auth resolution đạt; quality 96/97 và integration 40/41 vì tests/editable-data phụ thuộc assets/audio/Guitar/g01.mp3 chưa được commit. Đã sửa hai test dùng tests/helpers/editable-fixture.cjs: JSON fixture độc lập từ buildFixtures và WAV tổng hợp thật trong thư mục .local tạm, có cleanup; không bỏ test hoặc giả duration. main của importer nhận directory khi gọi từ module để test cùng luồng apply/backup/Auth, CLI mặc định vẫn đọc data/local. npm run data:check vẫn xác minh dataset/media người dùng thật. Xem [trạng thái CI mới nhất trên nhánh](https://github.com/tuanank5/music_stream_app/actions?query=branch%3Aci%2Fproject-checks-20261106) trước khi kết luận toàn bộ pipeline đạt.
 
+### Tạo service Render lần đầu
+
+render.yaml ở root khai báo Docker Web Service, plan free, region singapore, Dockerfile.backend, context repo root, healthCheckPath /health và autoDeployTrigger off. Không tạo database Render hoặc persistent disk: Firestore giữ dữ liệu, Cloudinary giữ media, SQLite FTS chỉ là index RAM có thể dựng lại. Region Singapore là lựa chọn khởi đầu; cân nhắc vị trí Firestore trước khi tạo vì Render không đổi region tại chỗ.
+
+Endpoint GET /health đã có trong tools/backend/http-app.cjs và đã được kiểm tra trong Docker smoke; không cần thêm route trong Expo. Trả HTTP 200 khi ready=true, HTTP 503 khi backend ghi nhận lỗi đồng bộ. Health không thay kiểm thử Auth, Cloudinary hoặc toàn bộ endpoint.
+
+Tạo thủ công trên Render Dashboard → New → Web Service → kết nối repo tuanank5/music_stream_app:
+
+| Mục | Giá trị |
+| --- | --- |
+| Branch | ci/project-checks-20261106 (code đã qua CI; main chưa merge) |
+| Name | music-stream-backend hoặc tên còn trống |
+| Language/Runtime | Docker |
+| Region | Singapore nếu phù hợp vị trí Firestore/người dùng |
+| Root Directory | Để trống |
+| Dockerfile Path | ./Dockerfile.backend |
+| Docker Build Context | . |
+| Instance Type | Free |
+| Health Check Path | /health |
+| Auto Deploy | Off trong giai đoạn thiết lập |
+
+Nhập Environment trước khi deploy:
+
+| Biến | Giá trị |
+| --- | --- |
+| NODE_ENV | production |
+| PORT | 10000 |
+| GOOGLE_CLOUD_PROJECT | musicstreamapp-5a527 |
+| GOOGLE_APPLICATION_CREDENTIALS | /etc/secrets/firebase-admin-key.json |
+| CURSOR_SECRET | Chuỗi ngẫu nhiên ít nhất 32 ký tự, giữ nguyên qua redeploy |
+| CLOUDINARY_CLOUD_NAME | Cloud name thực tế |
+| CLOUDINARY_API_KEY | API key của cloud tương ứng |
+| CLOUDINARY_API_SECRET | API secret, chỉ nhập ở Render |
+| ALLOWED_ORIGINS | Để trống nếu chỉ dùng APK; nếu thử Web thì nhập origin chính xác, ví dụ http://localhost:8081, phân cách nhiều origin bằng dấu phẩy |
+
+Tạo CURSOR_SECRET tại máy người dùng bằng `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`, dán kết quả vào Render, không ghi vào repo/chat. Trong Environment → Secret Files, thêm filename firebase-admin-key.json, nội dung là JSON Firebase service account đúng project. Runtime Docker đọc tại /etc/secrets/firebase-admin-key.json. USER node trong image chính thức thuộc group 1000; không đổi sang root để đọc secret. Không đặt biến emulator hoặc đưa credentials vào EXPO_PUBLIC_*. Firebase CLI login không thay cho backend credentials.
+
+Nếu dùng New → Blueprint với render.yaml thay vì tạo thủ công, chọn đúng nhánh CI, điền ba giá trị Cloudinary khi được hỏi. CURSOR_SECRET được Blueprint sinh tự động. Secret File vẫn phải thêm riêng trong Dashboard; lần deploy thiếu file sẽ lỗi credentials, cần thêm file rồi Manual Deploy lại. Blueprint không chứa nội dung khóa Firebase.
+
+Sau deploy, mở https://<service-name>.onrender.com/health: phải HTTP 200, mode=cloud, projectId=musicstreamapp-5a527, ready=true. Có thể kiểm tra bằng `Invoke-RestMethod "https://<service-name>.onrender.com/health"`. Tiếp theo test /me khi không có token trả 401, đăng ký tài khoản mới và kiểm tra users/{uid}, upload ảnh/audio và phát nhạc. Chỉ sau đó cấu hình client cloud với EXPO_PUBLIC_BACKEND_URL là origin HTTPS của service (không thêm /health), restart Expo/build lại khi đổi biến public. Không dùng npm run start:local để test Render vì lệnh đó ép Emulator. Không tự tạo collection/marker migration cho database trống.
+
+Render Free có thể ngủ sau 15 phút không có traffic và filesystem không bền qua restart; cold start có thể vượt timeout client hiện tại (15 giây). Đánh thức bằng /health rồi thử lại trong QA; chưa coi đây là nghiệm thu cold-start. render.yaml là cấu hình triển khai, chưa chứng minh service đã được tạo hoặc chạy trên Render.
+
+Nguồn: [Render Blueprint](https://render.com/docs/blueprint-spec), [Docker secrets](https://render.com/docs/docker-secrets), [Health checks](https://render.com/docs/health-checks), [Free limits](https://render.com/docs/free).
+
 ### Luồng lưu bài
 
 1. Client gọi GET `/audio-upload-config` có Firebase ID token.

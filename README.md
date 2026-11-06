@@ -79,6 +79,8 @@ Có workflow [Project checks](.github/workflows/ci.yml) chạy khi push vào `ma
 
 Đã push nhánh `ci/project-checks-20261106`; xem [các lượt chạy CI](https://github.com/tuanank5/music_stream_app/actions?query=branch%3Aci%2Fproject-checks-20261106). Lượt đầu Docker và hai bundle đạt; hai job test phát hiện phụ thuộc MP3 Guitar chỉ có local. Test importer đã chuyển sang fixture WAV tổng hợp riêng, không cần upload bộ nhạc cá nhân. `npm run data:check` vẫn kiểm tra bộ dữ liệu/media thật trên máy. `main` chưa merge, chưa deploy Render.
 
+Đã thêm [render.yaml](render.yaml): Docker Free, health check `/health`, tự deploy tắt trong giai đoạn thiết lập. `/health` đã có sẵn trong backend. Xem mục **Tạo service Render lần đầu** trong [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) để nhập Environment và Secret File Firebase; không đưa file khóa lên GitHub. Người dùng chưa tạo service, chưa có URL Render để xác nhận health thật.
+
 `audioKey` đã bỏ khỏi runtime/dataset, chỉ còn trong bộ nhận diện legacy và test chống hồi quy; dữ liệu cloud cũ chưa được kiểm tra/xóa field.
 
 Tiếp tục QA media/cloud/migration → APK thật → embedding/search hybrid → lyric jobs và AI theo nhu cầu. Hướng dẫn cleanup, backup ledger và giới hạn trong PROJECT_CONTEXT.md. Bundle export không phải APK/native E2E; có cấu hình cloud không có nghĩa đã deploy.
