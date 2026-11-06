@@ -14,7 +14,7 @@ import {
   watchArtists,
   watchAlbums,
   watchSong,
-  watchArtistFollowerSongs,
+  watchFollowedArtistSongs,
 } from "../services/catalogService";
 import {
   watchPlaylists,
@@ -129,7 +129,7 @@ function DataSession({
 
   const [followingSubscriptions] = useState(() =>
     createKeyedSubscriptions<Song[]>(
-      watchArtistFollowerSongs,
+      watchFollowedArtistSongs,
       (groups) => setFollowedSongs([...groups.values()].flat()),
       (id, error) => fail(`Following songs:${id}`, error),
       (id) => clearError(`Following songs:${id}`),

@@ -40,8 +40,7 @@ function createUploadsRouter({
           artistName: profile.data().displayName || "",
           coverUrl: value.coverUrl || "",
           description: value.description || "",
-          isPublic: value.isPublic ?? value.isPublished === true,
-          isPublished: value.isPublished === true,
+          isPublic: value.isPublic === true,
           songCount: tracks.length,
           durationSeconds: tracks.reduce(
             (sum, song) => sum + (Number(song.durationSeconds) || 0),

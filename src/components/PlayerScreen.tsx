@@ -21,6 +21,7 @@ import { useAction } from "../hooks/useAction";
 import { useBackNavigation } from "../hooks/useBackNavigation";
 import { useFavoriteSong } from "../hooks/useFavoriteSong";
 import { formatDuration } from "../utils/validation";
+import { isLocalDemoAudio } from "../utils/audioSource";
 import {
   Action,
   AppIcon,
@@ -287,7 +288,7 @@ export default function PlayerScreen() {
                   </AppText>
                 </Action>
               </XStack>
-              {song.audioKey && !song.audioUrl ? (
+              {isLocalDemoAudio(song.audioUrl) ? (
                 <AppText variant="caption" color="playerMuted">
                   Âm thanh tổng hợp demo do ứng dụng cung cấp, không phải bản
                   thu thương mại.

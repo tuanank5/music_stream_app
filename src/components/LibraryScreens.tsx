@@ -1,5 +1,7 @@
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { createRequestCache } from "../utils/createRequest";
+import { newSongId } from "../services/catalogService";
 import { Switch } from "react-native";
 import { XStack, YStack } from "tamagui";
 import { useAuth } from "../contexts/AuthContext";
@@ -282,12 +284,14 @@ export function PlaylistsScreen() {
   const { user } = useAuth();
   const data = useData();
   const action = useAction();
+  const createRequest = useRef(createRequestCache(newSongId));
   const [panel, setPanel] = useState<"form" | "actions" | null>(null);
   const [selected, setSelected] = useState<Playlist | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setPublic] = useState(false);
   function openForm(playlist: Playlist | null) {
+    createRequest.current.reset();
     action.setError("");
     setSelected(playlist);
     setName(playlist?.name || "");
@@ -374,6 +378,11 @@ export function PlaylistsScreen() {
                       name,
                       description,
                       isPublic,
+                      createRequest.current.key(user.uid, {
+                        name,
+                        description,
+                        isPublic,
+                      }),
                     );
                     setPanel(null);
                   })

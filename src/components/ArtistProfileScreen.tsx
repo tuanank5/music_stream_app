@@ -35,7 +35,7 @@ export default function ArtistProfileScreen() {
   );
   const catalog = useCatalogData();
   const albums = catalog.albums.filter(
-    (album) => album.artistId === id && album.isPublished,
+    (album) => album.artistId === id && album.isPublic,
   );
   return (
     <ListPage

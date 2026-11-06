@@ -26,6 +26,19 @@
     ],
     "web": {
       "bundler": "metro"
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "6a0c8f18-7519-44f0-8e5a-c7924edf1fdc"
+      }
+    },
+    "android": {
+      "package": "com.musicstreamapp"
     }
   }
 }

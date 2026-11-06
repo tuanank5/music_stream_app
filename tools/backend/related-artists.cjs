@@ -40,7 +40,7 @@ function chooseRelated(catalog, id, shared = new Map(), following = new Set()) {
       .map((artist) => artist.id),
   };
 }
-function createRelatedArtistsRouter({ db, getCatalog, hydrate }) {
+function createRelatedArtistsRouter({ db, getCatalog, hydrate, followGraph }) {
   const router = express.Router({ caseSensitive: true, strict: true }),
     cache = new Map();
   router.get("/related-artists", async (req, res) => {
@@ -51,46 +51,32 @@ function createRelatedArtistsRouter({ db, getCatalog, hydrate }) {
     if (!target.exists || target.data().active === false)
       return res.status(404).json({ error: "Hồ sơ không còn khả dụng." });
     let result = cache.get(id);
-    if (!result || result.expires < Date.now()) {
-      // Existing relation userId is an indexed lookup field, never returned to clients.
-      const [followers, ownFollowing] = await Promise.all([
-        db
-          .collectionGroup("following")
-          .where("userId", "==", id)
-          .limit(50)
-          .get(),
-        db.collection(`users/${id}/following`).limit(50).get(),
-      ]);
-      const followerIds = [
-        ...new Set(
-          followers.docs
-            .map((doc) => doc.ref.parent.parent?.id)
-            .filter(Boolean),
-        ),
-      ];
+    if (
+      !result ||
+      result.expires < Date.now() ||
+      result.graphVersion !== followGraph.version
+    ) {
+      const graphVersion = followGraph.version;
+      const followerIds = followGraph.followers(id);
       const followerProfiles = followerIds.length
         ? await db.getAll(...followerIds.map((uid) => db.doc(`users/${uid}`)))
         : [];
       const activeFollowers = followerProfiles.filter(
         (doc) => doc.exists && doc.data().active !== false,
       );
-      const relations = await Promise.all(
-        activeFollowers.map((doc) =>
-          db.collection(`users/${doc.id}/following`).limit(50).get(),
-        ),
-      );
       const shared = new Map();
-      for (const relation of relations)
-        for (const doc of relation.docs)
-          shared.set(doc.id, (shared.get(doc.id) || 0) + 1);
+      for (const follower of activeFollowers)
+        for (const targetId of followGraph.following(follower.id))
+          shared.set(targetId, (shared.get(targetId) || 0) + 1);
       result = {
         ...chooseRelated(
           getCatalog(),
           id,
           shared,
-          new Set(ownFollowing.docs.map((doc) => doc.id)),
+          new Set(followGraph.following(id)),
         ),
         expires: Date.now() + 30000,
+        graphVersion,
       };
       if (cache.size >= 256) cache.delete(cache.keys().next().value);
       cache.set(id, result);

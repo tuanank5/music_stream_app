@@ -66,15 +66,7 @@ function createPlaybackRouter({ db, now = Date.now }) {
               throw fail(404, "Bài hát không còn khả dụng.");
             const song = track.data(),
               artist = await tx.get(db.doc(`users/${song.artistId}`));
-            let readable =
-              song.artistId === uid ||
-              (song.isPublic ??
-                (song.visibility === "public" && song.isPublished === true)) ||
-              song.visibility === "unlisted";
-            if (!readable && song.visibility === "followers")
-              readable = (
-                await tx.get(db.doc(`users/${uid}/following/${song.artistId}`))
-              ).exists;
+            const readable = song.artistId === uid || song.isPublic === true;
             if (!artist.exists || artist.data().active === false || !readable)
               throw fail(403, "Không có quyền nghe bài hát.");
             const duration = song.durationSeconds;
@@ -100,7 +92,6 @@ function createPlaybackRouter({ db, now = Date.now }) {
                 completed: false,
               };
               const values = {
-                historyId: id,
                 songId: body.songId,
                 playedAt: Timestamp.fromMillis(time),
                 startedAt: Timestamp.fromMillis(time),
@@ -165,8 +156,6 @@ function createPlaybackRouter({ db, now = Date.now }) {
               });
               tx.update(songRef, {
                 playCount: FieldValue.increment(1),
-                lastPlayUid: uid,
-                lastPlayHistoryId: id,
               });
             }
             nextSession = { ...session, state, at: time };

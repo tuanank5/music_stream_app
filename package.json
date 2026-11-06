@@ -39,6 +39,7 @@
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.0",
     "happy-dom": "^21.0.4",
+    "music-metadata": "^12.3.4",
     "prettier": "^3.9.10",
     "typescript": "~6.0.3"
   },
@@ -46,6 +47,8 @@
     "start:local": "node scripts/start-local.cjs",
     "local:emulators": "node tools/local/cli.cjs start",
     "local:seed": "node tools/local/seed.cjs",
+    "data:check": "node tools/local/editable-data.cjs check",
+    "data:apply": "node tools/local/editable-data.cjs apply",
     "local:backend": "node tools/local/backend.cjs",
     "test:local": "node --test tests/local-environment.test.cjs",
     "test:local:integration": "node tools/local/cli.cjs test",
@@ -56,10 +59,13 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs tests/m2.test.cjs tests/milestones.test.cjs tests/search-hooks.test.cjs tests/genres.test.cjs tests/uploads-queue.test.cjs tests/backend-http.test.cjs tests/related-artists.test.cjs tests/audio-assets.test.cjs tests/playback-policy.test.cjs",
+    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs tests/m2.test.cjs tests/milestones.test.cjs tests/search-hooks.test.cjs tests/genres.test.cjs tests/uploads-queue.test.cjs tests/backend-http.test.cjs tests/related-artists.test.cjs tests/audio-assets.test.cjs tests/playback-policy.test.cjs tests/schema-audit.test.cjs tests/create-request.test.cjs tests/profile-migration.test.cjs tests/target-schema.test.cjs tests/editable-data.test.cjs tests/local-media.test.cjs",
     "test:rules": "node --test tests/firestore.rules.test.cjs",
     "backend:cloud": "node tools/backend/main.cjs",
-    "profiles:dry-run": "node tools/backend/backfill.cjs"
+    "profiles:dry-run": "node tools/backend/backfill.cjs",
+    "schema:audit": "node tools/audit-target-schema.cjs",
+    "schema:migrate": "node tools/migrate-target-schema.cjs",
+    "data:auth": "node tools/local/auth.cjs"
   },
   "private": true
 }

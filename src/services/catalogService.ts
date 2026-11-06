@@ -6,6 +6,8 @@ import { backendGet, backendPost } from "./backendService";
 import { subscribePrivateList } from "./playlistSubscriptions";
 import { Artist, Album, Song } from "../types/domain";
 import { cleanText, httpsUrl } from "../utils/validation";
+import { isLocalMedia } from "../utils/audioSource";
+import { getFirebaseRuntime } from "./firebase/config";
 
 export function mapSong(id: string, x: Record<string, unknown>): Song {
   const names = Array.isArray(x.artistNames)
@@ -18,11 +20,10 @@ export function mapSong(id: string, x: Record<string, unknown>): Song {
     artist: names.join(", "),
     artistNames: names,
     artistId: String(x.artistId ?? ""),
-    albumId: String(x.albumId ?? ""),
-    album: String(x.albumTitle ?? x.album ?? ""),
+    albumId: x.albumId ? String(x.albumId) : null,
+    album: String(x.album ?? ""),
     cover: String(x.coverUrl ?? ""),
     audioUrl: String(x.audioUrl ?? ""),
-    audioKey: String(x.audioKey ?? ""),
     durationSeconds: Number(x.durationSeconds ?? 0),
     lyrics: String(x.lyric ?? x.lyrics ?? ""),
     genre: Array.isArray(x.genre)
@@ -31,8 +32,7 @@ export function mapSong(id: string, x: Record<string, unknown>): Song {
         ? [x.genre]
         : [],
     playCount: Number(x.playCount ?? 0),
-    visibility: (x.visibility ?? "public") as Song["visibility"],
-    isPublished: x.isPublished === true,
+    isPublic: x.isPublic === true,
     active: x.active !== false,
   };
 }
@@ -109,26 +109,37 @@ export async function getReadableSong(id: string) {
   }
 }
 
-export async function createAlbum(title: string, coverUrl = "") {
-  const album = await backendPost<{ id: string }>("/albums", {
-    title: cleanText(title, "album", 150),
-    coverUrl: httpsUrl(coverUrl, "ảnh"),
-    description: "",
-    isPublic: true,
-  });
+export async function createAlbum(
+  title: string,
+  coverUrl = "",
+  idempotencyKey?: string,
+) {
+  const album = await backendPost<{ id: string }>(
+    "/albums",
+    {
+      title: cleanText(title, "album", 150),
+      coverUrl:
+        isLocalMedia(coverUrl) && getFirebaseRuntime().mode === "emulator"
+          ? coverUrl
+          : httpsUrl(coverUrl, "ảnh"),
+      description: "",
+      isPublic: true,
+    },
+    idempotencyKey,
+  );
   return album.id;
 }
 export function newSongId() {
   return doc(collection(getFirebaseDb(), "songs")).id;
 }
 
-export function watchArtistFollowerSongs(
+export function watchFollowedArtistSongs(
   artistId: string,
   next: (items: Song[]) => void,
   fail: (error: Error) => void,
 ) {
   return subscribeCatalog<Song>(
-    `/catalog/follower-songs/${encodeURIComponent(artistId)}`,
+    `/catalog/followed-artist-songs/${encodeURIComponent(artistId)}`,
     next,
     fail,
   );

@@ -1,7 +1,9 @@
 const express = require("express");
 const { FieldValue } = require("firebase-admin/firestore");
+const { createRequestId } = require("./create-request.cjs");
+const { imageUrl, localMediaPath } = require("./local-media.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
-function validateAlbum(value) {
+function validateAlbum(value, { uid, mode } = {}) {
   if (
     !value ||
     typeof value !== "object" ||
@@ -23,7 +25,8 @@ function validateAlbum(value) {
     typeof isPublic !== "boolean"
   )
     throw fail(400, "Tên, mô tả, ảnh hoặc trạng thái album không hợp lệ.");
-  if (coverUrl) {
+  imageUrl(coverUrl, uid, mode);
+  if (coverUrl && !localMediaPath(coverUrl)) {
     try {
       const url = new URL(coverUrl);
       if (url.protocol !== "https:" || url.username || url.password)
@@ -39,40 +42,64 @@ function validateAlbum(value) {
     isPublic,
   };
 }
-function createAlbumRouter({ db }) {
+function createAlbumRouter({ db, mode }) {
   const router = express.Router({ caseSensitive: true, strict: true });
   const json = express.json({ limit: "32kb" });
   const save = (creating) => async (req, res) => {
-    const fields = validateAlbum(req.body);
+    const fields = validateAlbum(req.body, { uid: req.auth.uid, mode });
     const id = req.params.id;
     if (!creating && (!id || !/^[A-Za-z0-9_-]{1,128}$/.test(id)))
       throw fail(400, "ID album không hợp lệ.");
+    const requestId = creating ? createRequestId(req, "albums") : undefined;
     const ref = creating
-      ? db.collection("albums").doc()
+      ? requestId
+        ? db.collection("albums").doc(requestId)
+        : db.collection("albums").doc()
       : db.doc(`albums/${id}`);
     const value = await db.runTransaction(async (tx) => {
       const profile = await tx.get(db.doc(`users/${req.auth.uid}`));
       if (!profile.exists || profile.data().active === false)
         throw fail(403, "Tài khoản không hoạt động.");
+      if (creating && requestId) {
+        const existing = await tx.get(ref);
+        if (existing.exists) {
+          const value = existing.data();
+          if (
+            value.artistId !== req.auth.uid ||
+            value.deleting ||
+            Object.entries(fields).some(([key, field]) => value[key] !== field)
+          )
+            throw fail(
+              409,
+              "Yêu cầu đã được sử dụng cho album khác hoặc album đã thay đổi.",
+            );
+          return {
+            id: ref.id,
+            ...fields,
+            artistId: req.auth.uid,
+            artistName: profile.data().displayName || "",
+          };
+        }
+      }
+      let coverPublicId = null;
       if (!creating) {
         const album = await tx.get(ref);
         if (!album.exists) throw fail(404, "Không tìm thấy album.");
         if (album.data().artistId !== req.auth.uid)
           throw fail(403, "Bạn không sở hữu album này.");
         if (album.data().deleting) throw fail(409, "Album đang được xóa.");
+        if (album.data().coverUrl === fields.coverUrl)
+          coverPublicId = album.data().coverPublicId ?? null;
       }
-      // Compatibility fields remain until all consumers migrate to isPublic/users DTO.
       const changes = {
         ...fields,
-        isPublished: fields.isPublic,
+        coverPublicId,
         updatedAt: FieldValue.serverTimestamp(),
       };
       if (creating)
         tx.create(ref, {
           ...changes,
-          albumId: ref.id,
           artistId: req.auth.uid,
-          artistName: profile.data().displayName || "",
           createdAt: FieldValue.serverTimestamp(),
           releaseDate: FieldValue.serverTimestamp(),
         });
@@ -82,7 +109,6 @@ function createAlbumRouter({ db }) {
         ...fields,
         artistId: req.auth.uid,
         artistName: profile.data().displayName || "",
-        isPublished: fields.isPublic,
       };
     });
     res.status(creating ? 201 : 200).json(value);
@@ -120,8 +146,7 @@ function createAlbumRouter({ db }) {
         throw fail(409, "Bài hát đã thuộc album khác.");
       if ((add && current === id) || (!add && !current)) return;
       tx.update(songRef, {
-        albumId: add ? id : "", // Legacy empty value until nullable-albumId migration.
-        albumTitle: add ? album.data().title : "",
+        albumId: add ? id : null,
         updatedAt: FieldValue.serverTimestamp(),
       });
     });
@@ -149,7 +174,6 @@ function createAlbumRouter({ db }) {
       tx.update(ref, {
         deleting: true,
         isPublic: false,
-        isPublished: false,
         updatedAt: FieldValue.serverTimestamp(),
       });
     });
@@ -178,8 +202,7 @@ function createAlbumRouter({ db }) {
         }
         for (const song of linked.docs)
           tx.update(song.ref, {
-            albumId: "",
-            albumTitle: "",
+            albumId: null,
             updatedAt: FieldValue.serverTimestamp(),
           });
         return false;

@@ -75,8 +75,8 @@ function song(id, artistId = "a", extra = {}) {
     id,
     artistId,
     active: true,
-    isPublished: true,
-    visibility: "public",
+    isPublic: true,
+
     genre: ["Pop"],
     playCount: Number(id) || 0,
     albumId: "album",
@@ -87,7 +87,7 @@ test("charts select Top 50 before seeded shuffle and include every valid genre",
   const songs = Array.from({ length: 80 }, (_, i) => song(String(i)));
   songs.push(
     song("other", "b", { genre: ["Niche"] }),
-    song("private", "b", { visibility: "private", playCount: 99999 }),
+    song("private", "b", { isPublic: false, playCount: 99999 }),
   );
   const charts = R.genreCharts(songs, "alice");
   const pop = charts.find((chart) => chart.subtitle === "Pop");
@@ -111,11 +111,11 @@ test("album totals use albumId, full source and valid songs, Home caps and artis
   const songs = [
     song("1", "a", { albumId: "one", playCount: 200 }),
     song("2", "a", { albumId: "two", playCount: 9 }),
-    song("3", "b", { albumId: "one", visibility: "private", playCount: 999 }),
+    song("3", "b", { albumId: "one", isPublic: false, playCount: 999 }),
   ];
   const albums = [
-    { id: "one", title: "Same", artistId: "a", isPublished: true },
-    { id: "two", title: "Same", artistId: "a", isPublished: true },
+    { id: "one", title: "Same", artistId: "a", isPublic: true },
+    { id: "two", title: "Same", artistId: "a", isPublic: true },
   ];
   assert.deepEqual(
     R.trendingAlbums(songs, albums).map((album) => album.totalPlayCount),

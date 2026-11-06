@@ -1,10 +1,7 @@
 const { FieldPath } = require("firebase-admin/firestore");
 const { mapSong } = require("./dto.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
-const publicSong = (value) =>
-  value.active === true &&
-  (value.isPublic ??
-    (value.visibility === "public" && value.isPublished === true));
+const publicSong = (value) => value.active === true && value.isPublic === true;
 async function readPlaylist(db, viewer, ownerId, id, source) {
   const profile = await db.doc(`users/${ownerId}`).get();
   const snapshot =
@@ -13,7 +10,7 @@ async function readPlaylist(db, viewer, ownerId, id, source) {
     throw fail(404, "Playlist không còn khả dụng.");
   const value = snapshot.data(),
     own = viewer.uid === ownerId;
-  if (!own && !(value.isPublic ?? value.visibility === "public"))
+  if (!own && value.isPublic !== true)
     throw fail(404, "Playlist không còn khả dụng.");
   const ids = [...new Set(value.songIds || [])].slice(0, 50);
   const docs = ids.length
@@ -38,12 +35,7 @@ async function readPlaylist(db, viewer, ownerId, id, source) {
     if (!artist || artist.active === false || song.active !== true) continue;
     let allowed = publicSong(song);
     if (own) {
-      allowed ||=
-        song.artistId === viewer.uid || song.visibility === "unlisted";
-      if (!allowed && song.visibility === "followers")
-        allowed = (
-          await db.doc(`users/${viewer.uid}/following/${song.artistId}`).get()
-        ).exists;
+      allowed ||= song.artistId === viewer.uid;
     }
     if (allowed) tracks.push({ id: doc.id, value: song });
   }
@@ -59,8 +51,7 @@ async function readPlaylist(db, viewer, ownerId, id, source) {
         (doc) =>
           doc.exists &&
           !doc.data().deleting &&
-          (doc.data().artistId === viewer.uid ||
-            (doc.data().isPublic ?? doc.data().isPublished === true)),
+          (doc.data().artistId === viewer.uid || doc.data().isPublic === true),
       )
       .map((doc) => [doc.id, doc.data()]),
   );
@@ -74,7 +65,7 @@ async function readPlaylist(db, viewer, ownerId, id, source) {
       ownerName: profile.data().displayName || "",
       name: value.name || "",
       description: value.description || "",
-      isPublic: value.isPublic ?? value.visibility === "public",
+      isPublic: value.isPublic === true,
       songIds: own ? ids : songs.map((song) => song.id),
       songCount: songs.length,
       coverUrl: songs.find((song) => song.cover)?.cover || "",
@@ -107,7 +98,7 @@ function registerPlaylistReads(router, db) {
           name: String(value.name || ""),
           description: String(value.description || ""),
           songIds: Array.isArray(value.songIds) ? value.songIds : [],
-          isPublic: value.isPublic ?? value.visibility === "public",
+          isPublic: value.isPublic === true,
         };
       }),
       nextCursor: page.size > size ? docs.at(-1).id : null,

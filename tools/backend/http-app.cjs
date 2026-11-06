@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("node:path");
 const { createAlbumRouter } = require("./album-routes.cjs");
 const { createFavoriteAlbumsRouter } = require("./favorite-albums.cjs");
 const { createPlaylistRouter } = require("./playlist-routes.cjs");
@@ -11,6 +12,10 @@ const { createHistoryReadRouter } = require("./history-read.cjs");
 const { createPlaybackRouter } = require("./playback-routes.cjs");
 const { createSongReadRouter } = require("./song-read.cjs");
 const { createCatalogReadRouter } = require("./catalog-read.cjs");
+const {
+  mountLocalMediaFiles,
+  createLocalMediaRouter,
+} = require("./local-media.cjs");
 const { FieldValue } = require("firebase-admin/firestore");
 const { isLocalHost } = require("../../src/services/firebase/runtime.ts");
 const {
@@ -29,6 +34,7 @@ function createHttpApp({
   onDeactivate,
 }) {
   const app = express();
+  const localUploads = mode === "emulator" && projectId === "demo-music-stream";
   app.disable("x-powered-by");
   app.set("case sensitive routing", true);
   app.set("strict routing", true);
@@ -65,6 +71,25 @@ function createHttpApp({
     if (req.method === "OPTIONS") return res.sendStatus(204);
     if (
       req.method !== "GET" &&
+      !(
+        localUploads &&
+        req.method === "POST" &&
+        /^\/local-media\/upload\/(audio|image)$/.test(req.path)
+      ) &&
+      !(
+        localUploads &&
+        req.method === "HEAD" &&
+        req.path.startsWith("/local-media/")
+      ) &&
+      !(
+        mode === "emulator" &&
+        projectId === "demo-music-stream" &&
+        req.method === "HEAD" &&
+        (
+          req.path.startsWith("/local-audio/") ||
+          req.path.startsWith("/audio/")
+        )
+      ) &&
       !(req.method === "POST" && req.path === "/songs") &&
       !(req.method === "POST" && req.path === "/me/ensure") &&
       !(req.method === "POST" && /^\/playback\/[^/]+$/.test(req.path)) &&
@@ -115,7 +140,25 @@ function createHttpApp({
       .status(isHealthy() ? 200 : 503)
       .json({ mode, projectId, milestone: "M6", ready: isHealthy() }),
   );
+  // These are synthetic public test sounds, never user uploads or private media.
+  // Register only in demo mode and keep all business endpoints authenticated.
+  if (mode === "emulator" && projectId === "demo-music-stream") {
+    const { serveDemoAudio } = require("../local/demo-audio.cjs");
+
+    app.get("/local-audio/:file", serveDemoAudio);
+
+    app.use(
+      "/audio",
+      express.static(path.resolve(process.cwd(), "assets/audio"), {
+        fallthrough: false,
+        setHeaders(res) {
+          res.setHeader("Cache-Control", "no-store");
+        },
+      }),
+    );
+  }
   const rate = new Map();
+  if (localUploads) mountLocalMediaFiles(app);
   app.use(async (req, res, next) => {
     const bearer = /^Bearer (.+)$/.exec(req.headers.authorization || "");
     if (!bearer)
@@ -171,10 +214,10 @@ function createHttpApp({
         return;
       }
       tx.create(ref, {
-        userId: user.uid,
         email: user.email || "",
         displayName: (user.displayName || "Music lover").slice(0, 80),
         avatarUrl: user.photoURL || "",
+        avatarPublicId: null,
         biography: "",
         followerCount: 0,
         followingCount: 0,
@@ -189,7 +232,13 @@ function createHttpApp({
     res.json(await ownProfile(db, req.auth.uid)),
   );
   profile.patch("/me", async (req, res) =>
-    res.json(await ownProfile(db, req.auth.uid, await readProfileBody(req))),
+    res.json(
+      await ownProfile(
+        db,
+        req.auth.uid,
+        await readProfileBody(req, { mode, uid: req.auth.uid }),
+      ),
+    ),
   );
   profile.patch("/me/deactivate", async (req, res) => {
     req.resume();
@@ -201,10 +250,11 @@ function createHttpApp({
     res.status(405).json({ error: "Method not allowed" }),
   );
   app.use(profile);
-  app.use(createAlbumRouter({ db }));
+  if (localUploads) app.use(createLocalMediaRouter({ db }));
+  app.use(createAlbumRouter({ db, mode }));
   app.use(createFavoriteAlbumsRouter({ db }));
   app.use(createPlaylistRouter({ db }));
-  app.use(createSongOwnerRouter({ db }));
+  app.use(createSongOwnerRouter({ db, mode }));
   app.use(createSongUploadRouter({ db, mode }));
   app.use(createSocialRouter({ db }));
   app.use(createFeedRouter({ db }));

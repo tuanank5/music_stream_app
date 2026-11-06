@@ -14,7 +14,7 @@ function createCatalogReadRouter({ db }) {
         "own-songs",
         "artists",
         "albums",
-        "follower-songs",
+        "followed-artist-songs",
       ].includes(kind)
     )
       throw fail(400, "Nguồn catalog không hợp lệ.");
@@ -30,21 +30,19 @@ function createCatalogReadRouter({ db }) {
     if (kind === "artists")
       query = db.collection("users").where("active", "==", true);
     else if (kind === "albums")
-      query = db.collection("albums").where("isPublished", "==", true);
+      query = db.collection("albums").where("isPublic", "==", true);
     else {
       query = db.collection("songs");
       if (kind === "public-songs")
-        query = query
-          .where("visibility", "==", "public")
-          .where("isPublished", "==", true);
+        query = query.where("isPublic", "==", true).where("active", "==", true);
       if (kind === "own-songs") query = query.where("artistId", "==", uid);
-      if (kind === "follower-songs") {
+      if (kind === "followed-artist-songs") {
         const artistId = validId(req.params.artistId);
         if (!(await db.doc(`users/${uid}/following/${artistId}`).get()).exists)
           throw fail(403, "Không còn theo dõi nghệ sĩ.");
         query = query
           .where("artistId", "==", artistId)
-          .where("visibility", "==", "followers")
+          .where("isPublic", "==", true)
           .where("active", "==", true);
       }
     }
@@ -58,18 +56,9 @@ function createCatalogReadRouter({ db }) {
     for (const doc of docs) {
       const value = doc.data();
       if (kind === "artists") {
-        const projection = await db.doc(`publicProfiles/${doc.id}`).get();
-        items.push(
-          mapArtist(doc.id, {
-            ...value,
-            followerCount:
-              projection.data()?.followerCount ?? value.followerCount,
-            followingCount:
-              projection.data()?.followingCount ?? value.followingCount,
-          }),
-        );
+        items.push(mapArtist(doc.id, value));
       } else if (kind === "albums") {
-        if (!(value.isPublic ?? value.isPublished === true)) continue;
+        if (value.isPublic !== true) continue;
         const artist = await db.doc(`users/${value.artistId}`).get();
         if (!artist.exists || artist.data().active === false || value.deleting)
           continue;
@@ -80,7 +69,6 @@ function createCatalogReadRouter({ db }) {
           artistName: artist.data().displayName || "",
           coverUrl: value.coverUrl || "",
           description: value.description || "",
-          isPublished: true,
           isPublic: true,
         });
       } else {

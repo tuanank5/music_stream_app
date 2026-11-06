@@ -16,11 +16,8 @@ import { Song } from "../types/domain";
 import { useAuth } from "./AuthContext";
 import { errorMessage } from "../utils/feedback";
 import { usePlaybackHistory } from "../hooks/usePlaybackHistory";
-const demos: Record<string, number> = {
-  demo1: require("../../assets/audio/demo1.mp3"),
-  demo2: require("../../assets/audio/demo2.mp3"),
-  demo3: require("../../assets/audio/demo3.mp3"),
-};
+import { getFirebaseRuntime } from "../services/firebase/config";
+import { audioSourceUri, isLocalDemoAudio } from "../utils/audioSource";
 type PlayerState = {
   current: Song | null;
   playing: boolean;
@@ -79,14 +76,12 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
   const play = useCallback(
     (song: Song, list?: Song[]) => {
       if (!live.current) return;
-      const source = song.audioUrl
-        ? { uri: song.audioUrl }
-        : demos[song.audioKey];
-      if (!source) {
-        setError("Bài hát chưa có URL âm thanh hoặc audioKey demo hợp lệ.");
-        return;
-      }
       try {
+        const uri = audioSourceUri(song.audioUrl, getFirebaseRuntime());
+        if (!uri) {
+          setError("Bài hát chưa có URL âm thanh hợp lệ.");
+          return;
+        }
         if (list) queue.current = list;
         else if (!queue.current.some((x) => x.id === song.id))
           queue.current = [song];
@@ -96,7 +91,7 @@ function PlayerSession({ children }: { children: React.ReactNode }) {
         setSession((value) => value + 1);
         setError("");
         ended.current = false;
-        player.replace(source);
+        player.replace({ uri });
         player.play();
       } catch (e) {
         setError(errorMessage(e));

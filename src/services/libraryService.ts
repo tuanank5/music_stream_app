@@ -66,12 +66,13 @@ export async function savePlaylist(
   name: string,
   description: string,
   isPublic = false,
+  idempotencyKey?: string,
 ) {
   requireAccount(uid);
   const fields = { name, description, isPublic };
   const result = await (id
     ? backendPatch(`/playlists/${encodeURIComponent(id)}`, fields)
-    : backendPost("/playlists", fields));
+    : backendPost("/playlists", fields, idempotencyKey));
   refreshPlaylists(uid);
   return result;
 }

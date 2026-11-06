@@ -25,8 +25,6 @@ async function seedLocal() {
       batch.set(db.doc(document.path), document.data);
     await batch.commit();
   }
-  const { projectProfile } = require("../backend/profiles.cjs");
-  for (const user of users) await projectProfile(db, user.uid);
   console.log(
     `Seeded ${users.length} local Auth accounts, ${documents.length} fixture documents. No collections deleted.`,
   );

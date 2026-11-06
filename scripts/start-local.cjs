@@ -21,7 +21,7 @@ const env = {
 };
 resolveFirebaseRuntime(env);
 console.log(
-  `Local demo-music-stream: Auth ${host}:9099, Firestore ${host}:8080, backend ${host}:8787. Upload disabled.`,
+  `Local demo-music-stream: Auth ${host}:9099, Firestore ${host}:8080, backend ${host}:8787. Uploads stored on local backend disk.`,
 );
 const child = spawn(
   process.execPath,

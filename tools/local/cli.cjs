@@ -42,9 +42,16 @@ const args = [
     ? resolve(root, process.env.LOCAL_TEST_CONFIG)
     : resolve(root, "firebase.json"),
 ];
+if (action === "start")
+  args.push(
+    "--import",
+    resolve(root, ".local/emulator-data"),
+    "--export-on-exit",
+    resolve(root, ".local/emulator-data"),
+  );
 if (action === "test")
   args.push(
-    "node --test --test-concurrency=1 tests/local-integration.test.cjs tests/firestore.rules.test.cjs",
+    "node --test --test-concurrency=1 tests/local-integration.test.cjs tests/firestore.rules.test.cjs tests/profile-migration.integration.test.cjs tests/target-schema.integration.test.cjs tests/editable-data.integration.test.cjs tests/local-media.integration.test.cjs",
   );
 const child = spawn(process.execPath, args, {
   cwd: root,

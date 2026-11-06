@@ -6,14 +6,14 @@ const {
   randomUUID,
 } = require("node:crypto");
 const { SearchIndex, normalize } = require("./search-index.cjs");
-const { projectProfile } = require("./profiles.cjs");
+const { assertProfilesReady, catalogProfile } = require("./profiles.cjs");
+const { FollowGraph } = require("./follow-graph.cjs");
 const { startRetention } = require("./retention.cjs");
 const { createHttpApp, finishHttpApp } = require("./http-app.cjs");
 const { createUploadsRouter } = require("./uploads-routes.cjs");
 const { createRelatedArtistsRouter } = require("./related-artists.cjs");
 const recommendations = require("../../src/utils/recommendations.ts");
-const publicSong = (x) =>
-  x?.active === true && x?.isPublished === true && x?.visibility === "public";
+const publicSong = (x) => x?.active === true && x?.isPublic === true;
 const { mapSong, mapArtist, mapAlbum } = require("./dto.cjs");
 async function createBackend({
   db,
@@ -23,18 +23,19 @@ async function createBackend({
   origins = [],
   mode = "emulator",
 }) {
+  await assertProfilesReady(db);
   const index = new SearchIndex(),
     songs = new Map(),
     albums = new Map(),
-    profiles = new Map();
+    profiles = new Map(),
+    followGraph = new FollowGraph();
   const stops = [],
     snapshots = new Map();
   let healthy = true,
-    closed = false,
-    projected = Promise.resolve();
+    closed = false;
   const indexSong = (id, value) => {
     index.remove("song", id);
-    if (publicSong(value) && profiles.get(value.artistId)?.active !== false)
+    if (publicSong(value) && profiles.get(value.artistId)?.active === true)
       index.put(
         "song",
         id,
@@ -47,6 +48,20 @@ async function createBackend({
         value.playCount,
       );
   };
+  const indexAlbum = (id, value) => {
+    index.remove("album", id);
+    if (
+      value.isPublic === true &&
+      !value.deleting &&
+      profiles.get(value.artistId)?.active === true
+    )
+      index.put(
+        "album",
+        id,
+        value.title,
+        profiles.get(value.artistId)?.displayName || "",
+      );
+  };
   const failure = (error) => {
     healthy = false;
     console.error("Backend sync failed:", error.message);
@@ -55,7 +70,7 @@ async function createBackend({
     new Promise((resolve, reject) => {
       let first = true;
       stops.push(
-        db.collection(name).onSnapshot(
+        (typeof name === "string" ? db.collection(name) : name).onSnapshot(
           (snapshot) => {
             if (closed) return;
             try {
@@ -76,19 +91,6 @@ async function createBackend({
         ),
       );
     });
-  // Project the latest source inside a transaction, not stale event payloads.
-  await watch("users", (snapshot) => {
-    const ids = snapshot.docChanges().map((change) => change.doc.id);
-    projected = projected
-      .then(async () => {
-        for (const id of ids) {
-          if (closed) break;
-          await projectProfile(db, id);
-        }
-      })
-      .catch(failure);
-  });
-  await projected;
   const reindexProfiles = (changedIds) => {
     const artistIds = new Set(
       [...songs.values()].filter(publicSong).map((song) => song.artistId),
@@ -107,60 +109,86 @@ async function createBackend({
         );
     }
   };
-  await Promise.all([
-    watch("publicProfiles", (snapshot) => {
-      for (const change of snapshot.docChanges()) {
-        const id = change.doc.id;
-        index.remove("artist", id);
-        index.remove("user", id);
-        if (change.type === "removed") profiles.delete(id);
-        else profiles.set(id, change.doc.data());
-      }
-      const changed = new Set(
-        snapshot.docChanges().map((change) => change.doc.id),
-      );
-      reindexProfiles(changed);
-      for (const [id, value] of songs)
-        if (changed.has(value.artistId)) indexSong(id, value);
-    }),
-    watch("albums", (snapshot) => {
-      for (const change of snapshot.docChanges()) {
-        const id = change.doc.id,
-          value = change.doc.data();
-        index.remove("album", id);
-        if (change.type === "removed") albums.delete(id);
-        else albums.set(id, value);
-        if (change.type !== "removed" && value.isPublished)
-          index.put("album", id, value.title, value.artistName);
-        for (const [songId, song] of songs)
-          if (song.albumId === id) indexSong(songId, song);
-      }
-    }),
-    watch("songs", (snapshot) => {
-      const changedArtists = new Set();
-      for (const change of snapshot.docChanges()) {
-        const id = change.doc.id,
-          value = change.doc.data();
-        const previous = songs.get(id);
-        if (
-          !previous ||
-          publicSong(previous) !== publicSong(value) ||
-          previous.artistId !== value.artistId ||
-          change.type === "removed"
-        ) {
-          if (previous) changedArtists.add(previous.artistId);
-          changedArtists.add(value.artistId);
+  try {
+    await Promise.all([
+      watch("users", (snapshot) => {
+        for (const change of snapshot.docChanges()) {
+          const id = change.doc.id;
+          index.remove("artist", id);
+          index.remove("user", id);
+          if (change.type === "removed") profiles.delete(id);
+          else profiles.set(id, catalogProfile(change.doc.data()));
         }
-        index.remove("song", id);
-        if (change.type === "removed") songs.delete(id);
-        else songs.set(id, value);
-        if (change.type !== "removed") indexSong(id, value);
-      }
-      if (changedArtists.size) reindexProfiles(changedArtists);
-    }),
-  ]);
+        const changed = new Set(
+          snapshot.docChanges().map((change) => change.doc.id),
+        );
+        reindexProfiles(changed);
+        for (const [id, value] of songs)
+          if (changed.has(value.artistId)) indexSong(id, value);
+        for (const [id, value] of albums)
+          if (changed.has(value.artistId)) indexAlbum(id, value);
+      }),
+      watch(db.collectionGroup("following").limit(250001), (snapshot) => {
+        if (snapshot.size > 250000)
+          throw new Error(
+            "Follow graph capacity exceeded; refusing partial recommendations.",
+          );
+        for (const change of snapshot.docChanges())
+          followGraph.change(change.doc.ref.path, change.type === "removed");
+      }),
+      watch("albums", (snapshot) => {
+        for (const change of snapshot.docChanges()) {
+          const id = change.doc.id,
+            value = change.doc.data();
+          if (change.type !== "removed" && typeof value.isPublic !== "boolean")
+            throw new Error(
+              "Legacy album schema found; run target schema migration before starting this backend.",
+            );
+          index.remove("album", id);
+          if (change.type === "removed") albums.delete(id);
+          else albums.set(id, value);
+          if (change.type !== "removed") indexAlbum(id, value);
+          for (const [songId, song] of songs)
+            if (song.albumId === id) indexSong(songId, song);
+        }
+      }),
+      watch("songs", (snapshot) => {
+        const changedArtists = new Set();
+        for (const change of snapshot.docChanges()) {
+          const id = change.doc.id,
+            value = change.doc.data();
+          if (change.type !== "removed" && typeof value.isPublic !== "boolean")
+            throw new Error(
+              "Legacy song schema found; run target schema migration before starting this backend.",
+            );
+          const previous = songs.get(id);
+          if (
+            !previous ||
+            publicSong(previous) !== publicSong(value) ||
+            previous.artistId !== value.artistId ||
+            change.type === "removed"
+          ) {
+            if (previous) changedArtists.add(previous.artistId);
+            changedArtists.add(value.artistId);
+          }
+          index.remove("song", id);
+          if (change.type === "removed") songs.delete(id);
+          else songs.set(id, value);
+          if (change.type !== "removed") indexSong(id, value);
+        }
+        if (changedArtists.size) reindexProfiles(changedArtists);
+      }),
+    ]);
+  } catch (error) {
+    closed = true;
+    stops.forEach((stop) => stop());
+    followGraph.clear();
+    index.close();
+    throw error;
+  }
   // The first song snapshot may precede albums. Refresh text once all are ready.
   for (const [id, value] of songs) indexSong(id, value);
+  for (const [id, value] of albums) indexAlbum(id, value);
   const worker = startRetention(db, failure);
   const sign = (payload) => {
     const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -208,7 +236,7 @@ async function createBackend({
       const kind = key.slice(0, colon),
         id = key.slice(colon + 1);
       return db.doc(
-        `${kind === "song" ? "songs" : kind === "album" ? "albums" : "publicProfiles"}/${id}`,
+        `${kind === "song" ? "songs" : kind === "album" ? "albums" : "users"}/${id}`,
       );
     });
     const documents = await db.getAll(...refs);
@@ -220,13 +248,14 @@ async function createBackend({
         const value = doc.data();
         if (kind === "song")
           return publicSong(value) &&
-            profiles.get(value.artistId)?.active !== false
+            profiles.get(value.artistId)?.active === true
             ? { kind, item: mapSong(doc.id, value, profiles, albums) }
             : null;
         if (kind === "album")
-          return value.isPublished &&
-            profiles.get(value.artistId)?.active !== false
-            ? { kind, item: mapAlbum(doc.id, value) }
+          return value.isPublic === true &&
+            !value.deleting &&
+            profiles.get(value.artistId)?.active === true
+            ? { kind, item: mapAlbum(doc.id, value, profiles) }
             : null;
         return value.active !== false
           ? { kind, item: mapArtist(doc.id, value) }
@@ -294,11 +323,13 @@ async function createBackend({
     songs: [...songs]
       .filter(
         ([, value]) =>
-          publicSong(value) && profiles.get(value.artistId)?.active !== false,
+          publicSong(value) && profiles.get(value.artistId)?.active === true,
       )
       .map(([id, value]) => mapSong(id, value, profiles, albums)),
     artists: [...profiles].map(([id, value]) => mapArtist(id, value)),
-    albums: [...albums].map(([id, value]) => mapAlbum(id, value)),
+    albums: [...albums]
+      .filter(([, value]) => !value.deleting)
+      .map(([id, value]) => mapAlbum(id, value, profiles)),
   });
   const app = createHttpApp({
     auth,
@@ -312,7 +343,9 @@ async function createBackend({
       if (profile) profiles.set(uid, { ...profile, active: false });
     },
   });
-  app.use(createRelatedArtistsRouter({ db, getCatalog: all, hydrate }));
+  app.use(
+    createRelatedArtistsRouter({ db, getCatalog: all, hydrate, followGraph }),
+  );
   app.use(
     createUploadsRouter({
       db,
@@ -529,6 +562,7 @@ async function createBackend({
     worker.stop();
     index.close();
     snapshots.clear();
+    followGraph.clear();
   });
   server.retention = worker;
   return server;

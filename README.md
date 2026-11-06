@@ -1,8 +1,8 @@
 # music_stream_app — Hướng dẫn dự án
 
-Cập nhật **2026-11-03**. Đây là tài liệu chính duy nhất về cài đặt, chạy, kiểm thử, kiến trúc và vận hành. Quy tắc dành cho coding agent được giữ riêng trong [AGENTS.md](AGENTS.md).
+Cập nhật **2026-11-05**. Đây là tài liệu chính về cài đặt, chạy, kiểm thử, kiến trúc và vận hành; checkpoint triển khai nằm trong docs. Quy tắc dành cho coding agent được giữ riêng trong [AGENTS.md](AGENTS.md).
 
-Ứng dụng nghe nhạc mobile dùng Expo SDK 58, React Native, TypeScript, Expo Router và Tamagui. Firebase Authentication quản lý tài khoản, Firestore lưu metadata/dữ liệu người dùng; backend Node cung cấp Search/Discovery/Charts và retention. Media dùng audio demo đóng gói hoặc HTTPS/Cloudinary. Không dùng Spring Boot hoặc Firebase Storage; SQLite chỉ phục vụ search index ở backend.
+Ứng dụng nghe nhạc mobile dùng Expo SDK 58, React Native, TypeScript, Expo Router và Tamagui. Firebase Authentication quản lý tài khoản, Firestore lưu metadata/dữ liệu người dùng; backend Node cung cấp API nghiệp vụ, Search/Discovery/Charts và retention. Media thật dùng HTTPS/Cloudinary; demo local dùng WAV tổng hợp từ backend. Không dùng Spring Boot hoặc Firebase Storage; SQLite chỉ phục vụ search index ở backend.
 
 ## Đặc tả và tiến độ triển khai
 
@@ -40,13 +40,13 @@ Backend đang chuyển sang Express 5; toàn bộ schema và nghiệp vụ mới
 | M5 — Discovery              | Đã có seed/diversity, Top 50 trước trộn, album totals và See all phân trang      |
 | M6 — kiểm tra/cloud         | Tests/rules/cấu hình đã chuẩn bị; **chưa deploy cloud**                          |
 
-Kết quả tự động gần nhất: lint sạch, TypeScript PASS, **47/47 tests ứng dụng và 18/18 integration/rules PASS**; export Android/iOS/web thành công. Bundle không phải APK/IPA hoặc bằng chứng test thiết bị thật.
+Kết quả kiểm thử mới nhất được ghi trong [báo cáo tiến độ](docs/IMPLEMENTATION_PROGRESS.md). Các lần export Android/iOS/web thành công trước đây không phải APK/IPA hoặc bằng chứng test thiết bị thật.
 
 Phần còn lại:
 
 - [ ] Đăng nhập Firebase CLI/ADC, xác minh quyền project thật.
 - [ ] Xác minh host Node 24 HTTPS chạy liên tục; build/test container, credentials, secrets và origins.
-- [ ] Backup, dry-run cloud, đối chiếu counters/relations và rollout backend/projection/rules/client.
+- [ ] Backup, dry-run cloud, đối chiếu counters/relations và rollout backend/migration/rules/client.
 - [ ] Smoke test cloud, ghi project/URL/revision/kết quả; chỉ khi đó hoàn thành phần deploy M6.
 - [ ] Test thực tế Android/iOS: network, audio, keyboard, Portal, Back, chữ lớn và màn hẹp.
 - [ ] Đo tải/chi phí/read/write thực tế; xử lý shared cursor trước khi scale nhiều instance.
@@ -74,6 +74,10 @@ Giữ lockfile; không tự nâng Expo/React Native hoặc chạy audit fix đ�
 <a id="local"></a>
 
 ## Chạy local bằng ba CMD
+
+Upload bài hát và ảnh bìa album hiện lưu trên máy chạy backend, metadata trong Emulator. Xem [ghi chú storage local và việc sửa sau](docs/LOCAL_UPLOAD_STORAGE.md). Không cần Cloudinary khi chạy local; restart backend/Expo sau khi cập nhật code.
+
+Để đọc/sửa dữ liệu mẫu bằng JSON thay vì sửa code fixture, xem [bộ dữ liệu local có thể chỉnh sửa](data/local/README.md). Dùng `npm run data:check` và `npm run data:apply` thay bước `local:seed`. Emulator UI đã bật tại `http://127.0.0.1:4000` để xem/sửa document trong Firestore local (chỉ trên máy tính); thay đổi trong UI không tự ghi ngược JSON.
 
 Mở **ba cửa sổ CMD**, tất cả đứng trong thư mục dự án, giữ chạy suốt lúc test. Không mở thêm server tương ứng nếu đã chạy trên cùng cổng.
 
@@ -115,13 +119,13 @@ Mật khẩu chung **chỉ dùng local**: `LocalMusic123!`.
 | Email                                                           | Vai trò                                              |
 | --------------------------------------------------------------- | ---------------------------------------------------- |
 | `local-listener@example.test`                                   | Người nghe có favorites, following, playlist/history |
-| `local-artist-01@example.test`                                  | Nghệ sĩ với bài public/private/unlisted/followers    |
+| `local-artist-01@example.test`                                  | Nghệ sĩ với bài công khai và riêng tư                |
 | `local-artist-02@example.test` … `local-artist-24@example.test` | Nghệ sĩ thử nghiệm                                   |
 | `local-member@example.test`                                     | Thành viên thông thường trong Auth Emulator          |
 
-Fixture: 26 tài khoản, 120 bài public + 3 bài visibility, 12 album, 160 phiên/80 bài khác nhau, 25 favorites, playlist, follow, post/comment và publicProfiles. Audio `demo1`/`demo2`/`demo3`, ảnh placeholder; upload ngoài bị chặn trước file reads/fetch.
+Fixture: 26 tài khoản, 120 bài công khai + 3 bài riêng tư, 12 album, 160 phiên/80 bài khác nhau, 25 favorites, playlist, follow và post/comment. Counters ở users; relation follow chỉ có followedAt, seed không tạo publicProfiles. Audio WAV tổng hợp 45 giây/12 giây từ backend local, ảnh placeholder; upload ngoài bị chặn trước file reads/fetch. Seed lại để thay fixture audio cũ; không dùng seed này cho cloud.
 
-Emulator không được cấu hình lưu dữ liệu qua lần tắt/bật, nên cần seed lại khi khởi động mới. Seed ghi đè fixture cùng ID, không xóa collection và từ chối project cloud. Không dùng local fixture trên dữ liệu thật.
+Lệnh local:emulators hiện import/export dữ liệu tại `.local/emulator-data` khi tắt bình thường bằng Ctrl+C. Lần đầu chưa có export thì nạp bằng data:apply (JSON chỉnh sửa) hoặc local:seed (fixture kiểm thử); không chạy lại hai lệnh này nếu muốn giữ những sửa đổi đã thực hiện trong app/UI. Seed ghi đè fixture cùng ID, không xóa collection và từ chối project cloud. Không dùng local fixture trên dữ liệu thật.
 
 ### Cổng và cách đặt biến
 
@@ -165,7 +169,7 @@ Nếu không mở được, kiểm tra firewall cho Node/Java trên mạng Priva
 | Không có tài khoản/dữ liệu mẫu | Seed sau khi Emulator bật; kiểm tra đang ở local                                             |
 | Search/Home lỗi                | Backend còn chạy, host/URL đúng, health ready và token cùng môi trường                       |
 | Cursor hết hạn/restart         | Dùng Thử lại để tải trang đầu mới                                                            |
-| `permission-denied` trong app  | Kiểm tra owner/visibility/follow/claim và rules cùng phiên bản; không mở quyền toàn database |
+| `permission-denied` trong app  | Kiểm tra API/token/owner/isPublic/active và phiên bản backend/client; không mở quyền toàn database |
 | Portal/Dialog                  | Restart Metro cache sạch, giữ resolver `@tamagui/portal`                                     |
 | Media không phát               | URL trả file HTTPS trực tiếp; kiểm tra định dạng/CORS, không dùng HTML/trang chia sẻ         |
 | Thiếu Firebase mode            | Dùng `start:local` hoặc đặt rõ cloud mode, không trộn biến Emulator/cloud                    |
@@ -193,7 +197,7 @@ Kiểm tra bundle khi thay native/UI:
 npx expo export --platform all --output-dir .local/export-check
 ```
 
-Kết quả gần nhất ngày 2026-11-03: 47/47 tests ứng dụng, 18/18 integration/rules, lint/typecheck và export Android/iOS/web PASS. Các bundle tại `.local/m3-m6-export`; web chỉnh nhãn cuối tại `.local/m3-m6-web-final`. `git diff --check` PASS, chỉ thông báo line endings.
+Xem [checkpoint kiểm thử mới nhất](docs/IMPLEMENTATION_PROGRESS.md) để biết số tests, kết quả và giới hạn của từng đợt. Bundle export cũ ngày 2026-11-03 tại `.local/m3-m6-export`; web chỉnh nhãn cuối tại `.local/m3-m6-web-final` không đại diện cho các thay đổi sau đó.
 
 Tests có SQLite thật, hook React thật, Auth/Firestore/Node Emulator và rules repo. UI render dùng ReactDOM/happy-dom với adapter/stub platform; không phải navigator/audio native E2E. Bundle Hermes không phải APK/IPA, không thay thế test máy thật.
 
@@ -213,10 +217,10 @@ Tests có SQLite thật, hook React thật, Auth/Firestore/Node Emulator và rul
 | Player/MiniPlayer | Một engine; play/pause/next/previous/repeat/seek và Back đồng bộ                              |
 | Home/Charts       | Nhóm Home tối đa 20, scroll/Back đúng; chart tối đa 50 và queue theo hiển thị                 |
 | Feed/comments     | CRUD theo owner, archive, composer tránh keyboard; không có counters giả                |
-| Quyền             | Guest/khác owner không đọc dữ liệu riêng; private/followers thu hồi đúng                      |
+| Quyền             | Guest/khác owner không đọc dữ liệu riêng; Follow không mở quyền bài riêng tư                 |
 | Mobile UI         | Màn hẹp/chữ lớn/tên dài/ảnh lỗi/loading/error, safe area, Portal/menu và Back double tap      |
 
-History fixture chỉ có 80 bài khác nhau nên dừng ở 80 là đúng. Demo audio khoảng 12 giây có thể khác duration metadata cũ; dùng để thử điều khiển phát, chưa dùng nghiệm thu counting/completed. Cần thay nguồn audioKey demo và đối chiếu thời lượng thật ở bước đã ghi trong đặc tả. Email reset/upload cần test riêng trên cloud phù hợp.
+History fixture chỉ có 80 bài khác nhau nên dừng ở 80 là đúng. Demo WAV có thời lượng khớp metadata: bài 45 giây để thử ngưỡng counted 30 giây, bài 12 giây để thử completed/nghe ít nhất 80% nội dung và tới cuối. Cần nghiệm thu player/auto-next/background trên thiết bị thật. Email reset/upload cần test riêng trên cloud phù hợp.
 
 <a id="features"></a>
 
@@ -248,17 +252,17 @@ History fixture chỉ có 80 bài khác nhau nên dừng ở 80 là đúng. Demo
 | `src/components/`, `ui/`, `discovery/` | Screens, primitives và cards                                                                       |
 | `src/hooks/`, `contexts/`              | Forms, subscriptions, pagers, navigation, Auth/Data/Player                                         |
 | `src/services/`, `utils/`              | Firebase/backend/auth/catalog/library/history/feed/media, validation/subscriptions/recommendations |
-| `tools/local/`, `tools/backend/`       | Emulator/fixture/seed, index/server/projection/retention/cloud                                     |
+| `tools/local/`, `tools/backend/`       | Emulator/fixture/seed, index/server/migration/retention/cloud                                     |
 | `tests/`, `assets/`                    | Tests và media demo/UI                                                                             |
 
 Không thêm App.tsx/NavigationContainer riêng. Search đi Screen → useSearch/useCursorList → backendService → Node → FTS. Player tách actions/state/progress nhưng giữ một useAudioPlayer/session. Data tách catalog/library/history, memo/Map merge; linked/follower subscriptions diff ID, pending requests coalesce, callbacks cũ bị bỏ sau cleanup/logout/đổi quyền.
 
 | Collection/path            | Dữ liệu/quyền                                                                                                               |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `users/{uid}`              | Profile riêng có email, owner đọc                                                                                     |
-| `publicProfiles/{uid}`     | userId/displayName/avatarUrl/biography/active/social counters; signed users đọc, metadata do backend project                |
-| `songs/{id}`               | artistId/artistNames/albumId, media URLs/audioKey, duration/genre/lyric, visibility/publication/active/playCount/timestamps |
-| `albums/{id}`              | title/artistId/artistName/coverUrl/isPublished/timestamps                                                                   |
+| `users/{uid}`              | Hồ sơ/email/counters chuẩn; API own DTO riêng và public DTO whitelist, SDK không đọc trực tiếp                          |
+| `publicProfiles/{uid}`     | Nguồn legacy giữ để đối soát/rollback sau migration; backend nghiệp vụ mới không đọc/ghi projection                       |
+| `songs/{id}`               | artistId/artistNames/albumId nullable, media URLs/PublicId nullable, duration/genre/lyric/description/isPublic/active/playCount/timestamps |
+| `albums/{id}`              | title/artistId/description/coverUrl/coverPublicId/isPublic/timestamps; tên tác giả ghép khi trả DTO                           |
 | `users/{uid}/favorites`    | Owner đọc; backend thêm/gỡ, kiểm tra bài còn quyền nghe                                                                      |
 | `users/{uid}/following`    | Owner đọc; backend ghi relation và hai counters nguyên tử                                                                  |
 | `users/{uid}/playlists`    | Riêng, tối đa 50 songIds không trùng; thêm bài phải đọc được                                                                |
@@ -266,7 +270,7 @@ Không thêm App.tsx/NavigationContainer riêng. Search đi Screen → useSearch
 | `users/{uid}/playReceipts` | Chống counting lặp, không prune cùng history                                                                                |
 | `posts/{id}/comments`      | Backend CRUD theo owner/trạng thái post; client chỉ đọc khi bài đăng active                                            |
 
-Visibility: public cần active/published; unlisted đọc theo ID/quyền; private cho owner; followers theo relation. Search công khai không trả private/unlisted/followers. Không thể bảo vệ email chỉ bằng bỏ field khi map UI.
+Quyền chỉ có isPublic boolean: bài active của chủ active, công khai cho tài khoản đã đăng nhập; riêng tư chỉ chủ bài. Follow không mở quyền nghe bài riêng tư. Album ẩn không ẩn bài công khai và album/playlist công khai không mở quyền bài riêng bên trong. Client/DTO không còn visibility/isPublished; tên album/tác giả, songCount và authorName được ghép/tính tại backend, không lưu lặp trong document.
 
 Counting qua POST `/playback/:historyId` và transaction server history/song/receipt: bài từ 30 giây cần nghe hợp lệ 30 giây; bài ngắn hơn cần phủ ít nhất 80% nội dung và tới cuối. Cooldown cùng UID/song là 30 giây, mỗi phiên một lượt. Tua không tự cộng listenedSeconds; Rules chặn client ghi history/receipt hoặc tự tăng playCount. Coverage/sequence hiện ở RAM server, mất phiên trả 409 để client tạo phiên mới; chưa durable/sticky session đa instance. Retention không trừ playCount hoặc xóa receipt. Triển khai backend/client/Rules đồng bộ.
 
@@ -294,9 +298,11 @@ Giữ Metro resolver dùng chung bản `@tamagui/portal` cho Dialog/Provider, kh
 
 Nghệ sĩ là tài khoản/profile. Bài cần schema v2 đầy đủ, đúng artistId/albumId; ưu tiên form/service hiện tại để validation. Console/Admin SDK bỏ qua Rules nên vẫn có thể tạo dữ liệu lỗi; không dùng JSON schema cũ tối giản để tạo document mới.
 
-UI tĩnh ở assets/images, demo ở assets/audio/audioKey demo1..3. Media thật là URL HTTPS trực tiếp, Firestore chỉ lưu metadata. Upload Cloudinary cloud cần EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME/IMAGE_PRESET/AUDIO_PRESET, không API secret; validation hiện tại ảnh ≤5 MB, nhạc ≤30 MB. Local chặn upload ngoài.
+UI tĩnh ở assets/images. Demo local dùng `audioUrl` dạng `/local-audio/sample-long.wav` hoặc `/local-audio/sample-short.wav`; player ghép với backend URL đã cấu hình nên chạy được trên LAN/cổng test riêng, không cần audioKey hoặc MP3 đóng gói. Backend chỉ phục vụ hai âm thanh tổng hợp này ở mode emulator/project demo, hỗ trợ HEAD/Range để tua. Đây là âm thanh thử công khai, không phải API phục vụ media người dùng.
 
-Không dùng đường dẫn ổ đĩa hoặc trang YouTube/Spotify/trang chia sẻ đăng nhập làm audioUrl. Test file trên điện thoại/ẩn danh; web cần CORS/định dạng phù hợp. Firestore Rules không bảo vệ file trên host ngoài. Thêm bundled audioKey phải sửa mapping require tĩnh/validation/Rules đồng bộ, không require đường dẫn tùy ý từ Firestore.
+Cloud: media phải là URL HTTPS trực tiếp, audio upload dùng chữ ký backend; ảnh cloud hiện còn unsigned preset, xem [thiết lập upload](docs/UPLOAD_BACKEND_SETUP.md). Local: upload audio/ảnh vào `.local/uploads`, Firestore lưu URI tương đối và metadata; ảnh ≤5MB, audio ≤30MB, không gửi file ra Cloudinary. Xem [storage local tạm thời](docs/LOCAL_UPLOAD_STORAGE.md) trước khi chuyển production.
+
+Không dùng đường dẫn ổ đĩa hoặc trang YouTube/Spotify/trang chia sẻ đăng nhập làm audioUrl. Test file trên điện thoại/ẩn danh; web cần CORS/định dạng phù hợp. Firestore Rules không bảo vệ file trên host ngoài. Client không còn đọc audioKey; bài cloud cũ chỉ có field này cần được thay audioUrl và đối chiếu thời lượng trong migration, không tự ánh xạ demo local lên cloud.
 
 <a id="design"></a>
 
@@ -349,31 +355,85 @@ Cursor có HMAC, UID/query/filter/scope/index version/epoch và offset trong sna
 
 Client debounce 300 ms, 20 đầu + 10 tiếp, gộp request pending theo project/UID/query/filter/cursor, bỏ response cũ và dọn timer. Không cache lâu URL media/quyền đọc. FlatList giữ virtualization, chặn request trùng, retry ở cuối và có nút tải thêm khi quét phải bỏ nhiều kết quả mất quyền.
 
+### Ranh giới truy cập Firestore
+
+App đọc/ghi nghiệp vụ qua backend API có Firebase ID token. `firestore.rules` từ chối toàn bộ đọc/ghi trực tiếp từ mobile/web SDK, kể cả owner, dữ liệu public và client cũ. Firebase SDK phía client chỉ còn Authentication, cấu hình Emulator và sinh ID tại máy. Backend Admin SDK kiểm tra quyền ở từng endpoint; Rules không thay thế các kiểm tra này. Xem [tài liệu Firebase](https://firebase.google.com/docs/firestore/security/rules-conditions).
+
+Khi rollout phải chuẩn bị backend và client dùng API trước khi đóng Rules; lên lịch chuyển đổi cho client cũ. Không nới Rules để xử lý lỗi kết nối API. Rollback phải dùng bộ backend/client/Rules tương thích và đối soát counters như hướng dẫn bên dưới. Hiện mới kiểm chứng local, chưa deploy cloud.
+
+### Đối soát trước khi chuyển schema mục tiêu
+
+`npm run schema:audit -- --fixtures --report .local/schema-audit.json` kiểm tra fixture offline, không cần Emulator hay credentials. Dùng tên report mới mỗi lần chạy; công cụ không ghi đè file đã có. Với Emulator đã bật, dùng `npm run schema:audit -- --local --report .local/schema-audit-local.json`. Cloud chỉ đọc khi chỉ định rõ `--project PROJECT_ID` và có ADC; chưa thực hiện bước cloud này.
+
+Công cụ audit chỉ đọc, **không hỗ trợ `--apply`**. Báo cáo đối chiếu counters với toàn bộ following: lấy publicProfiles ở dữ liệu legacy, lấy users khi có marker hoàn tất `migrations/profiles-to-users-v1`. Phát hiện ID/quyền mâu thuẫn, bài thiếu audioUrl, liên kết mồ côi, timestamp/genre/playlist lỗi, field cũ cần bỏ và metadata media chưa xác minh. Không đưa email/nội dung hồ sơ vào báo cáo; báo cáo vẫn có UID/path nên để trong `.local/`. Scan có phân trang và giới hạn tổng document, lỗi giữa chừng không tạo báo cáo hoàn tất. Mã thoát: 0 = scan xong không có lỗi dữ liệu, 2 = scan xong có lỗi cần xử lý, 1 = scan/tham số/file thất bại. `readyToApply=false` là giới hạn bàn giao cloud/media; workflow apply local riêng ở dưới. Fixture 397 document hiện qua strict validation với 0 lỗi/0 cảnh báo; demo audio local được nhận diện riêng, không giả publicId Cloudinary.
+
+Đây là nhiều query, không phải snapshot nguyên tử khi backend đang ghi. Công cụ migration đọc lại nguồn trong transaction trước khi ghi. Không dùng script `tools/Migrate-Schema.cjs` cũ hoặc `seed-dataset100-v2.cjs --confirm`: hai luồng ghi schema legacy đã bị chặn, không phải importer target.
+
+### Migration và restore schema mục tiêu trên Emulator
+
+Giữ Emulator chạy, dừng backend/app và mọi writer. Dry-run kiểm tra dữ liệu trước, không sửa dữ liệu:
+
+```cmd
+npm run schema:migrate -- --local
+npm run schema:migrate -- --local --apply --maintenance --backup .local/target-before-migration.json
+```
+
+Chỉ hỗ trợ demo Emulator, tối đa 400 source document trên các roots/subcollections nghiệp vụ. Công cụ giữ Document ID, timestamps và số liệu nghe; copy counters chuẩn đã đối soát về users, bỏ field legacy/ID/tên/count lặp, chuẩn hóa albumId/songId không có thành null và PublicId thiếu thành null. Bài followers/unlisted cũ chuyển riêng tư, không tự công khai. Trạng thái quyền mâu thuẫn, ID sai, field chưa review, media thiếu hoặc dữ liệu target không hợp lệ đều chặn apply. Không bịa ngày/thời lượng/URL để vượt validation; updatedAt thiếu chỉ dùng createdAt đã có.
+
+Backup **version 2** chứa toàn bộ dữ liệu gốc, dữ liệu target dự kiến và trạng thái markers; có email/nội dung riêng, giữ trong `.local/`. File không bị ghi đè. Một transaction revalidate nguồn/updateTime và ghi toàn bộ thay đổi cùng markers; phát hiện concurrent write thì hủy, dùng backup mới khi thử lại. PublicProfiles nguồn được giữ để đối soát, không được backend nghiệp vụ dùng sau migration. Quá 400 source docs hoặc cloud apply đều bị từ chối, chưa có migration phân đợt/cloud đã kiểm chứng.
+
+Restore local có dry-run và transaction; chỉ cho phép khi toàn bộ dữ liệu nghiệp vụ vẫn khớp target dự kiến trong backup. Nếu app đã ghi dữ liệu mới thì từ chối, không ghi đè về bản cũ. Dừng writers trước khi chạy:
+
+```cmd
+node tools/restore-target-schema.cjs --local --backup .local/target-before-migration.json
+node tools/restore-target-schema.cjs --local --apply --maintenance --backup .local/target-before-migration.json
+```
+
+Restore trả cả timestamps có kiểu và trạng thái markers về trước migration. Sau restore legacy phải dùng revision backend tương thích; backend hiện tại chỉ dùng isPublic. Đây là restore có điều kiện trong Emulator, không phải cơ chế khôi phục cloud sau khi ứng dụng đã tiếp tục hoạt động. Media provider và tài khoản Firebase Authentication không bị các công cụ này thay đổi.
+
+### Thử lại thao tác tạo album/playlist
+
+POST `/albums` và `/playlists` nhận `Idempotency-Key` tùy chọn (1–128 ký tự chữ/số/gạch ngang/gạch dưới). Cùng UID, loại tài nguyên và key tạo cùng document; transaction trả lại ID khi payload còn khớp, trả 409 khi nội dung đã khác hoặc album đang xóa. Không sửa metadata hay timestamp khi thử lại. Client giữ key cho cùng dữ liệu trong phiên mở form, gồm tạo album ở form đăng bài; đổi dữ liệu/tài khoản hoặc mở form mới sinh key khác. Caller cũ không có key vẫn dùng được.
+
+Key không phải token cấp quyền; mỗi request vẫn kiểm tra Auth/active/owner. Giới hạn hiện tại: cache client chỉ ở RAM; đóng/mở lại form hoặc restart app là thao tác mới. Chưa có tombstone/idempotency ledger: nếu tài nguyên đã bị xóa hẳn, gửi lại key cũ có thể tạo lại. Không coi đây là durable outbox.
+
 ### Public profile và Follow
 
-`users/{uid}` chỉ owner đọc được; email ở đây. `publicProfiles/{uid}` chỉ chứa userId/displayName/avatarUrl/biography/active/followerCount/followingCount/lastFollowingId tùy chọn. Backend project metadata bằng transaction đọc source mới nhất; whitelist loại field lạ và giữ counters công khai hiện tại. Dữ liệu cũ khởi tạo counters từ users một lần, từ chối counter không phải số nguyên không âm.
+`users/{uid}` là nguồn hồ sơ và counters chuẩn của backend mới. API riêng chỉ trả cho chính UID token; DTO công khai whitelist tên/ảnh/tiểu sử/counters, không email hay publicId media. Catalog cache cũng chỉ giữ các field công khai. Backend không tạo/cập nhật projection publicProfiles nữa. Khi khởi động, nếu còn publicProfiles mà chưa có marker migration hoàn tất, backend dừng để tránh dùng counters users cũ. Không tự migrate khi start server.
 
-**Counters chuẩn hiện nằm ở publicProfiles.** Express xử lý `PUT/DELETE /following/:targetUid`: UID nguồn lấy từ token, đọc trạng thái tài khoản và relation/hai public profiles trong transaction; cập nhật hai counters cùng relation nguyên tử, gửi lặp không tăng/giảm thêm. Không theo dõi chính mình hoặc tài khoản inactive; vẫn cho bỏ theo dõi tài khoản đã inactive. `PUT/DELETE /favorites/:songId` kiểm tra quyền nghe khi thêm, giữ timestamp nếu gửi lại, cho gỡ bài đã mất quyền. Rules chặn mọi client ghi favorites/following/publicProfiles; listeners đọc hiện vẫn dùng Firestore. Counter cũ trong users giữ nguyên. Cần triển khai backend/client và Rules cùng đợt; client cũ ghi trực tiếp sẽ bị từ chối.
+Express xử lý `PUT/DELETE /following/:targetUid`: UID nguồn lấy từ token, đọc trạng thái hai users và relation trong transaction; cập nhật hai counters cùng relation nguyên tử, gửi lặp không tăng/giảm thêm. Relation mới chỉ có followedAt; ID đích lấy từ document ID. Không tự theo dõi hoặc theo dõi tài khoản inactive; vẫn cho bỏ theo dõi tài khoản inactive. `PUT/DELETE /favorites/:songId` kiểm tra quyền nghe khi thêm, giữ timestamp nếu gửi lại, cho gỡ bài đã mất quyền. Client tải lại sau mutation; chưa push giữa các thiết bị.
 
-Feed ghi qua `POST /posts`, `PATCH/DELETE /posts/:id` và `POST /posts/:id/comments`, `PATCH/DELETE /posts/:id/comments/:commentId`. Tạo/sửa gửi content; tạo post thêm songId (rỗng nếu không kèm nhạc). Backend lấy owner/tên từ token và hồ sơ, chỉ cho owner sửa/gỡ, chỉ chia sẻ nhạc công khai khả dụng. Gỡ post giữ bình luận; chặn tạo/sửa bình luận khi post đã gỡ nhưng cho người viết xóa bình luận của mình. Rules chặn mọi client ghi Feed. Đọc vẫn listeners Firestore; POST tạo mới chưa hỗ trợ retry theo idempotency key.
+Gợi ý nghệ sĩ dùng graph RAM đồng bộ từ đường dẫn `users/{uid}/following/{targetUid}`, không cần field userId hay collection/counters gợi ý mới. Một listener collection-group đọc tối đa 250.001 quan hệ khi khởi động: vượt 250.000 hoặc lỗi sync thì backend unhealthy/503, không trả graph bị cắt. Mỗi lượt chọn tối đa 50 fan × 50 following từ RAM và đọc lại tối đa 50 hồ sơ fan; quyền/active của kết quả vẫn revalidate. Cache 30 giây, tối đa 256 target, invalidation khi graph đổi. Đây là chi phí preload toàn graph trên mỗi instance, chưa đo hóa đơn cloud hoặc hỗ trợ graph lớn hơn giới hạn; không gọi đây là giải pháp graph không giới hạn.
 
-Backfill mặc định chỉ dry-run, không xóa/reset users. Ví dụ local khi Emulator đang chạy:
+Feed ghi qua `POST /posts`, `PATCH/DELETE /posts/:id` và `POST /posts/:id/comments`, `PATCH/DELETE /posts/:id/comments/:commentId`. Tạo/sửa gửi content; tạo post thêm songId (rỗng nếu không kèm nhạc). Backend lấy owner/tên từ token và hồ sơ, chỉ cho owner sửa/gỡ, chỉ chia sẻ nhạc công khai khả dụng. Gỡ post giữ bình luận; chặn tạo/sửa bình luận khi post đã gỡ nhưng cho người viết xóa bình luận của mình. Đọc Feed/bình luận qua GET API phân trang; dùng Làm mới để nhận thay đổi từ thiết bị khác. POST tạo mới hỗ trợ Idempotency-Key; composer giữ khóa khi retry trong cùng phiên mở màn.
+
+Backfill nay chuyển counters **từ publicProfiles về users**, thay cho công cụ projection cũ. Mặc định chỉ dry-run. Ví dụ local khi Emulator đang chạy:
 
 ```cmd
 node tools/backend/backfill.cjs --local
 ```
 
-Cloud cần ADC có quyền phù hợp, project xác minh rõ; chỉ khi rollout đã sẵn sàng mới dùng `--apply`:
+Apply chỉ hỗ trợ Emulator demo với tối đa 400 source document (users + publicProfiles + following), trong một transaction nguyên tử. Dừng backend và mọi writer trước; giữ Emulator chạy, đối soát dry-run không lỗi rồi dùng file backup mới:
+
+```cmd
+node tools/backend/backfill.cjs --local --apply --maintenance --backup .local/profiles-before-migration.json
+```
+
+Backup có dữ liệu riêng/email và timestamp có kiểu, không commit/chia sẻ công khai. Công cụ không ghi đè backup. Transaction kiểm tra lại toàn bộ nguồn theo updateTime; dữ liệu đổi sau backup thì hủy, không ghi một phần. Copy counters chuẩn đã khớp relations vào users; giữ metadata/timestamps hiện có, bỏ users.userId/lastFollowingId và following.userId/artistId; giữ nguyên followedAt. PublicProfiles được giữ làm nguồn đối chiếu/rollback, runtime bỏ qua sau marker hoàn tất. Chạy lại không lấy projection cũ ghi đè counters users đã thay đổi. Đây chưa phải migration song/album/playlist hay bộ restore tự động; không tự xóa publicProfiles.
+
+Fixture local mới không tạo publicProfiles. Seed không xóa dữ liệu legacy đã có; nếu backend báo cần migration thì xử lý theo quy trình trên, không giả tạo marker để vượt kiểm tra.
+
+Cloud chỉ có dry-run với project tường minh và ADC; **cloud `--apply` bị từ chối**, chưa có rollout cloud đã kiểm chứng:
 
 ```cmd
 node tools/backend/backfill.cjs --project musicstreamapp-5a527
 ```
 
-Lệnh trên vẫn dry-run. Chưa chạy dry-run cloud trong phiên này vì thiếu đăng nhập/credentials. Backend chạy sẽ tự project các hồ sơ hiện có và đồng bộ metadata tiếp theo; chỉ khởi động cloud backend khi đã sẵn sàng cho bước ghi projection này.
+Lệnh trên chỉ đọc. Chưa chạy dry-run hoặc ghi cloud trong phiên này. Chưa dùng backend mới thay cloud backend cũ khi bước chuyển counters chưa được chuẩn bị.
 
 ### History và retention
 
-View History đọc Firestore server theo playedAt giảm dần + document ID giảm dần, query 20 phiên/lần. Khử trùng songId xuyên trang, metadata phiên gần nhất; đọc bài theo quyền, bỏ missing/permission-denied, lỗi mạng giữ cursor để retry. Mỗi lần tải quét tối đa ba trang phiên; nếu còn nguồn thì giữ continuation/nút tải thêm, kể cả chưa tìm được bài mới. UI 10 + 10, dừng 100 bài khác nhau hoặc hết nguồn, queue đúng danh sách đã tải. Request cùng cursor được gộp để StrictMode không làm mất 10 bài đầu. Không tải sẵn 1.000 phiên khi mở màn.
+View History gọi GET `/history`; backend đọc Firestore theo playedAt giảm dần + document ID giảm dần, query 20 phiên/lần. Khử trùng songId xuyên trang, metadata phiên gần nhất; đọc bài theo quyền, bỏ missing/permission-denied, lỗi mạng giữ cursor để retry. Mỗi lần tải quét tối đa ba trang phiên; nếu còn nguồn thì giữ continuation/nút tải thêm, kể cả chưa tìm được bài mới. UI 10 + 10, dừng 100 bài khác nhau hoặc hết nguồn, queue đúng danh sách đã tải. Request cùng cursor được gộp để StrictMode không làm mất 10 bài đầu. Không tải sẵn 1.000 phiên khi mở màn.
 
 Backend retention chạy theo lịch 15 phút trong process sống liên tục, không gọi theo tick progress. Mỗi lượt xét users theo trang 50; dùng count trước, tài khoản ≤1.000 không đọc lại 1.000 phiên. Với tài khoản vượt giới hạn, transaction đọc boundary 1.000 mới nhất và tối đa 100 ứng viên cũ, loại ứng viên vừa hoạt động trong hai phút. Query/delete chung transaction nên concurrent progress gây retry với boundary mới. Mỗi UID xử lý tối đa 10 batch/lượt, backlog lớn tiếp tục ở lượt sau. Vì vậy có thể tạm vượt 1.000 trong grace period/backlog; không phải hard limit của Rules.
 
@@ -424,7 +484,7 @@ docker build -f Dockerfile.backend -t music-stream-backend .
 
 Chưa build image Docker hoặc xác minh host cloud; bundle Expo không thay thế việc này.
 
-Thứ tự rollout: xác minh project/quyền/backup → dry-run projection và đối chiếu counters/relations → bảo trì luồng Follow của client cũ → apply projection/khởi động backend → kiểm tra health/search/privacy/retention với tài khoản kiểm thử → deploy firestore.rules/indexes → phát hành client với backend URL → kiểm tra Follow, History, private/followers và theo dõi log/read/write. Không seed fixture lên project thật.
+Thứ tự rollout dự kiến sau khi có migration cloud đã kiểm chứng: xác minh project/quyền/backup → dry-run và đối chiếu counters/relations → dừng writers cũ → chuyển schema/counters → khởi động backend → kiểm tra health/search/privacy/retention → deploy firestore.rules/indexes → phát hành client → smoke test và theo dõi reads/writes. Hiện công cụ apply hồ sơ chỉ hỗ trợ Emulator, chưa sẵn sàng thực hiện chuỗi cloud này. Không seed fixture lên project thật.
 
 Lệnh CLI cần sau khi đăng nhập và hoàn tất các bước trên:
 
@@ -436,13 +496,13 @@ node tools/node_modules/firebase-tools/lib/bin/firebase.js deploy --only firesto
 
 Hiện các query equality và playedAt + documentId dùng indexes trong repo và index đơn trường; không thêm composite không cần thiết. Nếu cloud báo cần index cho query cụ thể, bổ sung đúng query rồi deploy indexes, không cắt dữ liệu để tránh lỗi.
 
-Rollback: đưa app/backend về revision trước có kiểm soát, tạm ngưng Follow trong lúc chuyển. **Trước khi dùng lại rules/client M2**, phải đồng bộ followerCount/followingCount chuẩn từ publicProfiles về users bằng Admin transaction hoặc tính lại từ relations sau khi đã dừng writers; không chỉ restore rules vì counters users đã cũ. Giữ publicProfiles/receipts/history và backup, không xóa collection để rollback. Worker retention dừng cùng backend; không thể khôi phục phiên đã prune chỉ bằng rollback source.
+Rollback cần dừng writers và xác định revision đích dùng counters ở users hay publicProfiles. Sau migration mới, users là chuẩn và projection cũ có thể đã lệch: trước khi quay về backend dùng publicProfiles, phải đối soát relations và đồng bộ counters mới từ users sang projection bằng công cụ đã kiểm chứng; không lấy projection cũ ghi ngược users. Giữ sources/receipts/history/backup; chưa có công cụ rollback tự động. Worker retention dừng cùng backend; rollback source không khôi phục phiên đã prune.
 
 ### Bằng chứng và giới hạn
 
 Tests gồm SQLite thật, hook React thật, Firebase Auth/Firestore Emulator và Rules. Suite rules dùng project demo-music-rules riêng để không làm bẩn fixture demo-music-stream. Negative tests có log PERMISSION_DENIED mong đợi.
 
-Phép đo Search local: trang 20 + 10 dùng đúng 30 document hydration reads, 0 lời gọi collection scan trong request, thay vì cần toàn catalog 120 bài để lọc tại client. Đây là đo ở transport Emulator, không phải số hóa đơn cloud. Catalog public client giới hạn 20 sau khi Home/Charts/album totals đã chuyển sang backend đầy đủ; own/library/linked subscriptions vẫn phục vụ nghiệp vụ tương ứng. PublicProfiles/albums metadata listeners còn dùng cho Library/labels, không dùng để tính relevance hoặc totals Search/Discovery.
+Phép đo Search local: trang 20 + 10 dùng đúng 30 document hydration reads, 0 lời gọi collection scan trong request, thay vì cần toàn catalog 120 bài để lọc tại client. Đây là đo ở transport Emulator, không phải số hóa đơn cloud. Catalog public client giới hạn 20; Home/Charts/album totals tính ở backend trên nguồn đầy đủ. Backend đồng bộ users/albums/songs/following cho index và graph RAM; client nghiệp vụ dùng API.
 
 Chưa kiểm thử thiết bị thật, FPS/keyboard/audio, workload lớn, container/host cloud hay hóa đơn. Kiểm tra kết quả cuối ở [mục Kiểm thử](#testing); không coi bundle Android/iOS là APK/IPA hoặc native E2E.
 

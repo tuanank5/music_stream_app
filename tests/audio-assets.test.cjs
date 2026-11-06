@@ -64,6 +64,9 @@ test("signed audio uses own namespace and server metadata; validates size/video 
     assert.throws(() => validateSongInput({ ...value, durationSeconds: 1 }), {
       status: 400,
     });
+    assert.throws(() => validateSongInput({ ...value, audioKey: "demo1" }), {
+      status: 400,
+    });
     assert.throws(() => validateSongInput({ ...value, genre: ["Unknown"] }), {
       status: 400,
     });

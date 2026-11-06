@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 import { getFirebaseRuntime } from "./firebase/config";
 import { assertExternalUploadsAllowed } from "./firebase/runtime";
 import { backendGet } from "./backendService";
+import { getFirebaseAuth } from "./firebase";
 
 export type PickedMedia = {
   uri: string;
@@ -12,10 +13,21 @@ export type PickedMedia = {
 };
 
 export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
-  // Check before file reads, FormData, or any Cloudinary request.
-  assertExternalUploadsAllowed(getFirebaseRuntime());
+  const runtime = getFirebaseRuntime();
+  const local = runtime.mode === "emulator";
+  if (!local) assertExternalUploadsAllowed(runtime);
+  if (local && !asset.file && /^https?:/i.test(asset.uri))
+    throw new Error(
+      "File local phải được chọn từ thiết bị, không phải URL bên ngoài.",
+    );
+  const user = local ? getFirebaseAuth().currentUser : null;
+  if (local && (!user || !runtime.backendUrl))
+    throw new Error("Cần đăng nhập và cấu hình backend local.");
+  const token = user ? await user.getIdToken() : null;
+  if (local && getFirebaseAuth().currentUser !== user)
+    throw new Error("Phiên đăng nhập đã thay đổi.");
   const signed =
-    kind === "video"
+    !local && kind === "video"
       ? await backendGet<{
           cloud: string;
           apiKey: string;
@@ -31,7 +43,7 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
       ? process.env.EXPO_PUBLIC_CLOUDINARY_IMAGE_PRESET
       : process.env.EXPO_PUBLIC_CLOUDINARY_AUDIO_PRESET;
 
-  if (!cloud || (!signed && !preset)) {
+  if (!local && (!cloud || (!signed && !preset))) {
     throw new Error("Chưa cấu hình Cloudinary cloud name / upload preset.");
   }
 
@@ -66,7 +78,7 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
     form.append("timestamp", String(signed.timestamp));
     form.append("signature", signed.signature);
     form.append("public_id", signed.publicId);
-  } else form.append("upload_preset", preset!);
+  } else if (!local) form.append("upload_preset", preset!);
 
   const abort = new AbortController();
 
@@ -74,26 +86,33 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
 
   try {
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloud}/${kind}/upload`,
+      local
+        ? `${runtime.backendUrl}/local-media/upload/${kind === "video" ? "audio" : "image"}`
+        : `https://api.cloudinary.com/v1_1/${cloud}/${kind}/upload`,
       {
         method: "POST",
         body: form,
         signal: abort.signal,
+        ...(local ? { headers: { Authorization: `Bearer ${token}` } } : {}),
       },
     );
 
     const value = await response.json();
 
-    if (!response.ok || !value.secure_url) {
+    if (!response.ok || !(local ? value.url : value.secure_url)) {
       throw new Error(
-        value.error?.message || "Không tải được file lên Cloudinary.",
+        (typeof value.error === "string"
+          ? value.error
+          : value.error?.message) || "Không tải được file.",
       );
     }
 
+    if (local && getFirebaseAuth().currentUser !== user)
+      throw new Error("Phiên đăng nhập đã thay đổi.");
     return {
-      url: String(value.secure_url),
+      url: String(local ? value.url : value.secure_url),
       duration: Number(value.duration ?? 0),
-      publicId: String(value.public_id || ""),
+      publicId: String(local ? value.publicId : value.public_id || ""),
     };
   } finally {
     clearTimeout(timer);

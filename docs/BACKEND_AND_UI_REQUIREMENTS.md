@@ -26,7 +26,7 @@ Document ID là ID chuẩn; không cần lặp ID trong document mới. Thời g
 | --- | --- |
 | Firebase Authentication | uid, email, credentials do Firebase quản lý, disabled; claims hiện có được giữ nguyên nhưng không cấp đặc quyền trong ứng dụng |
 | users/{uid} | displayName:string, email:string, avatarUrl:string, avatarPublicId:string/null, biography:string, followerCount:integer, followingCount:integer, active:boolean, createdAt:Timestamp, updatedAt:Timestamp |
-| songs/{id} | title:string, artistId:string, artistNames:string[], albumId:string/null, coverUrl:string, coverPublicId:string/null, audioUrl:string, audioPublicId:string/null, audioKey:string (tạm), durationSeconds:number, genre:string[], lyric:string, description:string, isPublic:boolean, active:boolean, playCount:integer, releaseDate:Timestamp, createdAt:Timestamp, updatedAt:Timestamp |
+| songs/{id} | title:string, artistId:string, artistNames:string[], albumId:string/null, coverUrl:string, coverPublicId:string/null, audioUrl:string, audioPublicId:string/null, durationSeconds:number, genre:string[], lyric:string, description:string, isPublic:boolean, active:boolean, playCount:integer, releaseDate:Timestamp, createdAt:Timestamp, updatedAt:Timestamp |
 | albums/{id} | title:string, artistId:string, description:string, coverUrl:string, coverPublicId:string/null, isPublic:boolean, releaseDate:Timestamp, createdAt:Timestamp, updatedAt:Timestamp |
 | users/{uid}/playlists/{id} | name:string, description:string, isPublic:boolean, songIds:string[] (có thứ tự, không trùng, giữ giới hạn 50), createdAt:Timestamp, updatedAt:Timestamp |
 | users/{uid}/favorites/{songId} | favoritedAt:Timestamp |
@@ -166,4 +166,4 @@ Khi backend/schema đã sẵn sàng để đưa dữ liệu thật, phải cung 
 - [ ] Tests có ý nghĩa cho quyền DTO/email, inactive, counting 80%/30 giây/bài ngắn/seek/retry/concurrency, retention, public playlist/album, favoriteAlbums và quota.
 - [ ] Chạy lint/typecheck cùng test phù hợp; bundle/native/device kiểm chứng theo phạm vi thay đổi, không coi export là APK/IPA hay test thiết bị thật.
 - [ ] Cập nhật docs/IMPLEMENTATION_PROGRESS.md với trạng thái thực tế, checks, giới hạn, ports/process và bước tiếp theo; README chỉ giữ hướng dẫn vận hành và liên kết. Không ghi đặc tả là chức năng đã hoàn thành.
-- [ ] **Bước tiếp theo sau đợt này: xóa audioKey và thay nguồn audio demo tương ứng, cập nhật mapping/fixture/player/validation/tests đồng bộ.**
+- [x] Xóa audioKey khỏi code/DTO/luồng ghi mới và thay demo local bằng nguồn WAV qua backend, thời lượng theo số mẫu thực; cập nhật fixture/player/tests. Không tự sửa dữ liệu cloud cũ; bước migration cần báo cáo bài thiếu audioUrl trước khi bỏ field cũ.

@@ -187,7 +187,6 @@ test("Player renders normal, error and demo states without raw text nodes in lay
       title: "A long track title",
       artist: "Artist name",
       cover: "",
-      audioKey: "",
       audioUrl: "https://example.com/track.mp3",
     },
     playing: false,
@@ -261,8 +260,7 @@ test("Player renders normal, error and demo states without raw text nodes in lay
     player.error = "Audio unavailable";
     assert.match(render(h(PlayerScreen)).body, /Thử tải lại bài hát/);
     player.error = "";
-    player.current.audioKey = "demo1";
-    player.current.audioUrl = "";
+    player.current.audioUrl = "/local-audio/sample-short.wav";
     assert.match(render(h(PlayerScreen)).body, /không phải bản thu thương mại/);
     assert.equal(
       diagnostics.some((args) =>

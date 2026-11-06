@@ -153,7 +153,7 @@ test("M2 history reopens validate live existence and permissions for all three k
   const ref = adminDb.doc("songs/local-song-000");
   const original = (await ref.get()).data();
   try {
-    await ref.update({ visibility: "private" });
+    await ref.update({ isPublic: false });
     assert.equal(
       await validateSearchHistoryItem(
         item("song", "local-song-000"),
@@ -161,7 +161,7 @@ test("M2 history reopens validate live existence and permissions for all three k
       ),
       false,
     );
-    await ref.update({ visibility: original.visibility, active: false });
+    await ref.update({ isPublic: original.isPublic, active: false });
     assert.equal(
       await validateSearchHistoryItem(
         item("song", "local-song-000"),
@@ -181,27 +181,40 @@ test("local login, catalog/history, visibility and authenticated Node round trip
     "local-listener@example.test",
     PASSWORD,
   );
-  const publicSongs = await getDocs(
-    query(
-      collection(db, "songs"),
-      where("visibility", "==", "public"),
-      where("isPublished", "==", true),
+  await assert.rejects(
+    getDocs(
+      query(
+        collection(db, "songs"),
+        where("isPublic", "==", "public"),
+        where("active", "==", true),
+      ),
     ),
+    { code: "permission-denied" },
   );
-  assert.equal(publicSongs.size, 120);
-  const history = await getDocs(
-    query(
-      collection(db, "users/local-listener/history"),
-      orderBy("playedAt", "desc"),
-      limit(100),
+  // Even signed users must use the API for public data.
+  await assert.rejects(
+    getDocs(
+      query(
+        collection(db, "users/local-listener/history"),
+        orderBy("playedAt", "desc"),
+        limit(100),
+      ),
     ),
+    { code: "permission-denied" },
   );
-  assert.equal(history.size, 100);
-  assert.equal(new Set(history.docs.map((d) => d.data().songId)).size, 80);
   await assert.rejects(getDoc(doc(db, "songs/local-private")), {
     code: "permission-denied",
   });
-  assert.ok((await getDoc(doc(db, "songs/local-followers"))).exists());
+  await assert.rejects(getDoc(doc(db, "songs/local-followers")), {
+    code: "permission-denied",
+  });
+  assert.equal((await listenerRequest("/catalog/public-songs")).status, 200);
+  const recentHistory = await listenerRequest("/recent-history");
+  assert.equal(recentHistory.status, 200);
+  const history = await recentHistory.json();
+  assert.equal(history.items.length, 100);
+  assert.equal(new Set(history.items.map((item) => item.songId)).size, 80);
+  assert.equal((await listenerRequest("/songs/local-followers")).status, 403);
   await assert.rejects(getDoc(doc(db, "users/local-artist-01/history/other")), {
     code: "permission-denied",
   });
@@ -264,7 +277,7 @@ test("profile bootstrap creates once from Auth, ignores forged fields and never 
     const responses = await Promise.all([ensure(), ensure(), ensure()]);
     assert.ok(responses.every((response) => response.status === 200));
     const original = (await ref.get()).data();
-    assert.equal(original.userId, uid);
+    assert.equal(original.userId, undefined);
     assert.equal(original.email, "bootstrap-check@example.test");
     assert.equal(original.displayName, "Bootstrap user");
     assert.equal(original.active, true);
@@ -416,7 +429,7 @@ test("album API creates metadata, saves public state and description, and reject
     assert.equal(album.artistId, "local-artist-01");
     const initial = (await ref.get()).data();
     assert.equal(initial.isPublic, false);
-    assert.equal(initial.isPublished, false);
+    assert.equal(initial.isPublic, false);
     assert.equal(initial.description, fields.description);
     const privateInfo = await fetch(`${base}/my-album-info?id=${album.id}`, {
       headers,
@@ -442,7 +455,7 @@ test("album API creates metadata, saves public state and description, and reject
     );
     const updated = (await ref.get()).data();
     assert.equal(updated.isPublic, true);
-    assert.equal(updated.isPublished, true);
+    assert.equal(updated.isPublic, true);
     assert.equal(updated.createdAt.toMillis(), initial.createdAt.toMillis());
     const other = await signInWithEmailAndPassword(
       auth,
@@ -510,7 +523,6 @@ test("album membership allows only own unassigned songs, resolves concurrent add
     title: `Unassigned ${songRef.id}`,
     songId: songRef.id,
     albumId: "",
-    albumTitle: "",
   };
   const albumIds = [];
   try {
@@ -586,14 +598,14 @@ test("album membership allows only own unassigned songs, resolves concurrent add
     assert.equal((await change(assigned, "DELETE")).status, 200);
     assert.equal((await change(assigned, "DELETE")).status, 200);
     const remaining = (await songRef.get()).data();
-    assert.equal(remaining.albumId, "");
-    assert.equal(remaining.albumTitle, "");
+    assert.equal(remaining.albumId, null);
+    assert.equal(remaining.albumTitle, undefined);
     for (const key of [
       "title",
       "audioUrl",
-      "audioKey",
+      "audioPublicId",
       "active",
-      "visibility",
+      "isPublic",
       "playCount",
     ])
       assert.deepEqual(remaining[key], original[key]);
@@ -645,7 +657,6 @@ test("album deletion detaches multiple batches, preserves songs and is idempoten
         ...original,
         songId: ref.id,
         albumId: id,
-        albumTitle: "Delete multi batch",
       });
     await batch.commit();
     const other = await signInWithEmailAndPassword(
@@ -673,12 +684,12 @@ test("album deletion detaches multiple batches, preserves songs and is idempoten
       retained.every(
         (song) =>
           song.exists &&
-          song.data().albumId === "" &&
-          song.data().albumTitle === "",
+          song.data().albumId === null &&
+          song.data().albumTitle === undefined,
       ),
     );
     for (const song of retained)
-      for (const key of ["audioUrl", "active", "visibility", "playCount"])
+      for (const key of ["audioUrl", "active", "isPublic", "playCount"])
         assert.deepEqual(song.data()[key], original[key]);
     assert.equal(
       (await fetch(`${base}/albums/${id}`, { method: "DELETE", headers }))
@@ -714,7 +725,7 @@ test("album favorites are idempotent, private per user and revalidate album visi
       artistId: "local-artist-03",
       coverUrl: "",
       isPublic: true,
-      isPublished: true,
+      isPublic: true,
     });
     const url = `${base}/favorite-albums/${album.id}`;
     assert.equal((await fetch(url, { method: "PUT", headers })).status, 200);
@@ -1066,14 +1077,14 @@ test("song owner can change cover and soft-delete; others cannot, and unrelated 
       "active",
       "playCount",
       "artistId",
-      "visibility",
+      "isPublic",
     ])
       assert.deepEqual(changed[key], original[key]);
     assert.equal((await fetch(url, { method: "DELETE", headers })).status, 200);
     assert.equal((await fetch(url, { method: "DELETE", headers })).status, 200);
     const deleted = (await ref.get()).data();
     assert.equal(deleted.active, false);
-    assert.equal(deleted.isPublished, false);
+    assert.equal(deleted.active, false);
     assert.equal(deleted.playCount, original.playCount);
     assert.equal(deleted.audioUrl, original.audioUrl);
     assert.equal(
@@ -1120,6 +1131,80 @@ test("related artist API is read-only, bounded and does not expose private user 
   );
 });
 
+test("related artist fan signals use relation paths without userId and invalidate after unfollow", async () => {
+  await signInWithEmailAndPassword(
+    auth,
+    "local-listener@example.test",
+    PASSWORD,
+  );
+  const { db: adminDb } =
+    require("../tools/local/environment.cjs").configureLocalAdmin();
+  const template = (await adminDb.doc("songs/local-song-000").get()).data();
+  const artists = ["graph-target", "graph-a", "graph-b", "graph-c"],
+    fans = ["graph-fan-1", "graph-fan-2", "graph-fan-3"];
+  const refs = [],
+    relations = [];
+  const batch = adminDb.batch();
+  for (const id of [...artists, ...fans]) {
+    const ref = adminDb.doc(`users/${id}`);
+    refs.push(ref);
+    batch.set(ref, {
+      displayName: id,
+      active: true,
+      followerCount: 0,
+      followingCount: 0,
+    });
+  }
+  for (const id of artists) {
+    const ref = adminDb.doc(`songs/${id}`);
+    refs.push(ref);
+    batch.set(ref, {
+      ...template,
+      songId: id,
+      artistId: id,
+      albumId: "",
+      genre: [id === "graph-target" ? "Jazz" : "Rock"],
+    });
+  }
+  for (const fan of fans)
+    for (const target of artists) {
+      const ref = adminDb.doc(`users/${fan}/following/${target}`);
+      refs.push(ref);
+      relations.push(ref);
+      batch.set(ref, { followedAt: new Date() });
+    }
+  const waitFor = async (predicate) => {
+    const deadline = Date.now() + 7000;
+    while (Date.now() < deadline) {
+      const response = await listenerRequest(
+        "/related-artists?id=graph-target",
+      );
+      if (response.status === 200 && predicate(await response.json())) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail("Follow graph did not update recommendations.");
+  };
+  try {
+    await batch.commit();
+    await waitFor(
+      (result) =>
+        result.title === "Người hâm mộ cũng thích" &&
+        ["graph-a", "graph-b", "graph-c"].every((id) =>
+          result.artists.some((artist) => artist.id === id),
+        ),
+    );
+    const removed = adminDb.batch();
+    for (const ref of relations.filter((r) => r.id === "graph-target"))
+      removed.delete(ref);
+    await removed.commit();
+    await waitFor((result) => result.title === "Khám phá nghệ sĩ");
+  } finally {
+    const cleanup = adminDb.batch();
+    for (const ref of refs) cleanup.delete(ref);
+    await cleanup.commit();
+  }
+});
+
 test("verified song creation serializes the 180-minute quota, retries idempotently and releases soft-deleted time", async () => {
   const {
     createOwnedSong,
@@ -1157,7 +1242,11 @@ test("verified song creation serializes the 180-minute quota, retries idempotent
       1,
     );
     const failed = results.findIndex((result) => result.status === "rejected");
-    assert.equal(results[failed].reason.status, 409);
+    assert.equal(
+      results[failed].reason.status,
+      409,
+      String(results[failed].reason),
+    );
     const winner = failed === 0 ? 1 : 0;
     assert.equal(
       (await createOwnedSong(adminDb, "local-listener", inputs[winner], audio))
@@ -1278,7 +1367,7 @@ test("uploads quota is scoped to token UID, includes private songs and rejects i
     source.docs.map((doc) => doc.id).sort(),
   );
   assert.ok(loaded.every((row) => row.item.artistId === result.user.uid));
-  assert.ok(loaded.some((row) => row.item.visibility === "private"));
+  assert.ok(loaded.some((row) => row.item.isPublic === false));
   const mismatched = await fetch(
     `${base}/uploads?q=other&cursor=${encodeURIComponent(firstPage.nextCursor)}`,
     { headers },
@@ -1344,7 +1433,7 @@ test("Follow/Unfollow updates each counter once, is idempotent under concurrency
     watchFollowing,
   } = require("../src/services/libraryService.ts");
   const {
-    watchArtistFollowerSongs,
+    watchFollowedArtistSongs,
     getReadableSong,
   } = require("../src/services/catalogService.ts");
   const { configureLocalAdmin } = require("../tools/local/environment.cjs");
@@ -1354,8 +1443,7 @@ test("Follow/Unfollow updates each counter once, is idempotent under concurrency
     ...template,
     songId: "m1-followers",
     artistId: "local-artist-24",
-    visibility: "followers",
-    isPublished: false,
+    isPublic: true,
   });
   const result = await signInWithEmailAndPassword(
     auth,
@@ -1364,10 +1452,11 @@ test("Follow/Unfollow updates each counter once, is idempotent under concurrency
   );
   const owner = "local-listener",
     target = "local-artist-24";
-  const ownRef = doc(db, "publicProfiles", owner),
-    targetRef = doc(db, "publicProfiles", target);
-  const beforeOwn = (await getDoc(ownRef)).data().followingCount;
-  const beforeTarget = (await getDoc(targetRef)).data().followerCount;
+  const targetRef = doc(db, "users", target);
+  const beforeOwn = (await adminDb.doc(`users/${owner}`).get()).data()
+    .followingCount;
+  const beforeTarget = (await adminDb.doc(`users/${target}`).get()).data()
+    .followerCount;
   let followingSeen = [];
   const stop = watchFollowing(
     owner,
@@ -1403,20 +1492,23 @@ test("Follow/Unfollow updates each counter once, is idempotent under concurrency
       throw error;
     }
     await waitFor(() => followingSeen.includes(target));
-    assert.equal((await getDoc(ownRef)).data().followingCount, beforeOwn + 1);
     assert.equal(
-      (await getDoc(targetRef)).data().followerCount,
+      (await adminDb.doc(`users/${owner}`).get()).data().followingCount,
+      beforeOwn + 1,
+    );
+    assert.equal(
+      (await adminDb.doc(`users/${target}`).get()).data().followerCount,
       beforeTarget + 1,
     );
     await setFollow(owner, target, true);
     assert.equal(
-      (await getDoc(targetRef)).data().followerCount,
+      (await adminDb.doc(`users/${target}`).get()).data().followerCount,
       beforeTarget + 1,
     );
     assert.equal((await getReadableSong("m1-followers")).id, "m1-followers");
     let songs = [],
       failure;
-    stopSongs = watchArtistFollowerSongs(
+    stopSongs = watchFollowedArtistSongs(
       target,
       (items) => {
         songs = items;
@@ -1434,24 +1526,46 @@ test("Follow/Unfollow updates each counter once, is idempotent under concurrency
       setFollow(owner, target, false),
     ]);
     await waitFor(() => !followingSeen.includes(target));
-    assert.equal((await getDoc(ownRef)).data().followingCount, beforeOwn);
-    assert.equal((await getDoc(targetRef)).data().followerCount, beforeTarget);
+    assert.equal(
+      (await adminDb.doc(`users/${owner}`).get()).data().followingCount,
+      beforeOwn,
+    );
+    assert.equal(
+      (await adminDb.doc(`users/${target}`).get()).data().followerCount,
+      beforeTarget,
+    );
     await setFollow(owner, target, false);
-    assert.equal((await getDoc(targetRef)).data().followerCount, beforeTarget);
+    assert.equal(
+      (await adminDb.doc(`users/${target}`).get()).data().followerCount,
+      beforeTarget,
+    );
     await Promise.all([
       setFollow(owner, target, true),
       setFollow(owner, target, false),
     ]);
-    assert.equal((await getDoc(ownRef)).data().followingCount, beforeOwn);
-    assert.equal((await getDoc(targetRef)).data().followerCount, beforeTarget);
     assert.equal(
-      (await getDoc(doc(db, "users", owner, "following", target))).exists(),
+      (await adminDb.doc(`users/${owner}`).get()).data().followingCount,
+      beforeOwn,
+    );
+    assert.equal(
+      (await adminDb.doc(`users/${target}`).get()).data().followerCount,
+      beforeTarget,
+    );
+    assert.equal(
+      (await adminDb.doc(`users/${owner}/following/${target}`).get()).exists,
       false,
     );
     await assert.rejects(
       setFollow("local-member", target, true),
       /đúng tài khoản/,
     );
+    assert.equal((await getReadableSong("m1-followers")).id, "m1-followers");
+    assert.equal(
+      (await listenerRequest(`/catalog/followed-artist-songs/${target}`))
+        .status,
+      403,
+    );
+    await adminDb.doc("songs/m1-followers").update({ isPublic: false });
     await assert.rejects(getReadableSong("m1-followers"), {
       code: "permission-denied",
     });
@@ -1497,7 +1611,7 @@ test("song favorite API scopes to token, preserves retry timestamps and checks l
     );
     assert.ok(responses.every((response) => response.status === 200));
     const first = (await ref.get()).data();
-    assert.equal(first.songId, "local-song-004");
+    assert.deepEqual(Object.keys(first), ["favoritedAt"]);
     const relationPage = await (
       await fetch(`${base}/favorites?uid=local-member&pageSize=1`, { headers })
     ).json();
@@ -1560,8 +1674,8 @@ test("follow API serializes concurrent clients, rejects inactive targets and per
   );
   const { db: serverDb } =
     require("../tools/local/environment.cjs").configureLocalAdmin();
-  const own = serverDb.doc("publicProfiles/local-listener"),
-    target = serverDb.doc("publicProfiles/local-member");
+  const own = serverDb.doc("users/local-listener"),
+    target = serverDb.doc("users/local-member");
   const account = serverDb.doc("users/local-member");
   const ownBefore = (await own.get()).data(),
     targetBefore = (await target.get()).data();
@@ -1726,13 +1840,13 @@ test("feed API derives author from token/profile, validates public song and enfo
     assert.equal(original.ownerId, uid);
     const listing = await (await request("GET", "/posts?pageSize=1")).json();
     assert.equal(listing.items[0].id, postId);
-    assert.equal(listing.items[0].authorName, original.authorName);
-    assert.doesNotMatch(JSON.stringify(listing), /email|@example|password/);
-    assert.equal((await request("GET", "/posts?pageSize=51")).status, 400);
     assert.equal(
-      original.authorName,
+      listing.items[0].authorName,
       (await serverDb.doc(`users/${uid}`).get()).data().displayName,
     );
+    assert.doesNotMatch(JSON.stringify(listing), /email|@example|password/);
+    assert.equal((await request("GET", "/posts?pageSize=51")).status, 400);
+    assert.equal(original.authorName, undefined);
     assert.equal(original.content, "Bài đăng của tôi");
     await feed.updatePost(postId, "Đã chỉnh sửa");
     assert.equal(
@@ -1883,8 +1997,12 @@ test("M3 API ranks Vietnamese, pages 20+10, binds cursor and synchronizes public
   await assert.rejects(getDoc(doc(db, "users/local-artist-01")), {
     code: "permission-denied",
   });
-  const publicProfile = await getDoc(doc(db, "publicProfiles/local-artist-01"));
-  assert.equal(publicProfile.data().email, undefined);
+  await assert.rejects(getDoc(doc(db, "publicProfiles/local-artist-01")), {
+    code: "permission-denied",
+  });
+  const publicProfile = await listenerRequest("/profiles/local-artist-01");
+  assert.equal(publicProfile.status, 200);
+  assert.equal((await publicProfile.json()).email, undefined);
   const { db: measuredDb } =
     require("../tools/local/environment.cjs").configureLocalAdmin();
   const collection = measuredDb.collection.bind(measuredDb),
@@ -1975,7 +2093,7 @@ test("M3 API ranks Vietnamese, pages 20+10, binds cursor and synchronizes public
     ref = adminDb.doc("songs/" + target),
     old = (await ref.get()).data();
   try {
-    await ref.update({ visibility: "private", isPublished: false });
+    await ref.update({ isPublic: false });
     const page = await (
       await listenerRequest("/search?q=duong%20ve&kind=song")
     ).json();
@@ -2050,23 +2168,33 @@ test("M3 API ranks Vietnamese, pages 20+10, binds cursor and synchronizes public
     assert.ok(detail.songs.length <= 50);
   }
 });
-test("M6 public profile dry-run does not write; apply strips unknown fields and preserves canonical counters", async () => {
+test("profiles read users only and backend refuses legacy profiles without a migration checkpoint", async () => {
   const { db: adminDb } =
     require("../tools/local/environment.cjs").configureLocalAdmin();
-  const { projectProfile } = require("../tools/backend/profiles.cjs");
+  const { assertProfilesReady } = require("../tools/backend/profiles.cjs");
   const ref = adminDb.doc("publicProfiles/local-member");
-  const before = (await ref.get()).data();
-  await ref.update({ email: "never-export@example.test" });
-  assert.equal(
-    (await projectProfile(adminDb, "local-member", true)).action,
-    "update",
-  );
-  assert.equal((await ref.get()).data().email, "never-export@example.test");
-  await projectProfile(adminDb, "local-member");
-  const after = (await ref.get()).data();
-  assert.equal(after.email, undefined);
-  assert.equal(after.followerCount, before.followerCount);
-  assert.equal(after.followingCount, before.followingCount);
+  assert.equal((await adminDb.collection("publicProfiles").get()).size, 0);
+  const before = (await adminDb.doc("users/local-member").get()).data();
+  await ref.set({
+    displayName: "Stale projection",
+    followerCount: 999,
+    followingCount: 999,
+    email: "never-export@example.test",
+  });
+  try {
+    await assert.rejects(assertProfilesReady(adminDb), /Legacy publicProfiles/);
+    const response = await listenerRequest("/profiles/local-member");
+    assert.equal(response.status, 200);
+    const publicProfile = await response.json();
+    assert.equal(publicProfile.name, before.displayName);
+    assert.equal(publicProfile.followerCount, before.followerCount);
+    assert.equal(publicProfile.followingCount, before.followingCount);
+    assert.equal(publicProfile.email, undefined);
+    assert.equal((await ref.get()).data().followerCount, 999);
+  } finally {
+    await ref.delete();
+  }
+  await assertProfilesReady(adminDb);
 });
 
 test("song detail API revalidates permissions and does not disclose private album metadata", async () => {
@@ -2080,15 +2208,15 @@ test("song detail API revalidates permissions and does not disclose private albu
     artistId: "local-artist-01",
     title: "Private album secret",
     isPublic: false,
-    isPublished: false,
+    isPublic: false,
   });
   await songRef.set({
     ...template,
     songId: songRef.id,
     artistId: "local-artist-01",
     albumId: albumRef.id,
-    visibility: "public",
-    isPublished: true,
+
+    isPublic: true,
   });
   const {
     getReadableSong,
@@ -2134,7 +2262,7 @@ test("song detail API revalidates permissions and does not disclose private albu
       JSON.stringify(publicSong),
       /Private album secret|email|@example/,
     );
-    await songRef.update({ visibility: "private", isPublished: false });
+    await songRef.update({ isPublic: false });
     await assert.rejects(getReadableSong(songRef.id), {
       status: 403,
       code: "permission-denied",
@@ -2228,6 +2356,14 @@ test("playback API commits counts once, caps wall time, rejects private tracks a
     );
   const before = (await trackRef.get()).data();
   const receiptBefore = await receiptRef.get();
+  const shortId = sessionId + "-short";
+  const shortTrack = serverDb.doc("songs/local-song-001");
+  const shortHistory = serverDb.doc(`users/local-listener/history/${shortId}`);
+  const shortReceipt = serverDb.doc(
+    "users/local-listener/playReceipts/local-song-001",
+  );
+  const shortBefore = (await shortTrack.get()).data();
+  const shortReceiptBefore = await shortReceipt.get();
   const send = (body, id = sessionId) =>
     fetch(`${url}/playback/${id}`, {
       method: "POST",
@@ -2286,6 +2422,42 @@ test("playback API commits counts once, caps wall time, rejects private tracks a
       (await send({ ...start, songId: "local-song-004" })).status,
       409,
     );
+    // The 12-second fixture has the same duration as its generated WAV.
+    // Seeking to the end cannot qualify; covering >80% and reaching the end can.
+    await shortReceipt.delete();
+    const shortStart = { ...start, songId: shortTrack.id };
+    assert.equal(shortBefore.durationSeconds, 12);
+    assert.equal((await send(shortStart, shortId)).status, 200);
+    const skipped = await send(
+      { ...shortStart, sequence: 1, progressSeconds: 12 },
+      shortId,
+    );
+    assert.equal(skipped.status, 200);
+    assert.equal((await skipped.json()).completed, false);
+    clock += 10000;
+    const shortPacket = {
+      ...shortStart,
+      sequence: 2,
+      progressSeconds: 12,
+      ranges: [
+        [2, 4],
+        [4, 6],
+        [6, 8],
+        [8, 10],
+        [10, 12],
+      ],
+    };
+    for (let retry = 0; retry < 2; retry++) {
+      const played = await send(shortPacket, shortId);
+      assert.equal(played.status, 200);
+      const state = await played.json();
+      assert.equal(state.completed, true);
+      assert.equal(state.counted, true);
+    }
+    assert.equal(
+      (await shortTrack.get()).data().playCount,
+      shortBefore.playCount + 1,
+    );
   } finally {
     isolated.closeAllConnections();
     await new Promise((resolve) => isolated.close(resolve));
@@ -2293,6 +2465,11 @@ test("playback API commits counts once, caps wall time, rejects private tracks a
     if (receiptBefore.exists) await receiptRef.set(receiptBefore.data());
     else await receiptRef.delete();
     await historyRef.delete();
+    await shortTrack.set(shortBefore);
+    if (shortReceiptBefore.exists)
+      await shortReceipt.set(shortReceiptBefore.data());
+    else await shortReceipt.delete();
+    await shortHistory.delete();
   }
 });
 
@@ -2427,6 +2604,162 @@ test("M4 History uses stable document cursors across duplicate sessions and retu
   await signOut(auth);
   await assert.rejects(source(null, 10), /thay đổi/);
 });
+test("album/playlist create retries are atomic, scoped by UID, and reject changed payloads", async () => {
+  const { db: adminDb } =
+    require("../tools/local/environment.cjs").configureLocalAdmin();
+  const owner = await signInWithEmailAndPassword(
+    auth,
+    "local-listener@example.test",
+    PASSWORD,
+  );
+  const ownerToken = await owner.user.getIdToken();
+  const other = await signInWithEmailAndPassword(
+    auth,
+    "local-member@example.test",
+    PASSWORD,
+  );
+  const otherToken = await other.user.getIdToken();
+  const refs = [];
+  const post = (path, value, token, key) =>
+    fetch(base + path, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": key,
+      },
+      body: JSON.stringify(value),
+    });
+  try {
+    for (const [path, fields, titleField] of [
+      [
+        "/albums",
+        {
+          title: "Retry album",
+          description: "",
+          coverUrl: "",
+          isPublic: false,
+        },
+        "title",
+      ],
+      [
+        "/playlists",
+        { name: "Retry playlist", description: "", isPublic: false },
+        "name",
+      ],
+    ]) {
+      const key = `atomic-create-${path.slice(1)}`;
+      const responses = await Promise.all([
+        post(path, fields, ownerToken, key),
+        post(path, fields, ownerToken, key),
+      ]);
+      assert.deepEqual(
+        responses.map((r) => r.status),
+        [201, 201],
+      );
+      const results = await Promise.all(responses.map((r) => r.json()));
+      assert.equal(results[0].id, results[1].id);
+      const ref = adminDb.doc(
+        path === "/albums"
+          ? `albums/${results[0].id}`
+          : `users/local-listener/playlists/${results[0].id}`,
+      );
+      refs.push(ref);
+      const before = (await ref.get()).data();
+      assert.equal(
+        (
+          await post(
+            path,
+            { ...fields, [titleField]: "Different" },
+            ownerToken,
+            key,
+          )
+        ).status,
+        409,
+      );
+      assert.equal(
+        (await post(path, fields, ownerToken, "bad key")).status,
+        400,
+      );
+      const replay = await post(path, fields, ownerToken, key);
+      assert.equal(replay.status, 201);
+      assert.equal((await replay.json()).id, ref.id);
+      assert.equal(
+        (await ref.get()).data().createdAt.toMillis(),
+        before.createdAt.toMillis(),
+      );
+      const otherResponse = await post(path, fields, otherToken, key);
+      assert.equal(otherResponse.status, 201);
+      const otherId = (await otherResponse.json()).id;
+      assert.notEqual(otherId, ref.id);
+      refs.push(
+        adminDb.doc(
+          path === "/albums"
+            ? `albums/${otherId}`
+            : `users/local-member/playlists/${otherId}`,
+        ),
+      );
+      await ref.update({ [titleField]: "Edited after create" });
+      assert.equal((await post(path, fields, ownerToken, key)).status, 409);
+      assert.equal((await ref.get()).data()[titleField], "Edited after create");
+      const account = adminDb.doc("users/local-member");
+      await account.update({ active: false });
+      try {
+        assert.equal((await post(path, fields, otherToken, key)).status, 403);
+      } finally {
+        await account.update({ active: true });
+      }
+    }
+  } finally {
+    await Promise.all(refs.map((ref) => ref.delete()));
+    await signInWithEmailAndPassword(
+      auth,
+      "local-listener@example.test",
+      PASSWORD,
+    );
+  }
+});
+
+test("schema audit reads paginated Emulator roots and orphan subcollections without writing", async () => {
+  const { db: adminDb } =
+    require("../tools/local/environment.cjs").configureLocalAdmin();
+  const {
+    readAuditDocuments,
+    auditSchema,
+  } = require("../tools/backend/schema-audit.cjs");
+  const orphan = adminDb.doc(
+    "posts/audit-missing-parent/comments/audit-orphan",
+  );
+  await orphan.set({
+    ownerId: "local-listener",
+    content: "Keep me",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  try {
+    const before = await orphan.get();
+    const documents = await readAuditDocuments(adminDb, { pageSize: 37 });
+    const report = auditSchema(documents, {
+      mode: "emulator",
+      maxIssues: 5000,
+    });
+    assert.ok(report.scannedDocuments > 120);
+    assert.equal(report.readyToApply, false);
+    assert.ok(
+      report.issues.some(
+        (issue) => issue.path === orphan.path && issue.code === "orphan_parent",
+      ),
+    );
+    assert.deepEqual((await orphan.get()).data(), before.data());
+    assert.equal(
+      (await adminDb.doc("posts/audit-missing-parent").get()).exists,
+      false,
+    );
+  } finally {
+    await orphan.delete();
+  }
+});
+
 test("M4 retention keeps 1000 sessions under concurrent cleanup, preserves receipts and promoted sessions", async () => {
   const { db: adminDb } =
     require("../tools/local/environment.cjs").configureLocalAdmin();

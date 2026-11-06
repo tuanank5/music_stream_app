@@ -6,7 +6,6 @@
 //   album: string;
 //   cover: string;
 //   audioUrl: string;
-//   audioKey: string;
 //   durationSeconds: number;
 //   lyrics: string;
 //   active: boolean;
@@ -42,7 +41,6 @@
 // };
 
 //Update Date 10/30/2026
-export type Visibility = "public" | "unlisted" | "private" | "followers";
 
 export type Song = {
   id: string;
@@ -51,16 +49,14 @@ export type Song = {
   artistId: string;
   artistNames: string[];
   album: string;
-  albumId: string;
+  albumId: string | null;
   cover: string;
   audioUrl: string;
-  audioKey: string;
   durationSeconds: number;
   lyrics: string;
   genre: string[];
   playCount: number;
-  visibility: Visibility;
-  isPublished: boolean;
+  isPublic: boolean;
   active: boolean;
 };
 
@@ -80,8 +76,7 @@ export type Album = {
   artistId: string;
   artistName: string;
   coverUrl: string;
-  isPublished: boolean;
-  isPublic?: boolean;
+  isPublic: boolean;
   description?: string;
   songCount?: number;
   durationSeconds?: number;

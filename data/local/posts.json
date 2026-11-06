@@ -1,0 +1,11 @@
+[
+  {
+    "id": "local-post",
+    "ownerId": "local-artist-01",
+    "content": "Có những ngày, chỉ cần một giai điệu nhẹ nhàng cũng đủ khiến lòng mình bình yên hơn",
+    "songId": "local-song-000",
+    "active": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z"
+  }
+]

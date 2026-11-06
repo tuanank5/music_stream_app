@@ -1,6 +1,5 @@
 import type { Album, Artist, HistoryEntry, Song } from "../types/domain";
-export const publicSong = (song: Song) =>
-  song.active && song.isPublished && song.visibility === "public";
+export const publicSong = (song: Song) => song.active && song.isPublic;
 const rank = (a: Song, b: Song) =>
   b.playCount - a.playCount || a.id.localeCompare(b.id);
 export function seedValue(value: string) {
@@ -74,7 +73,7 @@ export function trendingAlbums(songs: Song[], albums: Album[]) {
     if (song.albumId)
       groups.set(song.albumId, [...(groups.get(song.albumId) ?? []), song]);
   return albums
-    .filter((album) => album.isPublished && groups.has(album.id))
+    .filter((album) => album.isPublic && groups.has(album.id))
     .map((album) => ({
       ...album,
       totalPlayCount: groups

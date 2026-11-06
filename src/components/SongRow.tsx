@@ -12,7 +12,7 @@ import { useAction } from "../hooks/useAction";
 import { changePlaylistSong } from "../services/libraryService";
 import { useFavoriteSong } from "../hooks/useFavoriteSong";
 import type { Song } from "../types/domain";
-import { formatDuration } from "../utils/validation";
+import { formatDuration, normalizeSearch } from "../utils/validation";
 import Artwork from "./Artwork";
 import {
   Action,
@@ -23,6 +23,7 @@ import {
   IconButton,
   MediaTitle,
   MediaSubtitle,
+  SearchField,
 } from "./UI";
 import { ModalPanel } from "./ui/ModalPanel";
 
@@ -47,6 +48,20 @@ export default function SongRow({
   const action = useAction();
   const [panel, setPanel] = useState<"actions" | "playlists" | "delete" | null>(
     null,
+  );
+  const [playlistQuery, setPlaylistQuery] = useState("");
+  const [playlistPage, setPlaylistPage] = useState(0);
+  const matchingPlaylists =
+    panel === "playlists"
+      ? data.playlists.filter((playlist) =>
+          normalizeSearch(`${playlist.name} ${playlist.description}`).includes(
+            normalizeSearch(playlistQuery),
+          ),
+        )
+      : [];
+  const currentPlaylistPage = Math.min(
+    playlistPage,
+    Math.max(0, Math.ceil(matchingPlaylists.length / 10) - 1),
   );
   const [cover, setCover] = useState<string | null>(null);
   const [removed, setRemoved] = useState(false);
@@ -156,7 +171,11 @@ export default function SongRow({
               <Button
                 title="Playlist"
                 variant="secondary"
-                onPress={() => setPanel("playlists")}
+                onPress={() => {
+                  setPlaylistQuery("");
+                  setPlaylistPage(0);
+                  setPanel("playlists");
+                }}
               />
               <Button
                 title="Chi tiết bài hát"
@@ -220,29 +239,39 @@ export default function SongRow({
             </>
           ) : (
             <>
-              {data.playlists.slice(0, 10).map((playlist) => (
-                <Button
-                  key={playlist.id}
-                  title={
-                    playlist.songIds.includes(song.id)
-                      ? `${playlist.name} · Gỡ khỏi Playlist`
-                      : playlist.name
-                  }
-                  disabled={action.busy}
-                  onPress={() => {
-                    if (!user) return;
-                    void action.run(async () => {
-                      await changePlaylistSong(
-                        user.uid,
-                        playlist.id,
-                        song.id,
-                        !playlist.songIds.includes(song.id),
-                      );
-                      setPanel(null);
-                    });
-                  }}
-                />
-              ))}
+              <SearchField
+                value={playlistQuery}
+                onChange={(value) => {
+                  setPlaylistQuery(value);
+                  setPlaylistPage(0);
+                }}
+                placeholder="Tìm playlist của bạn"
+              />
+              {matchingPlaylists
+                .slice(currentPlaylistPage * 10, (currentPlaylistPage + 1) * 10)
+                .map((playlist) => (
+                  <Button
+                    key={playlist.id}
+                    title={
+                      playlist.songIds.includes(song.id)
+                        ? `${playlist.name} · Gỡ khỏi Playlist`
+                        : `${playlist.name} · ${playlist.songIds.length} bài hát`
+                    }
+                    disabled={action.busy}
+                    onPress={() => {
+                      if (!user) return;
+                      void action.run(async () => {
+                        await changePlaylistSong(
+                          user.uid,
+                          playlist.id,
+                          song.id,
+                          !playlist.songIds.includes(song.id),
+                        );
+                        setPanel(null);
+                      });
+                    }}
+                  />
+                ))}
               {!data.playlists.length && (
                 <Button
                   title="Tạo playlist trước"
@@ -252,11 +281,28 @@ export default function SongRow({
                   }}
                 />
               )}
-              {data.playlists.length > 10 && (
-                <AppText variant="caption">
-                  Hiển thị 10 playlist đầu trong hộp chọn.
-                </AppText>
-              )}
+              {data.playlists.length > 0 && !matchingPlaylists.length ? (
+                <AppText>Không tìm thấy playlist.</AppText>
+              ) : null}
+              {matchingPlaylists.length > 10 ? (
+                <XStack gap="2">
+                  <Button
+                    title="Trang trước"
+                    variant="secondary"
+                    disabled={action.busy || currentPlaylistPage === 0}
+                    onPress={() => setPlaylistPage(currentPlaylistPage - 1)}
+                  />
+                  <Button
+                    title="Trang tiếp"
+                    variant="secondary"
+                    disabled={
+                      action.busy ||
+                      (currentPlaylistPage + 1) * 10 >= matchingPlaylists.length
+                    }
+                    onPress={() => setPlaylistPage(currentPlaylistPage + 1)}
+                  />
+                </XStack>
+              ) : null}
               <Button
                 title="Quay lại thao tác"
                 variant="secondary"

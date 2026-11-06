@@ -3,6 +3,10 @@ const fs = require("node:fs");
 const crypto = require("node:crypto");
 const path = require("node:path");
 const args = process.argv.slice(2);
+if (args.includes("--apply"))
+  throw new Error(
+    "Legacy v2 writes are retired. Use tools/migrate-target-schema.cjs for the validated target-schema workflow (local apply only).",
+  );
 const option = (name) => args[args.indexOf(name) + 1];
 const projectId = args.includes("--project") ? option("--project") : "";
 if (!projectId || projectId.startsWith("--"))
@@ -158,7 +162,6 @@ async function main() {
       albumTitle,
       coverUrl: String(x.coverUrl ?? x.cover ?? ""),
       audioUrl: String(x.audioUrl || ""),
-      audioKey: String(x.audioKey || ""),
       durationSeconds: Number(x.durationSeconds || 0),
       genre: genre.length ? genre : ["Other"],
       lyric: String(x.lyric ?? x.lyrics ?? ""),
@@ -325,13 +328,11 @@ async function main() {
       b.set(db.doc(ref), data, { merge: true });
     await b.commit();
   }
-  await db
-    .doc("migrations/schema-v2")
-    .set({
-      completedAt: admin.firestore.FieldValue.serverTimestamp(),
-      backup: file,
-      writes: entries.size,
-    });
+  await db.doc("migrations/schema-v2").set({
+    completedAt: admin.firestore.FieldValue.serverTimestamp(),
+    backup: file,
+    writes: entries.size,
+  });
   console.log(
     "Đã chuyển schema. Chưa deploy Rules. Giữ ứng dụng dừng cho đến khi đổi code + Rules xong.",
   );

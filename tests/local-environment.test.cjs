@@ -7,6 +7,7 @@ const {
 } = require("../src/services/firebase/runtime.ts");
 const { localEnvironment } = require("../tools/local/environment.cjs");
 const { buildFixtures } = require("../tools/local/fixtures.cjs");
+const { audioSourceUri } = require("../src/utils/audioSource.ts");
 const local = {
   EXPO_PUBLIC_FIREBASE_MODE: "emulator",
   EXPO_PUBLIC_FIREBASE_PROJECT_ID: "demo-music-stream",
@@ -15,6 +16,41 @@ const local = {
   EXPO_PUBLIC_FIRESTORE_EMULATOR_PORT: "8080",
   EXPO_PUBLIC_BACKEND_URL: "http://127.0.0.1:8787",
 };
+
+test("audio URLs resolve demo paths against the configured LAN/isolated backend only in emulator mode", () => {
+  for (const backendUrl of [
+    "http://192.168.1.15:8787",
+    "http://127.0.0.1:34567",
+  ]) {
+    assert.equal(
+      audioSourceUri("/local-audio/sample-short.wav", {
+        mode: "emulator",
+        backendUrl,
+      }),
+      backendUrl + "/local-audio/sample-short.wav",
+    );
+  }
+  assert.equal(
+    audioSourceUri("/local-audio/sample-short.wav", {
+      mode: "cloud",
+      backendUrl: "https://api.example.test",
+    }),
+    null,
+  );
+  for (const source of [
+    "",
+    "demo1",
+    "file:///audio.wav",
+    "http://example.test/audio.wav",
+    "/local-audio/../../secret",
+    "https://user:password@example.test/audio.mp3",
+  ])
+    assert.equal(audioSourceUri(source), null);
+  assert.equal(
+    audioSourceUri("https://example.test/audio.mp3"),
+    "https://example.test/audio.mp3",
+  );
+});
 
 test("client fails closed for absent/mixed mode, missing hosts/ports, or a real project in local mode", () => {
   for (const env of [
@@ -99,7 +135,7 @@ test("Admin tooling refuses production project and remote/malformed emulator add
   assert.equal(localEnvironment({}).GCLOUD_PROJECT, "demo-music-stream");
 });
 
-test("actual upload service rejects local uploads before any fetch", async () => {
+test("local upload service rejects external source URLs before any fetch", async () => {
   const previous = { ...process.env };
   Object.assign(process.env, local);
   const fetch = global.fetch;
@@ -119,7 +155,7 @@ test("actual upload service rejects local uploads before any fetch", async () =>
         },
         "image",
       ),
-      /Cloudinary đã tắt/,
+      /File local/,
     );
     assert.equal(requests, 0);
   } finally {
@@ -131,7 +167,7 @@ test("actual upload service rejects local uploads before any fetch", async () =>
   }
 });
 
-test("fixtures use bundled audio/no remote media, valid album ownership, and repeated history across pages", () => {
+test("fixtures use local WAV URLs with measured duration, valid ownership and repeated history", () => {
   const { users, documents } = buildFixtures();
   const index = new Map(documents.map((d) => [d.path, d.data]));
   assert.equal(index.size, documents.length);
@@ -145,8 +181,23 @@ test("fixtures use bundled audio/no remote media, valid album ownership, and rep
     ).length > 50,
   );
   for (const { path, data } of documents) {
-    for (const key of ["coverUrl", "avatarUrl", "audioUrl"])
+    for (const key of ["coverUrl", "avatarUrl"])
       if (key in data) assert.equal(data[key], "");
+    if (path.startsWith("songs/")) {
+      const { demoAudio } = require("../tools/local/demo-audio.cjs");
+      const wav = demoAudio(data.audioUrl);
+      assert.ok(wav);
+      assert.equal(
+        data.durationSeconds,
+        wav.readUInt32LE(40) / wav.readUInt32LE(28),
+      );
+      assert.equal(Object.hasOwn(data, "audioKey"), false);
+    }
+    if (path.includes("/history/"))
+      assert.equal(
+        data.durationSeconds,
+        index.get(`songs/${data.songId}`).durationSeconds,
+      );
     if (path.startsWith("songs/") && data.albumId)
       assert.equal(index.get(`albums/${data.albumId}`).artistId, data.artistId);
   }

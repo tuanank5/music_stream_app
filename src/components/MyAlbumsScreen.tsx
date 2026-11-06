@@ -1,4 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { createRequestCache } from "../utils/createRequest";
+import { newSongId } from "../services/catalogService";
 import * as ImagePicker from "expo-image-picker";
 import { getFirebaseAuth } from "../services/firebase";
 import { uploadMedia } from "../services/mediaUploadService";
@@ -45,6 +47,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
     300,
   );
   const action = useAction();
+  const createRequest = useRef(createRequestCache(newSongId));
   const [panel, setPanel] = useState<"actions" | "form" | "delete" | null>(
     null,
   );
@@ -57,12 +60,13 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
     row.kind === "album" ? [row.item] : [],
   );
   const edit = (album: Album | null) => {
+    createRequest.current.reset();
     action.setError("");
     setSelected(album);
     setTitle(album?.title || "");
     setDescription(album?.description || "");
     setCoverUrl(album?.coverUrl || "");
-    setPublic(album?.isPublic ?? album?.isPublished ?? false);
+    setPublic(album?.isPublic ?? false);
     setPanel("form");
   };
   return (
@@ -247,7 +251,15 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
                         `/albums/${encodeURIComponent(selected.id)}`,
                         fields,
                       );
-                    else await backendPost("/albums", fields);
+                    else {
+                      const uid = getFirebaseAuth().currentUser?.uid;
+                      if (!uid) throw new Error("Cần đăng nhập.");
+                      await backendPost(
+                        "/albums",
+                        fields,
+                        createRequest.current.key(uid, fields),
+                      );
+                    }
                     setPanel(null);
                     setRevision((value) => value + 1);
                   })
@@ -263,11 +275,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
                 onPress={() => edit(selected)}
               />
               <Button
-                title={
-                  (selected.isPublic ?? selected.isPublished)
-                    ? "Riêng tư"
-                    : "Công khai"
-                }
+                title={selected.isPublic ? "Riêng tư" : "Công khai"}
                 variant="secondary"
                 disabled={action.busy}
                 onPress={() =>
@@ -278,7 +286,7 @@ export default function MyAlbumsScreen({ onSongs }: { onSongs: () => void }) {
                         title: selected.title,
                         description: selected.description || "",
                         coverUrl: selected.coverUrl,
-                        isPublic: !(selected.isPublic ?? selected.isPublished),
+                        isPublic: !selected.isPublic,
                       },
                     );
                     setPanel(null);

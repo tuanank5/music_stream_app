@@ -1,7 +1,8 @@
 const { FieldValue } = require("firebase-admin/firestore");
 const { validateGenres } = require("../../src/utils/genres.ts");
+const { imageUrl, localMediaPath, ownedMedia } = require("./local-media.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
-function validateSongInput(value) {
+function validateSongInput(value, { uid, mode } = {}) {
   if (
     !value ||
     Array.isArray(value) ||
@@ -32,7 +33,7 @@ function validateSongInput(value) {
     return value[key].trim();
   };
   const requestId = text("requestId", 128, true),
-    albumId = text("albumId", 128);
+    albumId = value.albumId === null ? null : text("albumId", 128);
   if (
     !/^[A-Za-z0-9_-]{20,128}$/.test(requestId) ||
     (albumId && !/^[A-Za-z0-9_-]{1,128}$/.test(albumId))
@@ -56,7 +57,8 @@ function validateSongInput(value) {
     throw fail(400, "Chọn 1–10 thể loại hợp lệ.");
   }
   const coverUrl = text("coverUrl", 2048);
-  if (coverUrl) {
+  imageUrl(coverUrl, uid, mode);
+  if (coverUrl && !localMediaPath(coverUrl)) {
     try {
       const url = new URL(coverUrl);
       if (url.protocol !== "https:" || url.username || url.password)
@@ -69,7 +71,7 @@ function validateSongInput(value) {
     requestId,
     title: text("title", 150, true),
     artistNames: value.artistNames.map((name) => name.trim()),
-    albumId,
+    albumId: albumId || null,
     coverUrl,
     genre,
     lyric: text("lyric", 12000),
@@ -78,12 +80,17 @@ function validateSongInput(value) {
     audioPublicId: text("audioPublicId", 512, true),
   };
 }
-async function createOwnedSong(db, uid, input, audio) {
+async function createOwnedSong(db, uid, input, audio, { local = false } = {}) {
+  const localAudio =
+    local &&
+    db.projectId.startsWith("demo-") &&
+    localMediaPath(audio.url) &&
+    ownedMedia(uid, audio.url, "audio");
   if (
     !Number.isFinite(audio.duration) ||
     audio.duration <= 0 ||
     audio.duration > 10800 ||
-    !audio.url?.startsWith("https://")
+    (!audio.url?.startsWith("https://") && !localAudio)
   )
     throw fail(400, "Metadata audio không hợp lệ.");
   const ref = db.doc(`songs/${input.requestId}`),
@@ -93,11 +100,17 @@ async function createOwnedSong(db, uid, input, audio) {
     if (!user.exists || user.data().active === false)
       throw fail(403, "Tài khoản không hoạt động.");
     if (existing.exists) {
-      if (existing.data().artistId !== uid)
+      const { requestId, ...requested } = input;
+      if (
+        existing.data().artistId !== uid ||
+        Object.entries(requested).some(
+          ([key, value]) =>
+            JSON.stringify(existing.data()[key]) !== JSON.stringify(value),
+        )
+      )
         throw fail(409, "ID yêu cầu đã được sử dụng.");
       return { id: ref.id, reused: true };
     }
-    let albumTitle = "";
     if (input.albumId) {
       const album = await tx.get(db.doc(`albums/${input.albumId}`));
       if (
@@ -106,7 +119,6 @@ async function createOwnedSong(db, uid, input, audio) {
         album.data().deleting
       )
         throw fail(409, "Album không khả dụng hoặc không thuộc bạn.");
-      albumTitle = album.data().title || "";
     }
     const uploads = await tx.get(
       db
@@ -128,15 +140,11 @@ async function createOwnedSong(db, uid, input, audio) {
     const { requestId, ...fields } = input;
     tx.create(ref, {
       ...fields,
-      songId: ref.id,
       artistId: uid,
-      albumTitle,
+      coverPublicId: null,
       audioUrl: audio.url,
       durationSeconds: audio.duration,
-      audioKey: "",
       active: true,
-      visibility: input.isPublic ? "public" : "private",
-      isPublished: input.isPublic,
       playCount: 0,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),

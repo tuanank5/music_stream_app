@@ -74,7 +74,7 @@ export function subscribePrivateList<T extends { id: string }>(
     const artist = path === "/catalog/artists";
     const album = path === "/catalog/albums";
     const follower =
-      path.startsWith("/catalog/follower-songs/") &&
+      path.startsWith("/catalog/followed-artist-songs/") &&
       changedPath === `/following/${path.split("/").at(-1)}`;
     const detail =
       path.startsWith("/song-items/") &&

@@ -25,7 +25,7 @@ function body(value, comment, create) {
     if (typeof value.songId !== "string")
       throw fail(400, "Bài hát không hợp lệ.");
     if (value.songId) id(value.songId);
-    fields.songId = value.songId;
+    fields.songId = value.songId || null;
   }
   return fields;
 }
@@ -81,10 +81,7 @@ function createFeedRouter({ db }) {
         if (
           !track ||
           track.active !== true ||
-          !(
-            track.isPublic ??
-            (track.visibility === "public" && track.isPublished === true)
-          ) ||
+          track.isPublic !== true ||
           !artist?.exists ||
           artist.data().active === false
         )
@@ -186,25 +183,27 @@ function createFeedRouter({ db }) {
           !artist.exists ||
           artist.data().active === false ||
           value.active !== true ||
-          !(
-            value.isPublic ??
-            (value.visibility === "public" && value.isPublished === true)
-          )
+          value.isPublic !== true
         )
           throw fail(403, "Chỉ chia sẻ bài hát công khai còn khả dụng.");
       }
       if (remove) {
         if (comment) tx.delete(ref);
-        else tx.update(ref, { active: false });
+        else
+          tx.update(ref, {
+            active: false,
+            updatedAt: FieldValue.serverTimestamp(),
+          });
       } else if (create) {
         tx.create(ref, {
           ...fields,
           ownerId: uid,
-          authorName: account.data().displayName || "Người dùng",
           ...(!comment ? { active: true } : {}),
           createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
         });
-      } else tx.update(ref, fields);
+      } else
+        tx.update(ref, { ...fields, updatedAt: FieldValue.serverTimestamp() });
     });
     res.status(create ? 201 : 200).json({ id: ref.id });
   };

@@ -44,15 +44,7 @@ function createSocialRouter({ db }) {
       if (!song.exists) throw fail(404, "Bài hát không còn khả dụng.");
       const value = song.data();
       const artist = await tx.get(db.doc(`users/${value.artistId}`));
-      let readable =
-        value.artistId === uid ||
-        (value.isPublic ??
-          (value.visibility === "public" && value.isPublished === true)) ||
-        value.visibility === "unlisted";
-      if (!readable && value.visibility === "followers")
-        readable = (
-          await tx.get(db.doc(`users/${uid}/following/${value.artistId}`))
-        ).exists;
+      const readable = value.artistId === uid || value.isPublic === true;
       if (
         !artist.exists ||
         artist.data().active === false ||
@@ -63,7 +55,6 @@ function createSocialRouter({ db }) {
       const previous = await tx.get(ref);
       if (!previous.exists)
         tx.create(ref, {
-          songId: id,
           favoritedAt: FieldValue.serverTimestamp(),
         });
     });
@@ -76,23 +67,20 @@ function createSocialRouter({ db }) {
     if (uid === target) throw fail(400, "Không thể tự theo dõi.");
     const ref = db.doc(`users/${uid}/following/${target}`);
     const counters = await db.runTransaction(async (tx) => {
-      await activeAccount(tx, db, uid);
-      const [relation, account, ownProfile, targetProfile] = await Promise.all([
+      const [relation, account, ownProfile] = await Promise.all([
         tx.get(ref),
         tx.get(db.doc(`users/${target}`)),
-        tx.get(db.doc(`publicProfiles/${uid}`)),
-        tx.get(db.doc(`publicProfiles/${target}`)),
+        tx.get(db.doc(`users/${uid}`)),
       ]);
-      if (add && (!account.exists || !targetProfile.exists))
-        throw fail(404, "Không tìm thấy nghệ sĩ.");
+      if (!ownProfile.exists || ownProfile.data().active === false)
+        throw fail(403, "Tài khoản không hoạt động.");
+      if (add && !account.exists) throw fail(404, "Không tìm thấy nghệ sĩ.");
       if (add && account.data().active === false)
         throw fail(403, "Tài khoản này không còn hoạt động.");
-      if (!ownProfile.exists || (relation.exists && !targetProfile.exists))
+      if (relation.exists && !account.exists)
         throw fail(409, "Hồ sơ chưa sẵn sàng. Hãy tải lại.");
       const ownCount = ownProfile.data().followingCount;
-      const targetCount = targetProfile.exists
-        ? targetProfile.data().followerCount
-        : 0;
+      const targetCount = account.exists ? account.data().followerCount : 0;
       const delta = relation.exists === add ? 0 : add ? 1 : -1;
       if (
         ![ownCount, targetCount, ownCount + delta, targetCount + delta].every(
@@ -103,15 +91,13 @@ function createSocialRouter({ db }) {
       if (delta) {
         if (add)
           tx.create(ref, {
-            userId: target,
             followedAt: FieldValue.serverTimestamp(),
           });
         else tx.delete(ref);
-        tx.update(db.doc(`publicProfiles/${uid}`), {
+        tx.update(db.doc(`users/${uid}`), {
           followingCount: ownCount + delta,
-          lastFollowingId: target,
         });
-        tx.update(db.doc(`publicProfiles/${target}`), {
+        tx.update(db.doc(`users/${target}`), {
           followerCount: targetCount + delta,
         });
       }

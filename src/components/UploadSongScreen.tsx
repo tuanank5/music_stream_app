@@ -10,8 +10,8 @@ import { createAlbum, newSongId } from "../services/catalogService";
 import { backendPost } from "../services/backendService";
 import { getFirebaseAuth } from "../services/firebase";
 import { PickedMedia, uploadMedia } from "../services/mediaUploadService";
-import { Visibility } from "../types/domain";
 import { GENRES, validateGenres } from "../utils/genres";
+import { createRequestCache } from "../utils/createRequest";
 import { ModalPanel } from "./ui/ModalPanel";
 import { BackButton } from "./discovery/BackButton";
 import {
@@ -27,17 +27,17 @@ import {
   SurfaceCard,
 } from "./UI";
 const options: {
-  value: Visibility;
+  value: boolean;
   title: string;
   note: string;
 }[] = [
   {
-    value: "public",
+    value: true,
     title: "Công khai",
     note: "Hiển thị trong tìm kiếm, Charts và đề xuất.",
   },
   {
-    value: "private",
+    value: false,
     title: "Riêng tư",
     note: "Chỉ bạn được xem trong ứng dụng.",
   },
@@ -46,6 +46,7 @@ export default function UploadSongScreen() {
   const { user } = useAuth();
   const data = useCatalogData();
   const action = useAction();
+  const albumRequest = useRef(createRequestCache(newSongId));
   const [audio, setAudio] = useState<PickedMedia | null>(null);
   const [image, setImage] = useState<PickedMedia | null>(null);
   const [title, setTitle] = useState("");
@@ -56,7 +57,7 @@ export default function UploadSongScreen() {
   const [artists, setArtists] = useState(user?.displayName || "Music lover");
   const [albumId, setAlbumId] = useState("");
   const [newAlbum, setNewAlbum] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("public");
+  const [isPublic, setPublic] = useState(true);
   const [message, setMessage] = useState("");
   const cache = useRef<{
     audioUri?: string;
@@ -161,14 +162,21 @@ export default function UploadSongScreen() {
       checkSession();
     }
     if (!saved.duration || saved.duration <= 0) {
-      throw new Error("Cloudinary chưa trả về thời lượng âm thanh hợp lệ.");
+      throw new Error("Máy chủ chưa trả về thời lượng âm thanh hợp lệ.");
     }
     let selectedAlbum = albumId;
     checkSession();
     if (newAlbum.trim()) {
       const key = newAlbum.trim();
       if (saved.albumKey !== key) {
-        saved.albumId = await createAlbum(key, saved.coverUrl || "");
+        saved.albumId = await createAlbum(
+          key,
+          saved.coverUrl || "",
+          albumRequest.current.key(user.uid, {
+            title: key,
+            coverUrl: saved.coverUrl || "",
+          }),
+        );
         checkSession();
         saved.albumKey = key;
       }
@@ -187,7 +195,7 @@ export default function UploadSongScreen() {
       lyric,
       description,
       genre: selectedGenres,
-      isPublic: visibility === "public",
+      isPublic,
     });
     const id = result.id;
     saved.savedId = id;
@@ -327,11 +335,11 @@ export default function UploadSongScreen() {
 
       {options.map((option) => (
         <Action
-          key={option.value}
+          key={String(option.value)}
           role="radio"
-          aria-checked={visibility === option.value}
+          aria-checked={isPublic === option.value}
           disabled={action.busy}
-          onPress={() => setVisibility(option.value)}
+          onPress={() => setPublic(option.value)}
           backgroundColor="surface"
           padding="4"
           borderRadius={14}
@@ -349,8 +357,8 @@ export default function UploadSongScreen() {
           </YStack>
 
           <AppIcon
-            name={visibility === option.value ? "radio-on" : "radio-off"}
-            color={visibility === option.value ? "focusRing" : "textMuted"}
+            name={isPublic === option.value ? "radio-on" : "radio-off"}
+            color={isPublic === option.value ? "focusRing" : "textMuted"}
             size={24}
           />
         </Action>

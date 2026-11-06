@@ -1,0 +1,3139 @@
+[
+  {
+    "id": "local-song-000",
+    "title": "Chạm vào bình yên",
+    "artistId": "local-artist-01",
+    "artistNames": [
+      "Nguyễn Minh An"
+    ],
+    "albumId": "local-album-0",
+    "coverUrl": "https://picsum.photos/seed/local-song-000/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p01.mp3",
+    "durationSeconds": 276,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu trong trẻo gợi nhớ những khoảnh khắc bình yên và giản dị mỗi ngày.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 0,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-001",
+    "title": "Khi mưa ngừng rơi",
+    "artistId": "local-artist-02",
+    "artistNames": [
+      "Trần Linh Chi"
+    ],
+    "albumId": "local-album-1",
+    "coverUrl": "https://picsum.photos/seed/local-song-001/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p02.mp3",
+    "durationSeconds": 144,
+    "genre": [
+      "Nhạc không lời",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nốt nhạc nhẹ nhàng như khoảng trời sáng lên sau một cơn mưa.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 37,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-002",
+    "title": "Chuyến xe qua hoàng hôn",
+    "artistId": "local-artist-03",
+    "artistNames": [
+      "Lê Hoàng Nam"
+    ],
+    "albumId": "local-album-2",
+    "coverUrl": "https://picsum.photos/seed/local-song-002/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p03.mp3",
+    "durationSeconds": 260,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Âm thanh dìu dịu của một chuyến đi lúc chiều muộn, mang theo cảm giác trở về.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 74,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-003",
+    "title": "Hạ còn trong mắt",
+    "artistId": "local-artist-04",
+    "artistNames": [
+      "Phạm Hạ Vy"
+    ],
+    "albumId": "local-album-3",
+    "coverUrl": "https://picsum.photos/seed/local-song-003/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p04.mp3",
+    "durationSeconds": 222,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một chút nắng mùa hạ, một chút bâng khuâng của những năm tháng tuổi trẻ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 111,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-004",
+    "title": "Góc phố lên đèn",
+    "artistId": "local-artist-05",
+    "artistNames": [
+      "Đỗ Bảo Minh"
+    ],
+    "albumId": "local-album-4",
+    "coverUrl": "https://picsum.photos/seed/local-song-004/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p05.mp3",
+    "durationSeconds": 170,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Nhịp điệu thành phố về đêm, giữa ánh đèn và những khoảng lặng riêng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 148,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-005",
+    "title": "Giấc mơ buổi sớm",
+    "artistId": "local-artist-06",
+    "artistNames": [
+      "Võ Thanh Lam"
+    ],
+    "albumId": "local-album-5",
+    "coverUrl": "https://picsum.photos/seed/local-song-005/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p06.mp3",
+    "durationSeconds": 166,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu êm ái cho buổi sớm chậm rãi và những khởi đầu mới.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 185,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-006",
+    "title": "Những mùa đã qua",
+    "artistId": "local-artist-07",
+    "artistNames": [
+      "Nguyễn Gia Huy"
+    ],
+    "albumId": "local-album-6",
+    "coverUrl": "https://picsum.photos/seed/local-song-006/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p07.mp3",
+    "durationSeconds": 263,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc nhạc giữ lại ký ức của những mùa đã đi qua.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 222,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-007",
+    "title": "Những bức thư chưa gửi",
+    "artistId": "local-artist-08",
+    "artistNames": [
+      "Phan Khánh Linh"
+    ],
+    "albumId": "local-album-7",
+    "coverUrl": "https://picsum.photos/seed/local-song-007/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p08.mp3",
+    "durationSeconds": 139,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những cảm xúc còn dang dở được gửi vào từng nốt nhạc nhẹ nhàng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 259,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-008",
+    "title": "Gió qua hiên nhà",
+    "artistId": "local-artist-09",
+    "artistNames": [
+      "Trần Quang Hải"
+    ],
+    "albumId": "local-album-8",
+    "coverUrl": "https://picsum.photos/seed/local-song-008/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p09.mp3",
+    "durationSeconds": 131,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Làn gió quen thuộc, chiếc hiên nhỏ và cảm giác được trở về nhà.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 296,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-009",
+    "title": "Dọc đường về",
+    "artistId": "local-artist-10",
+    "artistNames": [
+      "Lê Thảo Nguyên"
+    ],
+    "albumId": "local-album-9",
+    "coverUrl": "https://picsum.photos/seed/local-song-009/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p10.mp3",
+    "durationSeconds": 202,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Từng nốt nhạc như một bước chân trên con đường trở về thân thuộc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 333,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-010",
+    "title": "Chào ngày mới",
+    "artistId": "local-artist-11",
+    "artistNames": [
+      "Phạm Đức Anh"
+    ],
+    "albumId": "local-album-10",
+    "coverUrl": "https://picsum.photos/seed/local-song-010/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p11.mp3",
+    "durationSeconds": 173,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khởi đầu mới, mang theo niềm vui và những điều đáng mong chờ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 370,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-011",
+    "title": "Mây và nắng",
+    "artistId": "local-artist-12",
+    "artistNames": [
+      "Nguyễn Mai Phương"
+    ],
+    "albumId": "local-album-11",
+    "coverUrl": "https://picsum.photos/seed/local-song-011/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p12.mp3",
+    "durationSeconds": 127,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu piano nhẹ nhàng dành cho những ngày nắng xen lẫn mây.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 407,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-012",
+    "title": "Bên cửa sổ",
+    "artistId": "local-artist-13",
+    "artistNames": [
+      "Đặng Tuấn Kiệt"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-012/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p13.mp3",
+    "durationSeconds": 272,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khoảng lặng bên cửa sổ, nơi những ý tưởng mới bắt đầu.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 444,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-013",
+    "title": "Lời chưa nói",
+    "artistId": "local-artist-14",
+    "artistNames": [
+      "Trần Ngọc Anh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-013/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p14.mp3",
+    "durationSeconds": 242,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Có những điều chưa nói, chỉ còn đọng lại trong một giai điệu.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 481,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-014",
+    "title": "Sáng chủ nhật",
+    "artistId": "local-artist-15",
+    "artistNames": [
+      "Lê Hải Đăng"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-014/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p15.mp3",
+    "durationSeconds": 197,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Sáng chủ nhật chậm rãi với tiếng đàn và chút nắng ngoài hiên.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 518,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-015",
+    "title": "Chạm vào ngày mới",
+    "artistId": "local-artist-16",
+    "artistNames": [
+      "Nguyễn Thu Hà"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-015/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p16.mp3",
+    "durationSeconds": 219,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một lời chào dịu dàng gửi đến ngày mới và những hy vọng nhỏ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 555,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-016",
+    "title": "Qua miền ký ức",
+    "artistId": "local-artist-17",
+    "artistNames": [
+      "Phạm Nhật Minh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-016/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p17.mp3",
+    "durationSeconds": 128,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những ký ức cũ trở về qua từng phím đàn và khoảng lặng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 592,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-017",
+    "title": "Tách cà phê nguội",
+    "artistId": "local-artist-18",
+    "artistNames": [
+      "Võ Diệu Linh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-017/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p18.mp3",
+    "durationSeconds": 185,
+    "genre": [
+      "Nhạc không lời",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tách cà phê đã nguội, nhưng những câu chuyện vẫn còn ấm áp.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 629,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-018",
+    "title": "Về nhà thôi",
+    "artistId": "local-artist-19",
+    "artistNames": [
+      "Trần Anh Khoa"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-018/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p19.mp3",
+    "durationSeconds": 131,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Trên đường trở về, mọi điều bỗng trở nên gần gũi hơn.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 666,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-019",
+    "title": "Một chút dịu dàng",
+    "artistId": "local-artist-20",
+    "artistNames": [
+      "Đỗ Phương Thảo"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-019/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p20.mp3",
+    "durationSeconds": 177,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một giai điệu nhẹ như lời nhắn dành cho những ngày cần bình yên.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 703,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-020",
+    "title": "Mùa lá thay",
+    "artistId": "local-artist-21",
+    "artistNames": [
+      "Nguyễn Trung Hiếu"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-020/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p21.mp3",
+    "durationSeconds": 159,
+    "genre": [
+      "Nhạc không lời",
+      "Jazz"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Mùa thay lá, những cảm xúc quen thuộc cũng dần đổi khác.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 740,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-021",
+    "title": "Giữa dòng người",
+    "artistId": "local-artist-22",
+    "artistNames": [
+      "Lê Ánh Dương"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-021/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p22.mp3",
+    "durationSeconds": 138,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những phím đàn đưa ta qua nhịp sống đông vui và một thoáng lặng giữa phố phường.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 777,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-022",
+    "title": "Bước chân mùa thu",
+    "artistId": "local-artist-23",
+    "artistNames": [
+      "Phạm Đình Phong"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-022/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p23.mp3",
+    "durationSeconds": 221,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Bản piano nhẹ nhàng mang cảm giác bước qua những con đường phủ sắc thu.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 814,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-023",
+    "title": "Nghe mưa kể chuyện",
+    "artistId": "local-artist-24",
+    "artistNames": [
+      "Trần Yến Nhi"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-023/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p24.mp3",
+    "durationSeconds": 121,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu tựa tiếng mưa khẽ rơi, giữ lại những chuyện nhỏ chưa kịp kể.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 851,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-024",
+    "title": "Nắng cuối sân",
+    "artistId": "local-artist-01",
+    "artistNames": [
+      "Nguyễn Minh An"
+    ],
+    "albumId": "local-album-0",
+    "coverUrl": "https://picsum.photos/seed/local-song-024/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p25.mp3",
+    "durationSeconds": 148,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Ánh nắng cuối ngày vương nơi sân cũ, gợi nhớ những điều bình dị và thân quen.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 888,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-025",
+    "title": "Đêm bên sông",
+    "artistId": "local-artist-02",
+    "artistNames": [
+      "Trần Linh Chi"
+    ],
+    "albumId": "local-album-1",
+    "coverUrl": "https://picsum.photos/seed/local-song-025/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p26.mp3",
+    "durationSeconds": 187,
+    "genre": [
+      "Nhạc không lời",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Không gian đêm tĩnh lặng bên dòng sông, nơi những suy nghĩ trôi theo ánh nước.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 925,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-026",
+    "title": "Đường dài có nhau",
+    "artistId": "local-artist-03",
+    "artistNames": [
+      "Lê Hoàng Nam"
+    ],
+    "albumId": "local-album-2",
+    "coverUrl": "https://picsum.photos/seed/local-song-026/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p27.mp3",
+    "durationSeconds": 144,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một hành trình dài qua nhiều miền ký ức, với niềm tin rằng luôn có người đồng hành.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 962,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-027",
+    "title": "Lá thư tháng sáu",
+    "artistId": "local-artist-04",
+    "artistNames": [
+      "Phạm Hạ Vy"
+    ],
+    "albumId": "local-album-3",
+    "coverUrl": "https://picsum.photos/seed/local-song-027/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p28.mp3",
+    "durationSeconds": 298,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nốt đàn trong trẻo lưu giữ cái nắng tháng sáu và cảm xúc tuổi học trò.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 999,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-028",
+    "title": "Ngày không vội",
+    "artistId": "local-artist-05",
+    "artistNames": [
+      "Đỗ Bảo Minh"
+    ],
+    "albumId": "local-album-4",
+    "coverUrl": "https://picsum.photos/seed/local-song-028/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p29.mp3",
+    "durationSeconds": 231,
+    "genre": [
+      "Nhạc không lời",
+      "EDM"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một chút thư thái giữa thành phố náo nhiệt, để tâm trí thong thả theo từng nốt nhạc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 36,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-029",
+    "title": "Một miền an yên",
+    "artistId": "local-artist-06",
+    "artistNames": [
+      "Võ Thanh Lam"
+    ],
+    "albumId": "local-album-5",
+    "coverUrl": "https://picsum.photos/seed/local-song-029/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p30.mp3",
+    "durationSeconds": 114,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Khúc piano êm dịu như lời mời trở về với những giây phút an yên.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 73,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-030",
+    "title": "Dấu chân mùa cũ",
+    "artistId": "local-artist-07",
+    "artistNames": [
+      "Nguyễn Gia Huy"
+    ],
+    "albumId": "local-album-6",
+    "coverUrl": "https://picsum.photos/seed/local-song-030/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p31.mp3",
+    "durationSeconds": 148,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Ký ức những mùa đã qua trở lại nhẹ nhàng trong giai điệu chậm rãi.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 110,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-031",
+    "title": "Dòng cuối chưa viết",
+    "artistId": "local-artist-08",
+    "artistNames": [
+      "Phan Khánh Linh"
+    ],
+    "albumId": "local-album-7",
+    "coverUrl": "https://picsum.photos/seed/local-song-031/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p32.mp3",
+    "durationSeconds": 351,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những cảm xúc còn dang dở được gửi vào từng nốt nhạc nhẹ nhàng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 147,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-032",
+    "title": "Chiếc ghế bên hiên",
+    "artistId": "local-artist-09",
+    "artistNames": [
+      "Trần Quang Hải"
+    ],
+    "albumId": "local-album-8",
+    "coverUrl": "https://picsum.photos/seed/local-song-032/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p33.mp3",
+    "durationSeconds": 244,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Làn gió quen thuộc, chiếc hiên nhỏ và cảm giác được trở về nhà.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 184,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-033",
+    "title": "Hoàng hôn qua ô kính",
+    "artistId": "local-artist-10",
+    "artistNames": [
+      "Lê Thảo Nguyên"
+    ],
+    "albumId": "local-album-9",
+    "coverUrl": "https://picsum.photos/seed/local-song-033/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p34.mp3",
+    "durationSeconds": 257,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Từng nốt nhạc như một bước chân trên con đường trở về thân thuộc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 221,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-034",
+    "title": "Ánh nắng đầu tiên",
+    "artistId": "local-artist-11",
+    "artistNames": [
+      "Phạm Đức Anh"
+    ],
+    "albumId": "local-album-10",
+    "coverUrl": "https://picsum.photos/seed/local-song-034/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p35.mp3",
+    "durationSeconds": 126,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu tươi sáng dành cho một ngày mới đầy hy vọng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 258,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-035",
+    "title": "Khoảng trời dịu êm",
+    "artistId": "local-artist-12",
+    "artistNames": [
+      "Nguyễn Mai Phương"
+    ],
+    "albumId": "local-album-11",
+    "coverUrl": "https://picsum.photos/seed/local-song-035/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p36.mp3",
+    "durationSeconds": 202,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những sắc thái dịu dàng của nắng, mây và những khoảng lặng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 295,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-036",
+    "title": "Cánh cửa màu xanh",
+    "artistId": "local-artist-13",
+    "artistNames": [
+      "Đặng Tuấn Kiệt"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-036/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p37.mp3",
+    "durationSeconds": 180,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Lúc nghĩ về những điều giản dị thường bị bỏ quên, mình chỉ muốn viết một giai điệu thật giản dị. Mong bạn tìm thấy một chút bình yên khi nghe.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 332,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-037",
+    "title": "Mảnh ghép cuối cùng",
+    "artistId": "local-artist-14",
+    "artistNames": [
+      "Trần Ngọc Anh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-037/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p38.mp3",
+    "durationSeconds": 213,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Mình muốn dành vài phút trên phím đàn cho những buổi tối nhìn thành phố qua cửa sổ. Đây là một trong những ý tưởng mình thích nhất gần đây.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 369,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-038",
+    "title": "Chiều muộn ngoài hiên",
+    "artistId": "local-artist-15",
+    "artistNames": [
+      "Lê Hải Đăng"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-038/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p39.mp3",
+    "durationSeconds": 211,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Bản piano này là cách mình lưu lại một kỷ niệm nhỏ mà mình muốn giữ lại. Mình vẫn đang thử những cách kể chuyện mới bằng nhạc cụ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 406,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-039",
+    "title": "Đường về nhiều sao",
+    "artistId": "local-artist-16",
+    "artistNames": [
+      "Nguyễn Thu Hà"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-039/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p40.mp3",
+    "durationSeconds": 187,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Ý tưởng cho bản nhạc bắt đầu từ khoảnh khắc khi mọi chuyện dần trở nên nhẹ nhàng. Hy vọng giai điệu sẽ gợi ra câu chuyện của riêng bạn.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 443,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-040",
+    "title": "Phố nhỏ sau mưa",
+    "artistId": "local-artist-17",
+    "artistNames": [
+      "Phạm Nhật Minh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-040/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p41.mp3",
+    "durationSeconds": 88,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Ý tưởng cho bản nhạc bắt đầu từ một cuộc gặp gỡ tình cờ đã ở lại rất lâu. Cảm ơn bạn đã ghé nghe bản nhạc này.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 480,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-041",
+    "title": "Khoảng trời trong veo",
+    "artistId": "local-artist-18",
+    "artistNames": [
+      "Võ Diệu Linh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-041/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p42.mp3",
+    "durationSeconds": 509,
+    "genre": [
+      "Nhạc không lời",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những thanh âm mềm mại mở ra một khoảng trời sáng trong, thư thái.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 517,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-042",
+    "title": "Bên ô cửa nhỏ",
+    "artistId": "local-artist-19",
+    "artistNames": [
+      "Trần Anh Khoa"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-042/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p43.mp3",
+    "durationSeconds": 160,
+    "genre": [
+      "Nhạc không lời",
+      "Indie",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc nhạc giản dị dành cho những buổi chiều ngồi bên cửa sổ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 554,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-043",
+    "title": "Điều chưa kịp nói",
+    "artistId": "local-artist-20",
+    "artistNames": [
+      "Đỗ Phương Thảo"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-043/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p44.mp3",
+    "durationSeconds": 196,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu nhẹ nhàng gợi lên những tâm tư còn giữ trong lòng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 591,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-044",
+    "title": "Sáng chủ nhật",
+    "artistId": "local-artist-21",
+    "artistNames": [
+      "Nguyễn Trung Hiếu"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-044/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p45.mp3",
+    "durationSeconds": 148,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Nhịp điệu vui tươi cho một ngày nghỉ thong thả và đầy cảm hứng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 628,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-045",
+    "title": "Nắng chạm hiên nhà",
+    "artistId": "local-artist-22",
+    "artistNames": [
+      "Lê Ánh Dương"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-045/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p46.mp3",
+    "durationSeconds": 259,
+    "genre": [
+      "Nhạc không lời",
+      "Folk",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Ánh nắng đầu ngày khẽ chạm vào hiên, đánh thức những cảm xúc tươi mới.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 665,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-046",
+    "title": "Qua miền ký ức",
+    "artistId": "local-artist-23",
+    "artistNames": [
+      "Phạm Đình Phong"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-046/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p47.mp3",
+    "durationSeconds": 389,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn dẫn lối qua những miền ký ức thân quen và xa vắng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 702,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-047",
+    "title": "Một chiều rất khẽ",
+    "artistId": "local-artist-24",
+    "artistNames": [
+      "Trần Yến Nhi"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-047/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p48.mp3",
+    "durationSeconds": 184,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nốt nhạc trong trẻo ngân lên giữa một buổi chiều dịu dàng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 739,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-048",
+    "title": "Về nhà thôi",
+    "artistId": "local-artist-01",
+    "artistNames": [
+      "Nguyễn Minh An"
+    ],
+    "albumId": "local-album-0",
+    "coverUrl": "https://picsum.photos/seed/local-song-048/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p49.mp3",
+    "durationSeconds": 268,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu ấm áp gợi cảm giác trở về sau một ngày dài.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 776,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-049",
+    "title": "Sau những cơn mưa",
+    "artistId": "local-artist-02",
+    "artistNames": [
+      "Trần Linh Chi"
+    ],
+    "albumId": "local-album-1",
+    "coverUrl": "https://picsum.photos/seed/local-song-049/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p50.mp3",
+    "durationSeconds": 132,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khoảng lặng dịu dàng khi cơn mưa qua và lòng người dần nhẹ lại.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 813,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-050",
+    "title": "Chuyến xe qua mùa lá",
+    "artistId": "local-artist-03",
+    "artistNames": [
+      "Lê Hoàng Nam"
+    ],
+    "albumId": "local-album-2",
+    "coverUrl": "https://picsum.photos/seed/local-song-050/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p51.mp3",
+    "durationSeconds": 95,
+    "genre": [
+      "Nhạc không lời",
+      "Indie",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Chuyến đi ngắn mang theo sắc thu và những kỷ niệm cũ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 850,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-051",
+    "title": "Hạ về qua khung cửa",
+    "artistId": "local-artist-04",
+    "artistNames": [
+      "Phạm Hạ Vy"
+    ],
+    "albumId": "local-album-3",
+    "coverUrl": "https://picsum.photos/seed/local-song-051/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p52.mp3",
+    "durationSeconds": 155,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một thoáng mùa hạ trở lại qua những phím đàn nhẹ tênh.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 887,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-052",
+    "title": "Đèn khuya chưa tắt",
+    "artistId": "local-artist-05",
+    "artistNames": [
+      "Đỗ Bảo Minh"
+    ],
+    "albumId": "local-album-4",
+    "coverUrl": "https://picsum.photos/seed/local-song-052/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p53.mp3",
+    "durationSeconds": 142,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Ánh đèn đêm và nhịp sống thành phố được gợi lên qua giai điệu chậm rãi.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 924,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-053",
+    "title": "Khoảng lặng đầu ngày",
+    "artistId": "local-artist-06",
+    "artistNames": [
+      "Võ Thanh Lam"
+    ],
+    "albumId": "local-album-5",
+    "coverUrl": "https://picsum.photos/seed/local-song-053/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p54.mp3",
+    "durationSeconds": 103,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Khoảng lặng dịu êm mở đầu một ngày mới.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 961,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-054",
+    "title": "Lối cũ qua mùa",
+    "artistId": "local-artist-07",
+    "artistNames": [
+      "Nguyễn Gia Huy"
+    ],
+    "albumId": "local-album-6",
+    "coverUrl": "https://picsum.photos/seed/local-song-054/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p55.mp3",
+    "durationSeconds": 225,
+    "genre": [
+      "Nhạc không lời",
+      "Jazz"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu gợi nhắc lối về quen thuộc và những mùa đã xa.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 998,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-055",
+    "title": "Lá thư trong mưa",
+    "artistId": "local-artist-08",
+    "artistNames": [
+      "Phan Khánh Linh"
+    ],
+    "albumId": "local-album-7",
+    "coverUrl": "https://picsum.photos/seed/local-song-055/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p56.mp3",
+    "durationSeconds": 175,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một lá thư không lời gửi theo cơn mưa cuối chiều.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 35,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-056",
+    "title": "Gió chạm thềm nhà",
+    "artistId": "local-artist-09",
+    "artistNames": [
+      "Trần Quang Hải"
+    ],
+    "albumId": "local-album-8",
+    "coverUrl": "https://picsum.photos/seed/local-song-056/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p57.mp3",
+    "durationSeconds": 216,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Cơn gió thoảng qua hiên nhà mang theo cảm giác thân thuộc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 72,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-057",
+    "title": "Qua những con dốc",
+    "artistId": "local-artist-10",
+    "artistNames": [
+      "Lê Thảo Nguyên"
+    ],
+    "albumId": "local-album-9",
+    "coverUrl": "https://picsum.photos/seed/local-song-057/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p58.mp3",
+    "durationSeconds": 306,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nốt nhạc như bước chân trên đường về đầy kỷ niệm.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 109,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-058",
+    "title": "Những ngày xanh biếc",
+    "artistId": "local-artist-11",
+    "artistNames": [
+      "Phạm Đức Anh"
+    ],
+    "albumId": "local-album-10",
+    "coverUrl": "https://picsum.photos/seed/local-song-058/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g01.mp3",
+    "durationSeconds": 279,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Màu xanh của tuổi trẻ hiện lên qua giai điệu nhẹ nhàng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 146,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-059",
+    "title": "Một sáng trời trong",
+    "artistId": "local-artist-12",
+    "artistNames": [
+      "Nguyễn Mai Phương"
+    ],
+    "albumId": "local-album-11",
+    "coverUrl": "https://picsum.photos/seed/local-song-059/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g02.mp3",
+    "durationSeconds": 138,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu guitar tươi sáng dành cho buổi sớm bình yên.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 183,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-060",
+    "title": "Nắng rơi trên vai",
+    "artistId": "local-artist-13",
+    "artistNames": [
+      "Đặng Tuấn Kiệt"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-060/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g03.mp3",
+    "durationSeconds": 167,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những thanh âm trong trẻo như nắng sớm trên vai.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 220,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-061",
+    "title": "Hẹn nhau bên hồ",
+    "artistId": "local-artist-14",
+    "artistNames": [
+      "Trần Ngọc Anh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-061/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g04.mp3",
+    "durationSeconds": 205,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng guitar thong thả gợi lại một buổi gặp gỡ bên hồ nước yên ả.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 257,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-062",
+    "title": "Gọi mùa về",
+    "artistId": "local-artist-15",
+    "artistNames": [
+      "Lê Hải Đăng"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-062/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g05.mp3",
+    "durationSeconds": 183,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu mộc mạc đưa những sắc màu thân quen trở về theo làn gió.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 294,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-063",
+    "title": "Đi qua mùa hạ",
+    "artistId": "local-artist-16",
+    "artistNames": [
+      "Nguyễn Thu Hà"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-063/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g06.mp3",
+    "durationSeconds": 186,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc nhạc dịu nhẹ dành cho những ký ức mùa hạ còn vương lại.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 331,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-064",
+    "title": "Khúc nhạc trên đồi",
+    "artistId": "local-artist-17",
+    "artistNames": [
+      "Phạm Nhật Minh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-064/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g07.mp3",
+    "durationSeconds": 253,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Nhịp đàn mở ra một không gian rộng thoáng, nơi suy nghĩ được thả trôi.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 368,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-065",
+    "title": "Bước chân rong ruổi",
+    "artistId": "local-artist-18",
+    "artistNames": [
+      "Võ Diệu Linh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-065/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g08.mp3",
+    "durationSeconds": 230,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những hợp âm ấm áp đồng hành cùng bước chân trên các cung đường mới.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 405,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-066",
+    "title": "Bên kia hàng cây",
+    "artistId": "local-artist-19",
+    "artistNames": [
+      "Trần Anh Khoa"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-066/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g09.mp3",
+    "durationSeconds": 227,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn lặng lẽ kể về một khoảng trời xanh sau hàng cây cũ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 442,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-067",
+    "title": "Đường về quê",
+    "artistId": "local-artist-20",
+    "artistNames": [
+      "Đỗ Phương Thảo"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-067/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g10.mp3",
+    "durationSeconds": 178,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một giai điệu tươi sáng như chuyến trở về nơi lưu giữ bao kỷ niệm.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 479,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-068",
+    "title": "Nắng vàng đầu ngõ",
+    "artistId": "local-artist-21",
+    "artistNames": [
+      "Nguyễn Trung Hiếu"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-068/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g11.mp3",
+    "durationSeconds": 196,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Blues"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nốt guitar rộn ràng gợi buổi sớm đầy nắng nơi đầu ngõ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 516,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-069",
+    "title": "Một chút phiêu du",
+    "artistId": "local-artist-22",
+    "artistNames": [
+      "Lê Ánh Dương"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-069/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g12.mp3",
+    "durationSeconds": 175,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một chút nắng, một chút gió, cùng tiếng đàn cho chuyến đi đầy hứng khởi.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 553,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-070",
+    "title": "Tháng chín không vội",
+    "artistId": "local-artist-23",
+    "artistNames": [
+      "Phạm Đình Phong"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-070/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g13.mp3",
+    "durationSeconds": 116,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Nhịp guitar chậm rãi đưa ta qua một ngày thu trong trẻo.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 590,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-071",
+    "title": "Chuyện của người đi xa",
+    "artistId": "local-artist-24",
+    "artistNames": [
+      "Trần Yến Nhi"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-071/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g14.mp3",
+    "durationSeconds": 203,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu nhẹ tênh dành cho những chuyến đi xa và lời hẹn ngày trở lại.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 627,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-072",
+    "title": "Một chiều không vội",
+    "artistId": "local-artist-01",
+    "artistNames": [
+      "Nguyễn Minh An"
+    ],
+    "albumId": "local-album-0",
+    "coverUrl": "https://picsum.photos/seed/local-song-072/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g15.mp3",
+    "durationSeconds": 228,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một buổi chiều bình yên được lưu giữ bằng tiếng đàn guitar mộc mạc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 664,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-073",
+    "title": "Trời lại trong",
+    "artistId": "local-artist-02",
+    "artistNames": [
+      "Trần Linh Chi"
+    ],
+    "albumId": "local-album-1",
+    "coverUrl": "https://picsum.photos/seed/local-song-073/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g16.mp3",
+    "durationSeconds": 263,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Sau những ngày mưa, giai điệu mở ra một khoảng trời trong và nhẹ nhõm.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 701,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-074",
+    "title": "Hành trình về nhà",
+    "artistId": "local-artist-03",
+    "artistNames": [
+      "Lê Hoàng Nam"
+    ],
+    "albumId": "local-album-2",
+    "coverUrl": "https://picsum.photos/seed/local-song-074/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g17.mp3",
+    "durationSeconds": 161,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những hợp âm theo chân hành trình trở về qua các con đường thân thuộc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 738,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-075",
+    "title": "Vệt nắng cuối sân",
+    "artistId": "local-artist-04",
+    "artistNames": [
+      "Phạm Hạ Vy"
+    ],
+    "albumId": "local-album-3",
+    "coverUrl": "https://picsum.photos/seed/local-song-075/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g18.mp3",
+    "durationSeconds": 264,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Vệt nắng cuối mùa gợi nhớ những ngày hạ tươi sáng và đầy lưu luyến.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 775,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-076",
+    "title": "Khi phố vắng",
+    "artistId": "local-artist-05",
+    "artistNames": [
+      "Đỗ Bảo Minh"
+    ],
+    "albumId": "local-album-4",
+    "coverUrl": "https://picsum.photos/seed/local-song-076/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g19.mp3",
+    "durationSeconds": 244,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu đưa ta lang thang qua những góc phố vắng khi đêm xuống.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 812,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-077",
+    "title": "Bình minh vừa đến",
+    "artistId": "local-artist-06",
+    "artistNames": [
+      "Võ Thanh Lam"
+    ],
+    "albumId": "local-album-5",
+    "coverUrl": "https://picsum.photos/seed/local-song-077/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g20.mp3",
+    "durationSeconds": 189,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn đón ánh sáng đầu ngày, dịu dàng và tràn đầy hy vọng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 849,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-078",
+    "title": "Lối cũ mùa thu",
+    "artistId": "local-artist-07",
+    "artistNames": [
+      "Nguyễn Gia Huy"
+    ],
+    "albumId": "local-album-6",
+    "coverUrl": "https://picsum.photos/seed/local-song-078/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g21.mp3",
+    "durationSeconds": 279,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một lối đi cũ, những hàng cây đổi màu và ký ức khẽ trở lại.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 886,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-079",
+    "title": "Mực tím phai màu",
+    "artistId": "local-artist-08",
+    "artistNames": [
+      "Phan Khánh Linh"
+    ],
+    "albumId": "local-album-7",
+    "coverUrl": "https://picsum.photos/seed/local-song-079/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g22.mp3",
+    "durationSeconds": 263,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những điều chưa kịp nói được gửi vào từng hợp âm nhẹ nhàng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 923,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-080",
+    "title": "Gió kể chuyện xưa",
+    "artistId": "local-artist-09",
+    "artistNames": [
+      "Trần Quang Hải"
+    ],
+    "albumId": "local-album-8",
+    "coverUrl": "https://picsum.photos/seed/local-song-080/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g23.mp3",
+    "durationSeconds": 181,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Cơn gió ngoài hiên mang theo âm thanh thân quen của những ngày xưa.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 960,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-081",
+    "title": "Lối về qua hàng cây",
+    "artistId": "local-artist-10",
+    "artistNames": [
+      "Lê Thảo Nguyên"
+    ],
+    "albumId": "local-album-9",
+    "coverUrl": "https://picsum.photos/seed/local-song-081/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g24.mp3",
+    "durationSeconds": 159,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những hợp âm mộc mạc gợi một lối về thân quen dưới bóng cây.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 997,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-082",
+    "title": "Bình minh rực rỡ",
+    "artistId": "local-artist-11",
+    "artistNames": [
+      "Phạm Đức Anh"
+    ],
+    "albumId": "local-album-10",
+    "coverUrl": "https://picsum.photos/seed/local-song-082/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g25.mp3",
+    "durationSeconds": 194,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một giai điệu tươi sáng mở ra nguồn năng lượng cho buổi sớm.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 34,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-083",
+    "title": "Khoảng trời sau mây",
+    "artistId": "local-artist-12",
+    "artistNames": [
+      "Nguyễn Mai Phương"
+    ],
+    "albumId": "local-album-11",
+    "coverUrl": "https://picsum.photos/seed/local-song-083/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g26.mp3",
+    "durationSeconds": 272,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những âm thanh dịu nhẹ như nắng dần hé sau tầng mây.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 71,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-084",
+    "title": "Nhịp nắng trên phố",
+    "artistId": "local-artist-13",
+    "artistNames": [
+      "Đặng Tuấn Kiệt"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-084/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g27.mp3",
+    "durationSeconds": 149,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn tạo nên nhịp chuyển động rộn ràng giữa phố quen.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 108,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-085",
+    "title": "Một ngày không hẹn",
+    "artistId": "local-artist-14",
+    "artistNames": [
+      "Trần Ngọc Anh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-085/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g28.mp3",
+    "durationSeconds": 173,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một chiều tình cờ được lưu lại bằng những tiếng đàn đầy cảm xúc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 145,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-086",
+    "title": "Dưới bầu trời xanh",
+    "artistId": "local-artist-15",
+    "artistNames": [
+      "Lê Hải Đăng"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-086/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g29.mp3",
+    "durationSeconds": 209,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Guitar mộc mạc dẫn lối qua một khoảng trời rộng mở.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 182,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-087",
+    "title": "Mùa gió đầu đông",
+    "artistId": "local-artist-16",
+    "artistNames": [
+      "Nguyễn Thu Hà"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-087/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g30.mp3",
+    "durationSeconds": 233,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu ấm áp len vào không gian se lạnh của đầu đông.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 219,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-088",
+    "title": "Ngã rẽ mùa thu",
+    "artistId": "local-artist-17",
+    "artistNames": [
+      "Phạm Nhật Minh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-088/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g31.mp3",
+    "durationSeconds": 216,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc nhạc chậm dành cho những lần đứng trước ngã rẽ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 256,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-089",
+    "title": "Tách trà còn ấm",
+    "artistId": "local-artist-18",
+    "artistNames": [
+      "Võ Diệu Linh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-089/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g32.mp3",
+    "durationSeconds": 280,
+    "genre": [
+      "Nhạc không lời",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Vài nốt nhạc thong thả đi cùng buổi chiều bên tách trà.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 293,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-090",
+    "title": "Chuyện kể bằng dây đàn",
+    "artistId": "local-artist-19",
+    "artistNames": [
+      "Trần Anh Khoa"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-090/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g33.mp3",
+    "durationSeconds": 252,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một câu chuyện giản dị được kể bằng những hợp âm guitar.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 330,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-091",
+    "title": "Hẹn mùa nắng tới",
+    "artistId": "local-artist-20",
+    "artistNames": [
+      "Đỗ Phương Thảo"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-091/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g34.mp3",
+    "durationSeconds": 236,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiết tấu nhẹ nhàng mang theo cảm giác mong chờ mùa nắng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 367,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-092",
+    "title": "Bước qua ngã tư",
+    "artistId": "local-artist-21",
+    "artistNames": [
+      "Nguyễn Trung Hiếu"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-092/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g35.mp3",
+    "durationSeconds": 278,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nhịp đàn vui tươi theo bước chân giữa một ngã tư đông đúc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 404,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-093",
+    "title": "Một chiều trời trong",
+    "artistId": "local-artist-22",
+    "artistNames": [
+      "Lê Ánh Dương"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-093/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g36.mp3",
+    "durationSeconds": 266,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu trong sáng gợi cảm giác tự do của buổi chiều đầy nắng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 441,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-094",
+    "title": "Bên kia con dốc",
+    "artistId": "local-artist-23",
+    "artistNames": [
+      "Phạm Đình Phong"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-094/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g37.mp3",
+    "durationSeconds": 210,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc guitar dành cho những chuyến đi qua miền đất mới.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 478,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-095",
+    "title": "Dòng sông tháng tám",
+    "artistId": "local-artist-24",
+    "artistNames": [
+      "Trần Yến Nhi"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-095/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g38.mp3",
+    "durationSeconds": 284,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Âm thanh êm đềm trôi theo ký ức về dòng sông mùa hạ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 515,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-096",
+    "title": "Nơi nắng ghé qua",
+    "artistId": "local-artist-01",
+    "artistNames": [
+      "Nguyễn Minh An"
+    ],
+    "albumId": "local-album-0",
+    "coverUrl": "https://picsum.photos/seed/local-song-096/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g39.mp3",
+    "durationSeconds": 238,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Vài hợp âm yên ả giữ lại sự dịu dàng của những ngày bình thường.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 552,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-097",
+    "title": "Mưa qua ô cửa",
+    "artistId": "local-artist-02",
+    "artistNames": [
+      "Trần Linh Chi"
+    ],
+    "albumId": "local-album-1",
+    "coverUrl": "https://picsum.photos/seed/local-song-097/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g40.mp3",
+    "durationSeconds": 232,
+    "genre": [
+      "Nhạc không lời",
+      "R&B"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những nốt đàn lặng lẽ nhắc về cơn mưa và khoảng trời phía sau.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 589,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-098",
+    "title": "Thêm một lần trở về",
+    "artistId": "local-artist-03",
+    "artistNames": [
+      "Lê Hoàng Nam"
+    ],
+    "albumId": "local-album-2",
+    "coverUrl": "https://picsum.photos/seed/local-song-098/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g41.mp3",
+    "durationSeconds": 276,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu như lời nhắn gửi sau chuyến xe đường dài lúc chiều muộn.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 626,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-099",
+    "title": "Mùa hạ lấp lánh",
+    "artistId": "local-artist-04",
+    "artistNames": [
+      "Phạm Hạ Vy"
+    ],
+    "albumId": "local-album-3",
+    "coverUrl": "https://picsum.photos/seed/local-song-099/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g42.mp3",
+    "durationSeconds": 200,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những hợp âm sáng trong lưu giữ một mùa hè nhiều thương nhớ.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 663,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-100",
+    "title": "Đèn khuya bên phố",
+    "artistId": "local-artist-05",
+    "artistNames": [
+      "Đỗ Bảo Minh"
+    ],
+    "albumId": "local-album-4",
+    "coverUrl": "https://picsum.photos/seed/local-song-100/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g43.mp3",
+    "durationSeconds": 185,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn lặng lẽ gợi ánh đèn và những con đường lúc đêm về.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 700,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-101",
+    "title": "Tiếng đàn lúc ban mai",
+    "artistId": "local-artist-06",
+    "artistNames": [
+      "Võ Thanh Lam"
+    ],
+    "albumId": "local-album-5",
+    "coverUrl": "https://picsum.photos/seed/local-song-101/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g44.mp3",
+    "durationSeconds": 290,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc nhạc nhẹ đánh thức sự thanh thản của buổi sớm.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 737,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-102",
+    "title": "Ký ức trên hiên",
+    "artistId": "local-artist-07",
+    "artistNames": [
+      "Nguyễn Gia Huy"
+    ],
+    "albumId": "local-album-6",
+    "coverUrl": "https://picsum.photos/seed/local-song-102/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g45.mp3",
+    "durationSeconds": 217,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu mộc mạc đưa ký ức những mùa cũ trở về.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 774,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-103",
+    "title": "Phong thư màu xanh",
+    "artistId": "local-artist-08",
+    "artistNames": [
+      "Phan Khánh Linh"
+    ],
+    "albumId": "local-album-7",
+    "coverUrl": "https://picsum.photos/seed/local-song-103/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g46.mp3",
+    "durationSeconds": 231,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những hợp âm như lá thư cất giữ lời chưa kịp nói.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 811,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-104",
+    "title": "Gió gọi tên nhà",
+    "artistId": "local-artist-09",
+    "artistNames": [
+      "Trần Quang Hải"
+    ],
+    "albumId": "local-album-8",
+    "coverUrl": "https://picsum.photos/seed/local-song-104/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g47.mp3",
+    "durationSeconds": 150,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một giai điệu gần gũi gợi cơn gió ngang qua mái hiên.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 848,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-105",
+    "title": "Đi hết con đường",
+    "artistId": "local-artist-10",
+    "artistNames": [
+      "Lê Thảo Nguyên"
+    ],
+    "albumId": "local-album-9",
+    "coverUrl": "https://picsum.photos/seed/local-song-105/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g48.mp3",
+    "durationSeconds": 223,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn đồng hành cùng những bước chân trên đường về nhà.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 885,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-106",
+    "title": "Lời chào bình minh",
+    "artistId": "local-artist-11",
+    "artistNames": [
+      "Phạm Đức Anh"
+    ],
+    "albumId": "local-album-10",
+    "coverUrl": "https://picsum.photos/seed/local-song-106/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p04.mp3",
+    "durationSeconds": 222,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những phím đàn tươi sáng mở đầu một ngày đầy hy vọng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 922,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-107",
+    "title": "Ngày nắng đan mây",
+    "artistId": "local-artist-12",
+    "artistNames": [
+      "Nguyễn Mai Phương"
+    ],
+    "albumId": "local-album-11",
+    "coverUrl": "https://picsum.photos/seed/local-song-107/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g17.mp3",
+    "durationSeconds": 161,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng guitar lúc khoan thai, lúc tươi sáng như bầu trời đan xen mây và nắng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 959,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-108",
+    "title": "Bản phác thảo mùa thu",
+    "artistId": "local-artist-13",
+    "artistNames": [
+      "Đặng Tuấn Kiệt"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-108/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p18.mp3",
+    "durationSeconds": 185,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Từng nốt piano phác lại những sắc màu chậm rãi của mùa thu.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 996,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-109",
+    "title": "Quán nhỏ cuối đường",
+    "artistId": "local-artist-14",
+    "artistNames": [
+      "Trần Ngọc Anh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-109/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g27.mp3",
+    "durationSeconds": 149,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng guitar gợi một cuộc gặp ngắn ở quán quen cuối phố.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 33,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-110",
+    "title": "Vệt nắng qua rèm",
+    "artistId": "local-artist-15",
+    "artistNames": [
+      "Lê Hải Đăng"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-110/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p32.mp3",
+    "durationSeconds": 351,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một giai điệu thảnh thơi theo vệt nắng trên ô cửa buổi sáng.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 70,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-111",
+    "title": "Đường về thành phố",
+    "artistId": "local-artist-16",
+    "artistNames": [
+      "Nguyễn Thu Hà"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-111/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g37.mp3",
+    "durationSeconds": 210,
+    "genre": [
+      "Nhạc không lời",
+      "Ballad"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng đàn gợi dòng người và ánh đèn trên chặng đường về.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 107,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-112",
+    "title": "Ngày tháng lặng yên",
+    "artistId": "local-artist-17",
+    "artistNames": [
+      "Phạm Nhật Minh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-112/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p46.mp3",
+    "durationSeconds": 259,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những phím đàn giữ lại cảm giác yên tĩnh giữa tháng ngày bận rộn.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 144,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-113",
+    "title": "Qua đồi cỏ xanh",
+    "artistId": "local-artist-18",
+    "artistNames": [
+      "Võ Diệu Linh"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-113/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g47.mp3",
+    "durationSeconds": 150,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu nhẹ nhàng như một chuyến đi giữa đồi cỏ lộng gió.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 181,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-114",
+    "title": "Ký ức tháng năm",
+    "artistId": "local-artist-19",
+    "artistNames": [
+      "Trần Anh Khoa"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-114/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p02.mp3",
+    "durationSeconds": 144,
+    "genre": [
+      "Nhạc không lời",
+      "Indie"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Vài nốt piano gợi những kỷ niệm đã xa mà vẫn thân thuộc.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 218,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-115",
+    "title": "Chạm vào sương sớm",
+    "artistId": "local-artist-20",
+    "artistNames": [
+      "Đỗ Phương Thảo"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-115/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g09.mp3",
+    "durationSeconds": 227,
+    "genre": [
+      "Nhạc không lời",
+      "Acoustic"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Tiếng guitar trong trẻo mở ra khung cảnh một sớm nhiều sương.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 255,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-116",
+    "title": "Giữa hai mùa gió",
+    "artistId": "local-artist-21",
+    "artistNames": [
+      "Nguyễn Trung Hiếu"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-116/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p16.mp3",
+    "durationSeconds": 219,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu đổi nhịp nhẹ nhàng như khoảnh khắc giao mùa.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 292,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-117",
+    "title": "Con đường nắng lên",
+    "artistId": "local-artist-22",
+    "artistNames": [
+      "Lê Ánh Dương"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-117/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g19.mp3",
+    "durationSeconds": 244,
+    "genre": [
+      "Nhạc không lời",
+      "Folk"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Một khúc guitar tươi sáng dành cho chặng đường trước mắt.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 329,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-118",
+    "title": "Đêm bên khung cửa",
+    "artistId": "local-artist-23",
+    "artistNames": [
+      "Phạm Đình Phong"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-118/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Piano/p30.mp3",
+    "durationSeconds": 114,
+    "genre": [
+      "Nhạc không lời",
+      "Classical"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Những tiếng piano ngân chậm giữa đêm yên tĩnh.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 366,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-song-119",
+    "title": "Một sớm dịu dàng",
+    "artistId": "local-artist-24",
+    "artistNames": [
+      "Trần Yến Nhi"
+    ],
+    "albumId": null,
+    "coverUrl": "https://picsum.photos/seed/local-song-119/600/600",
+    "coverPublicId": null,
+    "audioPublicId": null,
+    "audioUrl": "/audio/Guitar/g29.mp3",
+    "durationSeconds": 209,
+    "genre": [
+      "Nhạc không lời",
+      "Pop"
+    ],
+    "lyric": "Bản nhạc không lời.",
+    "description": "Giai điệu guitar giản dị mang cảm giác ấm áp của ngày mới.",
+    "isPublic": true,
+    "active": true,
+    "playCount": 403,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  }
+]

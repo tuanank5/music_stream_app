@@ -7,6 +7,10 @@ const argv = process.argv.slice(2),
   option = (name) => argv[argv.indexOf(name) + 1];
 const apply = argv.includes("--confirm"),
   verifyOnly = argv.includes("--verify");
+if (apply)
+  throw new Error(
+    "Legacy dataset v2 writes are retired; do not import legacy fields into the target runtime. Use the target-schema preflight and local fixtures.",
+  );
 const counts = validate();
 function output(value, file) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -397,7 +401,6 @@ async function main() {
         albumTitle: dataset.albums.find((a) => a.key === s.albumKey).title,
         coverUrl: state.media[s.coverMediaKey].url,
         audioUrl: state.media[s.audioMediaKey].url,
-        audioKey: "",
         durationSeconds: s.durationSeconds,
         genre: s.genre,
         lyric: s.lyric,
@@ -548,7 +551,7 @@ async function verify(db, auth, state) {
       "Seed chưa hoàn tất. Chạy lại --confirm với cùng state để resume.",
     );
   const docs = new Map();
-  const paths = state.paths.filter(p => !p.startsWith("publicProfiles/"));
+  const paths = state.paths.filter((p) => !p.startsWith("publicProfiles/"));
   for (let i = 0; i < paths.length; i += 200)
     for (const s of await db.getAll(
       ...paths.slice(i, i + 200).map((p) => db.doc(p)),

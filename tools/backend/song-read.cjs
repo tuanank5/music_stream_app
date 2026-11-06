@@ -11,14 +11,7 @@ async function readSong(db, uid, id) {
     artist = await db.doc(`users/${value.artistId}`).get();
   if (!artist.exists || artist.data().active === false)
     throw fail(404, "Bài hát không còn khả dụng.");
-  let readable =
-    value.artistId === uid ||
-    (value.isPublic ??
-      (value.visibility === "public" && value.isPublished === true)) ||
-    value.visibility === "unlisted";
-  if (!readable && value.visibility === "followers")
-    readable = (await db.doc(`users/${uid}/following/${value.artistId}`).get())
-      .exists;
+  const readable = value.artistId === uid || value.isPublic === true;
   if (!readable) throw fail(403, "Không có quyền nghe bài hát.");
   const albums = new Map();
   if (value.albumId) {
@@ -26,8 +19,7 @@ async function readSong(db, uid, id) {
     if (
       album.exists &&
       !album.data().deleting &&
-      (album.data().artistId === uid ||
-        (album.data().isPublic ?? album.data().isPublished === true))
+      (album.data().artistId === uid || album.data().isPublic === true)
     )
       albums.set(album.id, album.data());
   }

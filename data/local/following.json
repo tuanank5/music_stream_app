@@ -1,0 +1,242 @@
+[
+  {
+    "id": "local-artist-01",
+    "parentId": "local-member",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-01",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-02",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-02",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-03",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-03",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-04",
+    "parentId": "local-artist-03",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-05",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-06",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-06",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-07",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-07",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-07",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-08",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-08",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-08",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-04",
+    "parentId": "local-artist-08",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-10",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-11",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-11",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-12",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-12",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-12",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-13",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-13",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-13",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-04",
+    "parentId": "local-artist-13",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-15",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-16",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-16",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-17",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-17",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-17",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-18",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-18",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-18",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-04",
+    "parentId": "local-artist-18",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-20",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-21",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-21",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-22",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-22",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-22",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-artist-23",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-02",
+    "parentId": "local-artist-23",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-03",
+    "parentId": "local-artist-23",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-04",
+    "parentId": "local-artist-23",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-artist-01",
+    "parentId": "local-listener",
+    "followedAt": "2026-11-01T12:00:00.000Z"
+  }
+]

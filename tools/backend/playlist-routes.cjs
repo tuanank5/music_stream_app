@@ -1,6 +1,7 @@
 const express = require("express");
 const { registerPlaylistReads } = require("./playlist-read.cjs");
 const { FieldValue } = require("firebase-admin/firestore");
+const { createRequestId } = require("./create-request.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function createPlaylistRouter({ db }) {
   const router = express.Router({ caseSensitive: true, strict: true });
@@ -36,12 +37,15 @@ function createPlaylistRouter({ db }) {
         name: value.name.trim(),
         description: value.description.trim(),
         isPublic: value.isPublic,
-        visibility: value.isPublic ? "public" : "private",
       };
     } else req.resume();
+    const requestId =
+      operation === "create" ? createRequestId(req, "playlists") : undefined;
     const ref =
       operation === "create"
-        ? db.collection(`users/${uid}/playlists`).doc()
+        ? requestId
+          ? db.collection(`users/${uid}/playlists`).doc(requestId)
+          : db.collection(`users/${uid}/playlists`).doc()
         : path(uid, id);
     await db.runTransaction(async (tx) => {
       const [profile, playlist] = await Promise.all([
@@ -50,6 +54,15 @@ function createPlaylistRouter({ db }) {
       ]);
       if (!profile.exists || profile.data().active === false)
         throw fail(403, "Tài khoản không hoạt động.");
+      if (operation === "create" && requestId && playlist.exists) {
+        const value = playlist.data();
+        if (Object.entries(fields).some(([key, field]) => value[key] !== field))
+          throw fail(
+            409,
+            "Yêu cầu đã được sử dụng cho playlist khác hoặc playlist đã thay đổi.",
+          );
+        return;
+      }
       if (operation !== "create" && !playlist.exists) {
         if (operation === "delete") return;
         throw fail(404, "Không tìm thấy playlist của bạn.");
@@ -61,9 +74,7 @@ function createPlaylistRouter({ db }) {
       if (operation === "create") {
         tx.create(ref, {
           ...fields,
-          userId: uid,
           songIds: [],
-          songCount: 0,
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         });
@@ -80,15 +91,7 @@ function createPlaylistRouter({ db }) {
         if (!song.exists) throw fail(404, "Bài hát không còn khả dụng.");
         const value = song.data();
         const artist = await tx.get(db.doc(`users/${value.artistId}`));
-        let allowed =
-          value.artistId === uid ||
-          (value.isPublic ??
-            (value.visibility === "public" && value.isPublished === true)) ||
-          value.visibility === "unlisted";
-        if (!allowed && value.visibility === "followers")
-          allowed = (
-            await tx.get(db.doc(`users/${uid}/following/${value.artistId}`))
-          ).exists;
+        const allowed = value.artistId === uid || value.isPublic === true;
         if (
           !artist.exists ||
           artist.data().active === false ||
@@ -101,7 +104,6 @@ function createPlaylistRouter({ db }) {
       if (ids.size > 50) throw fail(409, "Playlist tối đa 50 bài.");
       tx.update(ref, {
         songIds: [...ids],
-        songCount: ids.size,
         updatedAt: FieldValue.serverTimestamp(),
       });
     });

@@ -51,10 +51,9 @@ function song(id, overrides = {}) {
     albumId: "album",
     album: "Album",
     active: true,
-    visibility: "public",
-    isPublished: true,
-    audioKey: "demo1",
-    audioUrl: "",
+
+    isPublic: true,
+    audioUrl: "https://example.test/audio.mp3",
     ...overrides,
   };
 }
@@ -113,7 +112,7 @@ const catalog = {
   watchArtists: (next, fail) => subscribe("artists", next, fail),
   watchAlbums: (next, fail) => subscribe("albums", next, fail),
   watchSong: (id, next, fail) => subscribe(`song:${id}`, next, fail),
-  watchArtistFollowerSongs: (id, next, fail) =>
+  watchFollowedArtistSongs: (id, next, fail) =>
     subscribe(`followed:${id}`, next, fail),
   getReadableSong: (id) => loadSong(id),
 };
@@ -135,6 +134,13 @@ Module._load = function (request, parent, isMain) {
   if (request.endsWith("/services/libraryService")) return library;
   if (request.endsWith("/hooks/usePlaybackHistory"))
     return { usePlaybackHistory: () => {} };
+  if (request.endsWith("/services/firebase/config"))
+    return {
+      getFirebaseRuntime: () => ({
+        mode: "emulator",
+        backendUrl: "http://192.168.1.15:8787",
+      }),
+    };
   if (request === "expo-audio")
     return {
       setAudioModeAsync: async () => {},
@@ -170,9 +176,6 @@ Module._load = function (request, parent, isMain) {
         message ? h("p", { role: "alert" }, message) : null,
     };
   return load.call(this, request, parent, isMain);
-};
-require.extensions[".mp3"] = (module, filename) => {
-  module.exports = filename;
 };
 
 before(async () => {
@@ -531,6 +534,30 @@ function playerTree() {
     h(Capture, { name: "progress", hook: Player.usePlayerProgress }),
   );
 }
+
+test("player loads local demo URLs through the configured backend and refuses missing audio instead of falling back", async () => {
+  await mount(playerTree());
+  const engine = engines[0];
+  await act(async () =>
+    seen.actions.play(
+      song("demo", { audioUrl: "/local-audio/sample-short.wav" }),
+    ),
+  );
+  assert.deepEqual(
+    engine.calls.find(([name]) => name === "replace"),
+    [
+      "replace",
+      { uri: "http://192.168.1.15:8787/local-audio/sample-short.wav" },
+    ],
+  );
+  const count = engine.calls.length;
+  await act(async () =>
+    seen.actions.play(song("missing", { audioUrl: "", audioKey: "demo1" })),
+  );
+  assert.equal(engine.calls.length, count);
+  assert.ok(seen.state.error);
+  assert.equal(seen.state.current.id, "demo");
+});
 
 test("50 progress ticks render only the progress consumer and keep one engine/actions object", async () => {
   await mount(playerTree());

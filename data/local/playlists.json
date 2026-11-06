@@ -1,0 +1,15 @@
+[
+  {
+    "id": "local-playlist",
+    "parentId": "local-listener",
+    "name": "Sau cơn mưa",
+    "description": "Sau cơn mưa trời lại nắng",
+    "isPublic": false,
+    "songIds": [
+      "local-song-000",
+      "local-song-001"
+    ],
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z"
+  }
+]

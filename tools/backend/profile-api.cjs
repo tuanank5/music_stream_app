@@ -1,6 +1,7 @@
 const { FieldValue } = require("firebase-admin/firestore");
+const { imageUrl, localMediaPath } = require("./local-media.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
-async function readProfileBody(request) {
+async function readProfileBody(request, { uid, mode } = {}) {
   if (
     !String(request.headers["content-type"] || "").startsWith(
       "application/json",
@@ -40,7 +41,8 @@ async function readProfileBody(request) {
     avatarUrl.length > 2048
   )
     throw fail(400, "Tên, ảnh hoặc tiểu sử không hợp lệ.");
-  if (avatarUrl) {
+  imageUrl(avatarUrl, uid, mode);
+  if (avatarUrl && !localMediaPath(avatarUrl)) {
     try {
       const url = new URL(avatarUrl);
       if (url.protocol !== "https:" || url.username || url.password)
@@ -58,26 +60,28 @@ async function readProfileBody(request) {
 async function ownProfile(db, uid, fields) {
   const ref = db.doc(`users/${uid}`);
   return db.runTransaction(async (tx) => {
-    const [snapshot, publicSnapshot] = await Promise.all([
-      tx.get(ref),
-      tx.get(db.doc(`publicProfiles/${uid}`)),
-    ]);
+    const snapshot = await tx.get(ref);
     if (!snapshot.exists) throw fail(404, "Không tìm thấy hồ sơ.");
     const source = snapshot.data();
     if (source.active === false)
       throw fail(403, "Tài khoản của bạn đã bị vô hiệu hóa.");
     if (fields)
-      tx.update(ref, { ...fields, updatedAt: FieldValue.serverTimestamp() });
-    const value = { ...source, ...fields },
-      counters = publicSnapshot.data() || source;
+      tx.update(ref, {
+        ...fields,
+        ...(fields.avatarUrl !== source.avatarUrl
+          ? { avatarPublicId: null }
+          : {}),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+    const value = { ...source, ...fields };
     return {
       userId: uid,
       email: String(source.email || ""),
       displayName: String(value.displayName || ""),
       avatarUrl: String(value.avatarUrl || ""),
       biography: String(value.biography || ""),
-      followerCount: Number(counters.followerCount) || 0,
-      followingCount: Number(counters.followingCount) || 0,
+      followerCount: Number(value.followerCount) || 0,
+      followingCount: Number(value.followingCount) || 0,
     };
   });
 }

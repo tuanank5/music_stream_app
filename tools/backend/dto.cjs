@@ -6,18 +6,16 @@ function mapSong(id, x, profiles, albums) {
     artistId: String(x.artistId || ""),
     artist: x.artistNames?.join(", ") || artist?.displayName || "",
     artistNames: x.artistNames || [],
-    albumId: x.albumId || "",
+    albumId: x.albumId || null,
     album: albums.get(x.albumId)?.title || "",
     cover: x.coverUrl || "",
     audioUrl: x.audioUrl || "",
-    audioKey: x.audioKey || "",
     durationSeconds: Number(x.durationSeconds) || 0,
     lyrics: x.lyric || "",
     genre: Array.isArray(x.genre) ? x.genre : [],
     playCount: Number(x.playCount) || 0,
     active: x.active === true,
-    isPublished: x.isPublished === true,
-    visibility: x.visibility,
+    isPublic: x.isPublic === true,
   };
 }
 const mapArtist = (id, x) => ({
@@ -29,13 +27,14 @@ const mapArtist = (id, x) => ({
   followerCount: Number(x.followerCount) || 0,
   followingCount: Number(x.followingCount) || 0,
 });
-const mapAlbum = (id, x) => ({
+const mapAlbum = (id, x, profiles = new Map()) => ({
   id,
   title: x.title || "",
   artistId: x.artistId || "",
-  artistName: x.artistName || "",
+  artistName: profiles.get(x.artistId)?.displayName || "",
   coverUrl: x.coverUrl || "",
-  isPublished: x.isPublished === true,
+  description: x.description || "",
+  isPublic: x.isPublic === true,
 });
 
 module.exports = { mapSong, mapArtist, mapAlbum };

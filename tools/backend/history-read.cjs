@@ -76,17 +76,8 @@ function createHistoryReadRouter({ db }) {
         if (track.exists && track.data().active === true) {
           const data = track.data(),
             artist = await db.doc(`users/${data.artistId}`).get();
-          let allowed =
-            data.artistId === req.auth.uid ||
-            (data.isPublic ??
-              (data.visibility === "public" && data.isPublished === true)) ||
-            data.visibility === "unlisted";
-          if (!allowed && data.visibility === "followers")
-            allowed = (
-              await db
-                .doc(`users/${req.auth.uid}/following/${data.artistId}`)
-                .get()
-            ).exists;
+          const allowed =
+            data.artistId === req.auth.uid || data.isPublic === true;
           if (artist.exists && artist.data().active !== false && allowed) {
             const profiles = new Map([[artist.id, artist.data()]]),
               albums = new Map();
@@ -96,7 +87,7 @@ function createHistoryReadRouter({ db }) {
                 album.exists &&
                 !album.data().deleting &&
                 (album.data().artistId === req.auth.uid ||
-                  (album.data().isPublic ?? album.data().isPublished === true))
+                  album.data().isPublic === true)
               )
                 albums.set(album.id, album.data());
             }

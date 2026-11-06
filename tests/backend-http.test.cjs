@@ -6,6 +6,101 @@ const {
   createHttpApp,
   finishHttpApp,
 } = require("../tools/backend/http-app.cjs");
+const { demoAudio } = require("../tools/local/demo-audio.cjs");
+
+test("local demo WAV supports streaming ranges and HEAD without exposing files or enabling cloud media", async () => {
+  for (const mode of ["emulator", "cloud"]) {
+    const app = createHttpApp({
+      auth: {
+        verifyIdToken: async () => {
+          throw Error("No token");
+        },
+      },
+      db: {},
+      origins: [],
+      mode,
+      projectId: "demo-music-stream",
+      isHealthy: () => true,
+    });
+    finishHttpApp(app);
+    const server = createServer(app);
+    server.listen(0, "127.0.0.1");
+    await once(server, "listening");
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      const path = "/local-audio/sample-short.wav";
+      const full = await fetch(base + path, {
+        headers: { Origin: "http://192.168.1.15:8081" },
+      });
+      if (mode === "cloud") {
+        assert.equal(full.status, 403);
+        assert.equal((await fetch(base + path)).status, 401);
+        assert.equal(
+          (
+            await fetch(
+              base + "/local-media/12345678-1234-1234-1234-123456789abc.wav",
+            )
+          ).status,
+          401,
+        );
+        assert.equal(
+          (await fetch(base + "/local-media/upload/audio", { method: "POST" }))
+            .status,
+          405,
+        );
+        continue;
+      }
+      assert.equal(full.status, 200);
+      assert.match(full.headers.get("content-type"), /audio\/wav/);
+      assert.equal(
+        full.headers.get("access-control-allow-origin"),
+        "http://192.168.1.15:8081",
+      );
+      const wav = Buffer.from(await full.arrayBuffer());
+      assert.deepEqual(wav, demoAudio(path));
+      assert.equal(wav.toString("ascii", 0, 4), "RIFF");
+      assert.equal(wav.readUInt32LE(40) / wav.readUInt32LE(28), 12);
+      const head = await fetch(base + path, { method: "HEAD" });
+      assert.equal(head.status, 200);
+      assert.equal(Number(head.headers.get("content-length")), wav.length);
+      assert.equal((await head.arrayBuffer()).byteLength, 0);
+      for (const [range, start, end] of [
+        ["bytes=0-43", 0, 43],
+        ["bytes=44-", 44, wav.length - 1],
+        ["bytes=-20", wav.length - 20, wav.length - 1],
+      ]) {
+        const part = await fetch(base + path, { headers: { Range: range } });
+        assert.equal(part.status, 206);
+        assert.equal(
+          part.headers.get("content-range"),
+          `bytes ${start}-${end}/${wav.length}`,
+        );
+        assert.deepEqual(
+          Buffer.from(await part.arrayBuffer()),
+          wav.subarray(start, end + 1),
+        );
+      }
+      for (const range of ["bytes=9999999-", "bytes=0-1,4-5", "invalid"])
+        assert.equal(
+          (await fetch(base + path, { headers: { Range: range } })).status,
+          416,
+        );
+      assert.equal(
+        (await fetch(base + "/local-audio/unknown.wav")).status,
+        404,
+      );
+      assert.equal(
+        (await fetch(base + "/local-audio/%2e%2e%2fsecret")).status,
+        404,
+      );
+      assert.equal((await fetch(base + "/local-audio/__proto__")).status, 404);
+      assert.equal((await fetch(base + "/songs/local-song-000")).status, 401);
+    } finally {
+      server.closeAllConnections();
+      await new Promise((resolve) => server.close(resolve));
+    }
+  }
+});
 
 test("Express 5 middleware enforces CORS/method/auth/active and catches async errors as JSON", async () => {
   let active = true,

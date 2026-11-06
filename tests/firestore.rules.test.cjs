@@ -3,7 +3,6 @@ const { readFileSync } = require("node:fs");
 const {
   initializeTestEnvironment,
   assertFails,
-  assertSucceeds,
 } = require("@firebase/rules-unit-testing");
 const {
   doc,
@@ -16,8 +15,7 @@ const {
   writeBatch,
   serverTimestamp,
   Timestamp,
-  query,
-  where,
+  collectionGroup,
 } = require("firebase/firestore");
 let env, a, b, outsider, guest;
 const old = Timestamp.fromMillis(Date.now() - 180000);
@@ -50,7 +48,7 @@ const song = (id, visibility = "public") => ({
   albumId: "",
   coverUrl: "",
   audioUrl: "",
-  audioKey: "demo1",
+  audioPublicId: null,
   durationSeconds: 95,
   genre: ["Pop"],
   lyric: "",
@@ -127,275 +125,124 @@ beforeEach(async () => {
 after(async () => {
   if (env) await env.cleanup();
 });
-test("private users are owner only; public projection readable without email and client metadata writes denied", async () => {
-  await assertSucceeds(getDoc(doc(a, "users/alice")));
-  await assertFails(getDoc(doc(b, "users/alice")));
-  await assertFails(getDocs(collection(b, "users")));
-  await assertFails(getDoc(doc(outsider, "users/alice")));
-  await assertSucceeds(getDoc(doc(b, "publicProfiles/alice")));
-  await assertFails(getDoc(doc(guest, "publicProfiles/alice")));
-  await assertFails(
-    updateDoc(doc(a, "publicProfiles/alice"), { displayName: "Forged" }),
-  );
-  await assertFails(
-    updateDoc(doc(b, "publicProfiles/alice"), { email: "leak" }),
-  );
+const paths = [
+  "users/alice",
+  "publicProfiles/alice",
+  "songs/public",
+  "songs/private",
+  "songs/followers",
+  "songs/unlisted",
+  "users/alice/playlists/p",
+  "users/alice/history/h",
+  "users/alice/following/bob",
+  "users/alice/favorites/public",
+  "users/alice/favoriteAlbums/public",
+  "users/alice/playReceipts/public",
+  "albums/public",
+  "posts/p",
+  "posts/p/comments/c",
+  "artists/legacy",
+  "charts/legacy",
+  "future/data/nested/document",
+];
+beforeEach(async () => {
+  await env.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore(),
+      batch = writeBatch(db);
+    for (const path of paths) {
+      if (
+        [
+          "users/alice",
+          "publicProfiles/alice",
+          "users/alice/playlists/p",
+          "users/alice/history/h",
+        ].includes(path) ||
+        path.startsWith("songs/")
+      )
+        continue;
+      batch.set(doc(db, path), {
+        ownerId: "alice",
+        artistId: "alice",
+        active: true,
+        isPublic: true,
+        isPublished: true,
+        visibility: "public",
+        createdAt: old,
+      });
+    }
+    await batch.commit();
+  });
 });
-test("song visibility and catalog schema protect guest/private/follower media", async () => {
-  await assertFails(getDoc(doc(guest, "songs/public")));
-  await assertSucceeds(getDoc(doc(b, "songs/public")));
-  await assertFails(getDoc(doc(b, "songs/private")));
-  await assertFails(getDoc(doc(b, "songs/followers")));
-  await assertSucceeds(getDoc(doc(a, "songs/private")));
-  await assertSucceeds(getDoc(doc(b, "songs/unlisted")));
-  await assertSucceeds(
-    getDocs(
-      query(
-        collection(b, "songs"),
-        where("visibility", "==", "public"),
-        where("isPublished", "==", true),
-      ),
-    ),
-  );
-  await assertFails(getDocs(collection(b, "songs")));
-  await assertFails(updateDoc(doc(b, "songs/public"), { title: "Hack" }));
+const clients = () => [
+  a,
+  b,
+  outsider,
+  guest,
+  env.authenticatedContext("alice", { admin: true }).firestore(),
+];
+test("direct reads deny owners, viewers, legacy claims and guests", async () => {
+  for (const db of clients())
+    for (const path of paths) await assertFails(getDoc(doc(db, path)));
+});
+test("collection and collection-group queries cannot bypass the backend", async () => {
+  const collections = [
+    ...new Set(paths.map((path) => path.slice(0, path.lastIndexOf("/")))),
+  ];
+  for (const db of clients()) {
+    for (const path of collections)
+      await assertFails(getDocs(collection(db, path)));
+    for (const name of ["following", "playlists", "comments", "favoriteAlbums"])
+      await assertFails(getDocs(collectionGroup(db, name)));
+  }
+});
+test("direct create, update and delete are denied even to owners", async () => {
+  for (const db of clients())
+    for (const path of paths) {
+      await assertFails(
+        setDoc(doc(db, path + "-new"), {
+          ownerId: "alice",
+          createdAt: serverTimestamp(),
+        }),
+      );
+      await assertFails(
+        updateDoc(doc(db, path), { updatedAt: serverTimestamp() }),
+      );
+      await assertFails(deleteDoc(doc(db, path)));
+    }
   await assertFails(
-    setDoc(doc(a, "songs/quota-bypass"), {
-      ...song("quota-bypass", "public"),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      releaseDate: serverTimestamp(),
-    }),
-  );
-  await assertFails(
-    updateDoc(doc(a, "songs/public"), {
-      durationSeconds: 1,
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertSucceeds(
     updateDoc(doc(a, "songs/public"), {
       title: "Owner",
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertFails(
-    updateDoc(doc(outsider, "songs/public"), { durationSeconds: -1 }),
-  );
-  await assertFails(
-    updateDoc(doc(outsider, "songs/public"), { artistId: "missing" }),
-  );
-});
-test("users cannot add unknown metadata or directly edit social counters", async () => {
-  await assertFails(
-    updateDoc(doc(a, "users/alice"), { unexpectedField: true }),
-  );
-  await assertFails(
-    updateDoc(doc(a, "users/alice"), { unexpectedField: "value" }),
-  );
-  await assertFails(
-    updateDoc(doc(a, "publicProfiles/alice"), { followerCount: 1 }),
-  );
-  await assertFails(
-    updateDoc(doc(a, "publicProfiles/alice"), { followingCount: 1 }),
-  );
-  await env.withSecurityRulesDisabled(async (c) =>
-    updateDoc(doc(c.firestore(), "users/alice"), { legacyPreference: "dark" }),
-  );
-  await assertSucceeds(
-    updateDoc(doc(a, "users/alice"), {
-      displayName: "New",
       updatedAt: serverTimestamp(),
     }),
   );
   const fresh = env
     .authenticatedContext("new", { email: "new@example.test" })
     .firestore();
-  const values = {
-    ...user("new"),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  };
   await assertFails(
-    setDoc(doc(fresh, "users/new"), { ...values, unexpectedField: "value" }),
-  );
-  await assertSucceeds(setDoc(doc(fresh, "users/new"), values));
-});
-function follow(db, uid, target, delta) {
-  const batch = writeBatch(db);
-  const relation = doc(db, "users/" + uid + "/following/" + target);
-  if (delta === 1)
-    batch.set(relation, { userId: target, followedAt: serverTimestamp() });
-  else batch.delete(relation);
-  batch.update(doc(db, "publicProfiles/" + uid), {
-    followingCount: delta === 1 ? 1 : 0,
-    lastFollowingId: target,
-  });
-  batch.update(doc(db, "publicProfiles/" + target), {
-    followerCount: delta === 1 ? 1 : 0,
-  });
-  return batch.commit();
-}
-test("follow and social counters are backend-only; server relations control follower media", async () => {
-  await assertFails(
-    setDoc(doc(b, "users/bob/following/alice"), {
-      userId: "alice",
-      followedAt: serverTimestamp(),
-    }),
-  );
-  await assertFails(follow(b, "bob", "alice", 1));
-  await env.withSecurityRulesDisabled(async (c) =>
-    setDoc(doc(c.firestore(), "users/bob/following/alice"), {
-      userId: "alice",
-      followedAt: old,
-    }),
-  );
-  await assertSucceeds(getDoc(doc(b, "songs/followers")));
-  await assertFails(follow(b, "bob", "alice", -1));
-  await env.withSecurityRulesDisabled(async (c) =>
-    deleteDoc(doc(c.firestore(), "users/bob/following/alice")),
-  );
-  await assertFails(getDoc(doc(b, "songs/followers")));
-  await assertFails(follow(a, "bob", "alice", 1));
-  await assertFails(follow(a, "alice", "alice", 1));
-});
-test("favorites can only be read by owner and all client mutations are denied", async () => {
-  await assertFails(
-    setDoc(doc(b, "users/bob/favorites/public"), {
-      songId: "public",
-      favoritedAt: serverTimestamp(),
-    }),
-  );
-  await env.withSecurityRulesDisabled(async (c) =>
-    setDoc(doc(c.firestore(), "users/bob/favorites/public"), {
-      songId: "public",
-      favoritedAt: old,
-    }),
-  );
-  await assertSucceeds(getDoc(doc(b, "users/bob/favorites/public")));
-  await assertFails(getDoc(doc(a, "users/bob/favorites/public")));
-  await assertFails(deleteDoc(doc(a, "users/bob/favorites/public")));
-  await assertFails(deleteDoc(doc(b, "users/bob/favorites/public")));
-  await assertFails(
-    setDoc(doc(b, "users/bob/favorites/private"), {
-      songId: "private",
-      favoritedAt: serverTimestamp(),
+    setDoc(doc(fresh, "users/new"), {
+      ...user("new"),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     }),
   );
 });
-test("playlist CRUD enforces schema, identity, unique readable IDs and ownership", async () => {
-  await assertFails(getDoc(doc(b, "users/alice/playlists/p")));
-  await assertSucceeds(
-    updateDoc(doc(a, "users/alice/playlists/p"), {
-      songIds: ["public"],
-      songCount: 1,
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertFails(
-    updateDoc(doc(a, "users/alice/playlists/p"), {
-      songIds: ["public", "public"],
-      songCount: 2,
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertFails(
-    updateDoc(doc(a, "users/alice/playlists/p"), {
-      songIds: ["missing"],
-      songCount: 1,
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertSucceeds(
-    updateDoc(doc(a, "users/alice/playlists/p"), {
-      songIds: [],
-      songCount: 0,
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertFails(
-    updateDoc(doc(b, "users/alice/playlists/p"), {
-      name: "Hack",
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertSucceeds(deleteDoc(doc(a, "users/alice/playlists/p")));
-});
-test("playback histories, receipts and count increments are server-only", async () => {
-  await assertFails(setDoc(doc(b, "users/bob/history/new"), history("new")));
-  await assertSucceeds(getDoc(doc(a, "users/alice/history/h")));
-  await assertFails(getDoc(doc(b, "users/alice/history/h")));
-  await assertFails(
-    updateDoc(doc(a, "users/alice/history/h"), {
-      listenedSeconds: 100,
-      completed: true,
-    }),
-  );
-  await assertFails(deleteDoc(doc(a, "users/alice/history/h")));
-  const batch = writeBatch(a);
-  batch.update(doc(a, "users/alice/history/h"), {
+test("legacy atomic playback and social batches cannot bypass validation", async () => {
+  const playback = writeBatch(a);
+  playback.update(doc(a, "users/alice/history/h"), {
     counted: true,
-    listenedSeconds: 65,
-    playedAt: serverTimestamp(),
+    listenedSeconds: 95,
   });
-  batch.update(doc(a, "songs/public"), {
-    playCount: 1,
-    lastPlayUid: "alice",
-    lastPlayHistoryId: "h",
-  });
-  batch.set(doc(a, "users/alice/playReceipts/public"), {
+  playback.update(doc(a, "songs/public"), { playCount: 1 });
+  playback.set(doc(a, "users/alice/playReceipts/public"), {
     historyId: "h",
     countedAt: serverTimestamp(),
   });
-  await assertFails(batch.commit());
-  await assertFails(updateDoc(doc(a, "songs/public"), { playCount: 1 }));
-  await assertFails(
-    setDoc(doc(a, "users/alice/playReceipts/public"), {
-      historyId: "h",
-      countedAt: serverTimestamp(),
-    }),
-  );
-});
-
-test("feed and comments are backend-written; signed readers cannot mutate even their own content", async () => {
-  const post = {
-    ownerId: "alice",
-    authorName: "Alice",
-    content: "Post",
-    songId: "public",
-    active: true,
-    createdAt: old,
-  };
-  const comment = {
-    ownerId: "bob",
-    authorName: "Bob",
-    content: "Comment",
-    createdAt: old,
-  };
-  await assertFails(
-    setDoc(doc(a, "posts/new"), { ...post, createdAt: serverTimestamp() }),
-  );
-  await env.withSecurityRulesDisabled(async (c) => {
-    await setDoc(doc(c.firestore(), "posts/p"), post);
-    await setDoc(doc(c.firestore(), "posts/p/comments/c"), comment);
+  await assertFails(playback.commit());
+  const follow = writeBatch(a);
+  follow.set(doc(a, "users/alice/following/new"), {
+    userId: "new",
+    followedAt: serverTimestamp(),
   });
-  await assertSucceeds(getDoc(doc(b, "posts/p")));
-  await assertSucceeds(getDoc(doc(a, "posts/p/comments/c")));
-  await assertFails(updateDoc(doc(a, "posts/p"), { content: "Edit" }));
-  await assertFails(updateDoc(doc(a, "posts/p"), { active: false }));
-  await assertFails(deleteDoc(doc(a, "posts/p")));
-  await assertFails(
-    setDoc(doc(b, "posts/p/comments/new"), {
-      ...comment,
-      createdAt: serverTimestamp(),
-    }),
-  );
-  await assertFails(
-    updateDoc(doc(b, "posts/p/comments/c"), { content: "Edit" }),
-  );
-  await assertFails(deleteDoc(doc(b, "posts/p/comments/c")));
-  await env.withSecurityRulesDisabled(async (c) =>
-    updateDoc(doc(c.firestore(), "posts/p"), { active: false }),
-  );
-  await assertFails(getDocs(collection(b, "posts/p/comments")));
+  follow.update(doc(a, "publicProfiles/alice"), { followingCount: 1 });
+  await assertFails(follow.commit());
 });

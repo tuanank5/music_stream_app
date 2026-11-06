@@ -14,8 +14,11 @@ export function mergeCatalogSongs(
       groups.flatMap((group) => group.map((song) => [song.id, song] as const)),
     ).values(),
   ].map((song) => {
-    const artist = artistIndex.get(song.artistId) ?? song.artist;
-    const album = albumIndex.get(song.albumId) ?? song.album;
+    const artist = song.artistNames?.length
+      ? song.artistNames.join(", ")
+      : (artistIndex.get(song.artistId) ?? song.artist);
+    const album =
+      (song.albumId ? albumIndex.get(song.albumId) : undefined) ?? song.album;
     return artist === song.artist && album === song.album
       ? song
       : { ...song, artist, album };

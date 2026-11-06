@@ -9,14 +9,13 @@ function albumDto(id, album, artist) {
     artistName: artist.displayName || "",
     coverUrl: album.coverUrl || "",
     description: album.description || "",
-    isPublic: album.isPublic ?? album.isPublished === true,
-    isPublished: album.isPublished === true,
+    isPublic: album.isPublic === true,
   };
 }
 const readable = (album, uid, artist) =>
   artist?.active !== false &&
   !album.deleting &&
-  (album.artistId === uid || (album.isPublic ?? album.isPublished === true));
+  (album.artistId === uid || album.isPublic === true);
 function createFavoriteAlbumsRouter({ db }) {
   const router = express.Router({ caseSensitive: true, strict: true });
   router.get("/favorite-albums", async (req, res) => {

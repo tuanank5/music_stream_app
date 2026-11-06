@@ -1,0 +1,147 @@
+
+[
+  {
+    "id": "local-album-0",
+    "title": "Những ngày bình yên",
+    "artistId": "local-artist-01",
+    "coverUrl": "https://images.unsplash.com/photo-1653245798301-32175fea46c8?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Một khoảng lặng dịu dàng giữa nhịp sống hối hả. Những giai điệu nhẹ nhàng đưa ta trở về với những điều giản dị, nơi bình yên được tìm thấy trong từng khoảnh khắc nhỏ bé.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-1",
+    "title": "Sau cơn mưa",
+    "artistId": "local-artist-02",
+    "coverUrl": "https://images.unsplash.com/photo-1487762488615-8a011458b53e?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Cơn mưa đi qua, để lại những ký ức chưa kịp phai. Album mang màu sắc trầm lắng, kể về những cuộc chia xa, nỗi nhớ và hy vọng về một ngày bầu trời lại trong xanh.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-2",
+    "title": "Chuyến xe cuối ngày",
+    "artistId": "local-artist-03",
+    "coverUrl": "https://images.unsplash.com/photo-1751030968168-38c135fafc10?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Khi hoàng hôn buông xuống, mỗi hành trình đều mang theo một câu chuyện. Những giai điệu gợi nhớ về các chuyến đi, những cuộc gặp gỡ tình cờ và cảm giác trở về nơi thân thuộc.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-3",
+    "title": "Hạ còn trong em",
+    "artistId": "local-artist-04",
+    "coverUrl": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Mùa hè của những ngày nắng rực rỡ, những rung động đầu đời và kỷ niệm tuổi trẻ. Album mang đến nguồn năng lượng tươi sáng, xen lẫn chút bâng khuâng về một mùa hạ không thể quay lại.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-4",
+    "title": "Góc phố lên đèn",
+    "artistId": "local-artist-05",
+    "coverUrl": "https://images.unsplash.com/photo-1515963665762-77ef90e624fa?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Thành phố khi đêm xuống mang một vẻ đẹp rất riêng. Giữa ánh đèn, những con đường quen và dòng người vội vã là những câu chuyện về tuổi trẻ, sự cô đơn và những ước mơ chưa ngủ.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-5",
+    "title": "Giấc mơ buổi sớm",
+    "artistId": "local-artist-06",
+    "coverUrl": "https://images.unsplash.com/photo-1628410067355-f0f3722fa6ca?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Một buổi bình minh dịu nhẹ, khi thế giới vẫn còn chìm trong sự tĩnh lặng. Album mở ra không gian mơ màng, thư thái, dành cho những tâm hồn yêu sự bình yên và những khởi đầu mới.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-6",
+    "title": "Những mùa đã qua",
+    "artistId": "local-artist-07",
+    "coverUrl": "https://images.unsplash.com/photo-1653124027977-71ec4ca655d1?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Thời gian lặng lẽ trôi, mang theo những mùa cũ và ký ức thân thương. Tuyển tập những cảm xúc sâu lắng về sự trưởng thành, những điều đã mất và vẻ đẹp của những gì còn ở lại.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-7",
+    "title": "Những bức thư chưa gửi",
+    "artistId": "local-artist-08",
+    "coverUrl": "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Có những lời yêu thương chưa từng được nói, những tâm sự chỉ có thể gửi vào âm nhạc. Album là tập hợp những câu chuyện chân thành về tình cảm, nỗi nhớ và những điều còn dang dở.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-8",
+    "title": "Gió qua hiên nhà",
+    "artistId": "local-artist-09",
+    "coverUrl": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Nhẹ nhàng như cơn gió thoảng qua một chiều yên ả. Những giai điệu trong trẻo mang cảm giác tự do, thư giãn và chút hoài niệm về mái nhà cùng những ngày tháng thân quen.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-9",
+    "title": "Dọc đường về",
+    "artistId": "local-artist-10",
+    "coverUrl": "https://images.unsplash.com/photo-1647018455130-e6ea09a62c6d?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Trên con đường trở về, những kỷ niệm bất chợt ùa về theo từng góc phố và ánh hoàng hôn. Album dành cho những chuyến đi dài, những phút giây suy tư và cảm giác ấm áp khi tìm thấy nơi mình thuộc về.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-10",
+    "title": "Chào ngày mới",
+    "artistId": "local-artist-11",
+    "coverUrl": "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Mỗi bình minh là một cơ hội để bắt đầu lại. Album mang tinh thần tích cực, với những giai điệu tươi vui và tràn đầy hy vọng, tiếp thêm cảm hứng cho một ngày mới nhiều điều tốt đẹp.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "local-album-11",
+    "title": "Mây và nắng",
+    "artistId": "local-artist-12",
+    "coverUrl": "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=600&h=600&fit=crop",
+    "coverPublicId": null,
+    "description": "Có những ngày rực rỡ ánh nắng, cũng có những lúc bầu trời phủ đầy mây. Album khắc họa những sắc thái cảm xúc của cuộc sống, từ niềm vui trong trẻo đến những khoảng lặng dịu dàng.",
+    "isPublic": true,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z",
+    "releaseDate": "2026-11-01T12:00:00.000Z"
+  }
+]

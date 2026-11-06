@@ -1,7 +1,8 @@
 const express = require("express");
 const { FieldValue } = require("firebase-admin/firestore");
+const { imageUrl, localMediaPath } = require("./local-media.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
-function createSongOwnerRouter({ db }) {
+function createSongOwnerRouter({ db, mode }) {
   const router = express.Router({ caseSensitive: true, strict: true });
   const mutate = (remove) => async (req, res) => {
     const { id } = req.params;
@@ -19,10 +20,13 @@ function createSongOwnerRouter({ db }) {
       )
         throw fail(400, "Ảnh bìa không hợp lệ.");
       coverUrl = value.coverUrl;
+      imageUrl(coverUrl, req.auth.uid, mode);
       try {
-        const url = new URL(coverUrl);
-        if (url.protocol !== "https:" || url.username || url.password)
-          throw Error();
+        if (!localMediaPath(coverUrl)) {
+          const url = new URL(coverUrl);
+          if (url.protocol !== "https:" || url.username || url.password)
+            throw Error();
+        }
       } catch {
         throw fail(400, "Ảnh bìa phải là URL HTTPS.");
       }
@@ -41,7 +45,7 @@ function createSongOwnerRouter({ db }) {
       if (!remove && song.data().active !== true)
         throw fail(409, "Bài hát đã được gỡ.");
       tx.update(ref, {
-        ...(remove ? { active: false, isPublished: false } : { coverUrl }),
+        ...(remove ? { active: false } : { coverUrl, coverPublicId: null }),
         updatedAt: FieldValue.serverTimestamp(),
       });
     });

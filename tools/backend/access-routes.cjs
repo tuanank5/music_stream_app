@@ -9,22 +9,18 @@ function createAccessRouter({ db }) {
   const router = express.Router({ caseSensitive: true, strict: true });
   router.get("/profiles/:id", async (req, res) => {
     const id = validId(req.params.id);
-    const [account, projection] = await db.getAll(
-      db.doc(`users/${id}`),
-      db.doc(`publicProfiles/${id}`),
-    );
+    const account = await db.doc(`users/${id}`).get();
     if (!account.exists || account.data().active === false)
       throw fail(404, "Hồ sơ không còn khả dụng.");
-    const value = account.data(),
-      counts = projection.data() || value;
+    const value = account.data();
     res.json({
       id,
       name: value.displayName || "",
       imageUrl: value.avatarUrl || "",
       biography: value.biography || "",
       active: true,
-      followerCount: Number(counts.followerCount) || 0,
-      followingCount: Number(counts.followingCount) || 0,
+      followerCount: Number(value.followerCount) || 0,
+      followingCount: Number(value.followingCount) || 0,
     });
   });
   router.get("/access", async (req, res) => {
@@ -48,21 +44,7 @@ function createAccessRouter({ db }) {
       (kind !== "song" || value.active === true) &&
       !value.deleting;
     if (accessible && value.artistId !== req.auth.uid) {
-      accessible =
-        value.isPublic ??
-        (kind === "album"
-          ? value.isPublished === true
-          : value.visibility === "public" && value.isPublished === true);
-      if (!accessible && kind === "song") {
-        accessible =
-          value.visibility === "unlisted" ||
-          (value.visibility === "followers" &&
-            (
-              await db
-                .doc(`users/${req.auth.uid}/following/${value.artistId}`)
-                .get()
-            ).exists);
-      }
+      accessible = value.isPublic === true;
     }
     res.json({ accessible: !!accessible });
   });
