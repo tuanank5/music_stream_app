@@ -144,9 +144,14 @@ test("signed audio uses own namespace and server metadata; validates size/video 
       resource_type: "video",
       duration: 85,
       bytes: 1000,
-      secure_url: "https://example.test/audio.mp3",
+      secure_url: `https://res.cloudinary.com/test-cloud/video/upload/v1/${config.publicId}.mp3`,
     };
     const request = async (url, options) => {
+      if (url.startsWith("https://res.cloudinary.com/")) {
+        assert.equal(options.headers, undefined);
+        assert.equal(options.redirect, "error");
+        return new Response(Buffer.alloc(metadata.bytes));
+      }
       assert.ok(url.startsWith("https://api.cloudinary.com/"));
       assert.ok(options.headers.Authorization.startsWith("Basic "));
       return { ok: true, json: async () => metadata };
@@ -195,4 +200,113 @@ test("signed audio uses own namespace and server metadata; validates size/video 
       else process.env[key] = before[i];
     });
   }
+});
+
+test("audio verification inspects actual bytes when duration is missing or artwork dimensions are present", async () => {
+  const keys = [
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+  ];
+  const before = keys.map((key) => process.env[key]);
+  try {
+    keys.forEach((key, i) => {
+      process.env[key] = ["test-cloud", "test-key", "test-secret"][i];
+    });
+    const bytes = require("../tools/local/demo-audio.cjs").demoAudio(
+      "/local-audio/sample-short.wav",
+    );
+    const id = "musicstream/alice/audio/sample";
+    const url = `https://res.cloudinary.com/test-cloud/video/upload/v1/${id}.wav`;
+    for (const extra of [{}, { duration: 12, width: 640, height: 640 }]) {
+      let downloads = 0;
+      const metadata = {
+        public_id: id,
+        resource_type: "video",
+        secure_url: url,
+        bytes: bytes.length,
+        ...extra,
+      };
+      const request = async (target, options) => {
+        if (target.startsWith("https://api.cloudinary.com/")) {
+          assert.ok(target.endsWith("?media_metadata=true"));
+          assert.ok(options.headers.Authorization.startsWith("Basic "));
+          return { ok: true, json: async () => metadata };
+        }
+        assert.equal(target, url);
+        assert.equal(options.headers, undefined);
+        assert.equal(options.redirect, "error");
+        downloads++;
+        return new Response(bytes);
+      };
+      assert.deepEqual(await verifyAudio("alice", id, request), {
+        url,
+        duration: 12,
+      });
+      assert.equal(downloads, 1);
+      for (const bad of [
+        "https://attacker.test/audio.wav",
+        url.replace("test-cloud", "wrong-cloud"),
+        url.replace("/alice/", "/bob/"),
+      ]) {
+        metadata.secure_url = bad;
+        await assert.rejects(verifyAudio("alice", id, request), {
+          status: 400,
+        });
+      }
+      assert.equal(downloads, 1, "Unexpected URLs must not be fetched");
+    }
+  } finally {
+    keys.forEach((key, i) => {
+      if (before[i] === undefined) delete process.env[key];
+      else process.env[key] = before[i];
+    });
+  }
+});
+
+test("audio inspection cancels oversized bodies, rejects changed bytes and recovers after transport failures", async () => {
+  const { inspectAudio } = require("../tools/backend/inspect-audio.cjs");
+  const bytes = require("../tools/local/demo-audio.cjs").demoAudio(
+    "/local-audio/sample-short.wav",
+  );
+  let cancelled = false;
+  const body = new ReadableStream({
+    cancel() {
+      cancelled = true;
+    },
+  });
+  await assert.rejects(
+    inspectAudio(
+      "https://unused.test",
+      1,
+      async () =>
+        new Response(body, {
+          headers: { "content-length": String(31 * 1024 * 1024) },
+        }),
+    ),
+    { status: 400 },
+  );
+  assert.ok(cancelled);
+  await assert.rejects(
+    inspectAudio(
+      "https://unused.test",
+      bytes.length + 1,
+      async () => new Response(bytes),
+    ),
+    { status: 503 },
+  );
+  await assert.rejects(
+    inspectAudio("https://unused.test", bytes.length, async () => {
+      throw Error("timeout");
+    }),
+    { status: 503 },
+  );
+  assert.equal(
+    await inspectAudio(
+      "https://unused.test",
+      bytes.length,
+      async () => new Response(bytes),
+    ),
+    12,
+  );
 });

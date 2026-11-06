@@ -426,6 +426,20 @@ Người dùng xác nhận ảnh Android đã upload được, audio còn lỗi 
 
 Kiểm chứng bổ sung: unit 102/102 (.local/audio-read-unit.log), lint/typecheck đạt. Tests dùng encoder Expo thật cùng filesystem giả chỉ cho đọc bản sao trong sandbox, kiểm tra cleanup thành công/lỗi mạng/partial copy và quá 30 MB. Chưa xác nhận audio thành công trên Android thật; tiếp tục QA trên thiết bị sau restart/chọn lại file.
 
+### Xác minh audio khi Lưu bài trên cloud
+
+Người dùng đã upload được cả ảnh/audio, nhưng POST /songs báo File audio hoặc metadata không hợp lệ. Kiểm tra file MP3 thật do người dùng cung cấp: 7.191.372 bytes, duration đo được 204.69551020408164 giây, có audio stereo 44.1 kHz, không có video stream, có ảnh bìa PNG nhúng. Bản sao chỉ lưu .local/audio-cloud-debug.mp3, không commit. Thông báo trên là validator của ứng dụng, không phải thông báo bản quyền của Cloudinary; không suy ra quyền sử dụng nhạc từ việc tải được file.
+
+audio-assets.cjs không còn mặc định coi width/height >0 là video và không dựa vào duration từ client. Vẫn gọi Admin API để kiểm tra publicId thuộc UID, resource_type video (bao gồm audio), dung lượng dương <=30 MB và URL chính xác của asset trong cloud cấu hình. URL phải là HTTPS res.cloudinary.com, đúng cloud/video/upload/publicId, không query/userinfo hoặc host khác. Metadata đầy đủ, không có dấu hiệu video thì dùng fast path.
+
+Nếu duration thiếu/không hợp lệ hoặc metadata có kích thước/codec video mơ hồ, inspect-audio.cjs đọc bytes từ URL đã xác minh: không gửi Admin Authorization sang CDN, không theo redirect, timeout 30 giây, giới hạn stream 30 MB và đối chiếu bytes thực với Admin metadata. Tối đa hai phép inspection đồng thời. file-type nhận diện MP3/WAV/FLAC/OGG/M4A; music-metadata đo duration <=180 phút, yêu cầu sampleRate/channels hợp lệ và từ chối video stream. Ảnh bìa nhúng không bị coi là video. File lỗi/network/metadata drift trả lỗi, không đoán duration. Chỉ đọc bytes khi metadata mơ hồ để tránh tải lại mọi audio. Có thêm băng thông/latency ở nhánh này.
+
+Client dành timeout 60 giây riêng POST /songs ở cloud để đủ thời gian xác minh; endpoint khác và Emulator giữ 15 giây. Cache requestId giữ retry idempotent như trước. Audio URL/publicId và file Cloudinary cũ không cần đổi hoặc upload lại chỉ để vượt validator; backend mới phải được deploy trước khi thử Lưu lại.
+
+Kiểm chứng: bộ verifier mới chạy trên bytes MP3 thật, cả fixture Admin thiếu duration và có ảnh bìa đều trả đúng 204.69551020408164 giây; không có credentials Admin Cloudinary ở workspace để đọc JSON Admin thật nên chưa xác nhận chính xác field nào của phản hồi cloud cũ gây lỗi. Unit và isolated integration kiểm tra metadata mơ hồ, CDN URL ownership, lỗi network/size, POST /songs trả 201 và lưu duration/URL đúng, retry trả 200. Log .local/audio-metadata-unit.log và .local/audio-metadata-integration.log. Cần QA thao tác Lưu trên Render sau deploy; test Emulator không phải kết quả lưu bài thật trên cloud.
+
+Nguồn: [Cloudinary Admin resource metadata](https://cloudinary.com/documentation/admin_api), [Audio resource type](https://cloudinary.com/documentation/audio_transformations).
+
 ### Luồng lưu bài
 
 1. Client gọi GET `/audio-upload-config` có Firebase ID token.

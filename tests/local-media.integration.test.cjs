@@ -45,6 +45,13 @@ test("cloud image routes bind verified assets transactionally and cleanup preser
       process.env[key] = ["test-cloud", "test-key", "test-secret"][i];
     });
     global.fetch = async (url, options) => {
+      if (
+        String(url) ===
+        `https://res.cloudinary.com/test-cloud/video/upload/v1/musicstream/${uid}/audio/test.wav`
+      ) {
+        assert.equal(options.headers, undefined);
+        return new Response(demoAudio("/local-audio/sample-short.wav"));
+      }
       if (!String(url).startsWith("https://api.cloudinary.com/"))
         return originalFetch(url, options);
       if (String(url).endsWith("/image/destroy")) {
@@ -58,9 +65,11 @@ test("cloud image routes bind verified assets transactionally and cleanup preser
           json: async () => ({
             public_id: `musicstream/${uid}/audio/test`,
             resource_type: "video",
-            duration: 12,
-            bytes: 1000,
-            secure_url: "https://example.test/verified.mp3",
+            // A resource can have artwork dimensions and omit duration.
+            width: 600,
+            height: 600,
+            bytes: demoAudio("/local-audio/sample-short.wav").length,
+            secure_url: `https://res.cloudinary.com/test-cloud/video/upload/v1/musicstream/${uid}/audio/test.wav`,
           }),
         };
       const id = decodeURIComponent(new URL(url).pathname.split("/upload/")[1]);
@@ -153,6 +162,11 @@ test("cloud image routes bind verified assets transactionally and cleanup preser
     assert.equal(created.status, 201, JSON.stringify(created.body));
     const createdRef = db.doc(`songs/${created.body.id}`);
     createdSongs.push(createdRef);
+    assert.equal((await createdRef.get()).data().durationSeconds, 12);
+    assert.equal(
+      (await createdRef.get()).data().audioUrl,
+      `https://res.cloudinary.com/test-cloud/video/upload/v1/musicstream/${uid}/audio/test.wav`,
+    );
     assert.equal(
       (await createdRef.get()).data().coverPublicId,
       shared.publicId,

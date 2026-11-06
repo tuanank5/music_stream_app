@@ -3,6 +3,53 @@ const assert = require("node:assert/strict");
 const { createRequestCache } = require("../src/utils/createRequest.ts");
 const { createRequestId } = require("../tools/backend/create-request.cjs");
 
+test("cloud song saving allows audio inspection time without extending other request timeouts", async () => {
+  const Module = require("node:module");
+  const filename = require.resolve("../src/services/backendService.ts");
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  const user = { uid: "alice", getIdToken: async () => "token" };
+  const runtime = { mode: "cloud", backendUrl: "https://backend.example.test" };
+  mod.require = (request) => {
+    if (request === "./firebase")
+      return { getFirebaseAuth: () => ({ currentUser: user }) };
+    if (request === "./firebase/config")
+      return { getFirebaseRuntime: () => runtime };
+    if (request === "./backendEvents") return { notifyBackendWrite() {} };
+    throw Error(request);
+  };
+  mod._compile(
+    require("typescript").transpileModule(
+      require("node:fs").readFileSync(filename, "utf8"),
+      {
+        compilerOptions: { module: require("typescript").ModuleKind.CommonJS },
+      },
+    ).outputText,
+    filename,
+  );
+  const originalFetch = global.fetch,
+    originalTimeout = global.setTimeout;
+  const timeouts = [];
+  try {
+    global.fetch = async () => ({
+      ok: true,
+      json: async () => ({ id: "saved" }),
+    });
+    global.setTimeout = (callback, ms, ...args) => {
+      if (ms === 15000 || ms === 60000) timeouts.push(ms);
+      return originalTimeout(callback, ms, ...args);
+    };
+    await mod.exports.backendPost("/songs", {});
+    await mod.exports.backendPost("/albums", {});
+    runtime.mode = "emulator";
+    await mod.exports.backendPost("/songs", {});
+    assert.deepEqual(timeouts, [60000, 15000, 15000]);
+  } finally {
+    global.fetch = originalFetch;
+    global.setTimeout = originalTimeout;
+  }
+});
+
 test("create request cache reuses failed submission key and isolates edits/accounts/form sessions", () => {
   let sequence = 0;
   const cache = createRequestCache(() => String(++sequence));
