@@ -48,7 +48,10 @@ async function loadEditableData(directory = ROOT) {
         )
           continue;
         const workspace = path.resolve(__dirname, "../..");
-        const filename = path.resolve(workspace, source.startsWith("/audio/") ? `assets${source}` : source);
+        const filename = path.resolve(
+          workspace,
+          source.startsWith("/audio/") ? `assets${source}` : source,
+        );
         const relative = path.relative(workspace, filename);
         if (relative.startsWith("..") || path.isAbsolute(relative))
           throw new Error("Ảnh JSON phải nằm trong thư mục dự án.");
@@ -67,13 +70,32 @@ async function loadEditableData(directory = ROOT) {
         if (field === "audioUrl") {
           let metadata = audioCache.get(filename);
           if (!metadata) {
-            const detected = await (await import("file-type")).fileTypeFromBuffer(bytes);
-            if (!detected || !["mp3", "wav", "flac", "ogg", "m4a"].includes(detected.ext))
+            const detected = await (
+              await import("file-type")
+            ).fileTypeFromBuffer(bytes);
+            if (
+              !detected ||
+              !["mp3", "wav", "flac", "ogg", "m4a"].includes(detected.ext)
+            )
               throw new Error(`Unsupported audio: ${source}`);
-            const parsed = await (await import("music-metadata")).parseBuffer(bytes, { mimeType: detected.mime, size: bytes.length }, { duration: true });
+            const parsed = await (
+              await import("music-metadata")
+            ).parseBuffer(
+              bytes,
+              { mimeType: detected.mime, size: bytes.length },
+              { duration: true },
+            );
             const seconds = parsed.format.duration;
-            if (!Number.isFinite(seconds) || seconds <= 0 || seconds > 10800 || bytes.length > 30 * 1024 * 1024 || parsed.format.trackInfo?.some((track) => track.type === 1))
-              throw new Error(`Invalid audio duration, size or video track: ${source}`);
+            if (
+              !Number.isFinite(seconds) ||
+              seconds <= 0 ||
+              seconds > 10800 ||
+              bytes.length > 30 * 1024 * 1024 ||
+              parsed.format.trackInfo?.some((track) => track.type === 1)
+            )
+              throw new Error(
+                `Invalid audio duration, size or video track: ${source}`,
+              );
             metadata = { ext: detected.ext, duration: seconds };
             audioCache.set(filename, metadata);
           }
@@ -94,7 +116,14 @@ async function loadEditableData(directory = ROOT) {
           fields.audioPublicId = fields[field];
           fields.durationSeconds = duration;
         }
-        mediaFiles.push({ stored, bytes, ownerId, url: fields[field], kind: field === "audioUrl" ? "audio" : "image", duration });
+        mediaFiles.push({
+          stored,
+          bytes,
+          ownerId,
+          url: fields[field],
+          kind: field === "audioUrl" ? "audio" : "image",
+          duration,
+        });
       }
       const root = ["users", "songs", "albums", "posts"].includes(kind);
       if ((!root && !id(parentId)) || (root && parentId !== undefined))
@@ -139,22 +168,24 @@ async function loadEditableData(directory = ROOT) {
     );
   return { documents, report, mediaFiles };
 }
-async function main(args = process.argv.slice(2)) {
+async function main(args = process.argv.slice(2), directory = ROOT) {
   if (args.length !== 1 || !["check", "apply"].includes(args[0]))
     throw new Error("Use check or apply; chỉ hỗ trợ dataset local cố định.");
   localEnvironment(); // Refuse cloud/mixed project configuration even before reads.
-  const { documents, report, mediaFiles } = await loadEditableData();
+  const { documents, report, mediaFiles } = await loadEditableData(directory);
   if (args[0] === "check") {
     console.log(
       JSON.stringify(
         {
-          directory: ROOT,
+          directory,
           documents: documents.length,
           errors: 0,
           warnings: report.warnings,
           collections: report.collections,
-          localImages: mediaFiles.filter((media) => media.kind === "image").length,
-          localAudio: mediaFiles.filter((media) => media.kind === "audio").length,
+          localImages: mediaFiles.filter((media) => media.kind === "image")
+            .length,
+          localAudio: mediaFiles.filter((media) => media.kind === "audio")
+            .length,
         },
         null,
         2,
