@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { ScrollView, XStack, YStack } from "tamagui";
 import Artwork from "../components/Artwork";
 import HomeDiscovery from "../components/HomeDiscovery";
@@ -15,12 +15,14 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useHomeDiscovery } from "../hooks/useHomeDiscovery";
 import { useBackendResource } from "../hooks/useBackendResource";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const discovery = useHomeDiscovery();
   const profile = useBackendResource<{ avatarUrl: string }>("/me");
+  const refreshProfile = profile.refresh;
+  useFocusEffect(useCallback(() => refreshProfile(), [refreshProfile]));
   const [muted, setMuted] = useState(false);
   const hour = new Date().getHours();
   const greeting =
