@@ -1,10 +1,9 @@
-import React from "react";
-import Guard from "../components/Guard";
-import { PlaylistsScreen } from "../components/LibraryScreens";
+import RequireAuth from "../components/RequireAuth";
+import { PlaylistsScreen } from "../screens/PlaylistsScreen";
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <PlaylistsScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

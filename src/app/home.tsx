@@ -1,10 +1,10 @@
-import Guard from "../components/Guard";
-import HomeScreen from "../components/HomeScreen";
+import RequireAuth from "../components/RequireAuth";
+import HomeScreen from "../screens/HomeScreen";
 
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <HomeScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

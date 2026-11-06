@@ -2,8 +2,9 @@ import { router } from "expo-router";
 import { ScrollView, YStack } from "tamagui";
 import { useBackendResource } from "../hooks/useBackendResource";
 import type { Artist } from "../types/domain";
-import { Action, AppText, ErrorText } from "./UI";
-import { ArtistAvatar, FollowButton } from "./discovery/DiscoveryCards";
+import { Action, AppText, ErrorText } from "./ui/index";
+import { ArtistAvatar } from "./discovery/ArtistAvatar";
+import { FollowButton } from "./discovery/FollowButton";
 export default function RelatedArtistsSection({ id }: { id: string }) {
   const state = useBackendResource<{ title: string; artists: Artist[] }>(
     "/related-artists",

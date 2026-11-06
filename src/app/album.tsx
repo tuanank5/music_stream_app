@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from "expo-router";
-import Guard from "../components/Guard";
-import AlbumScreen from "../components/AlbumScreen";
-import { BackButton } from "../components/discovery/BackButton";
-import { ErrorText, Page } from "../components/UI";
+import RequireAuth from "../components/RequireAuth";
+import AlbumScreen from "../screens/AlbumScreen";
+import { BackButton } from "../components/ui/BackButton";
+import { ErrorText, Page } from "../components/ui/index";
 export default function Route() {
   const params = useLocalSearchParams<{
     id?: string | string[];
@@ -10,7 +10,7 @@ export default function Route() {
   }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   return (
-    <Guard>
+    <RequireAuth>
       {id ? (
         <AlbumScreen id={id} owned={params.owned === "1"} />
       ) : (
@@ -18,6 +18,6 @@ export default function Route() {
           <ErrorText message="Thiếu ID album." />
         </Page>
       )}
-    </Guard>
+    </RequireAuth>
   );
 }

@@ -1,10 +1,9 @@
-import React from "react";
-import Guard from "../components/Guard";
-import { LibraryScreen } from "../components/LibraryScreens";
+import RequireAuth from "../components/RequireAuth";
+import { LibraryScreen } from "../screens/LibraryScreen";
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <LibraryScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

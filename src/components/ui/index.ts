@@ -5,7 +5,6 @@ export * from "./Field";
 export * from "./Card";
 export * from "./IconButton";
 export * from "./Feedback";
-export * from "./Toggle";
 export * from "./Image";
 export * from "./Icon";
 export * from "./ListPage";

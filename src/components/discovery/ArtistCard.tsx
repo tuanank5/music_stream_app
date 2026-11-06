@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { YStack } from "tamagui";
 import { useWindowDimensions } from "react-native";
 import type { Artist } from "../../types/domain";
-import { Action, MediaTitle } from "../UI";
+import { Action, MediaTitle } from "../ui/index";
 import { ArtistAvatar } from "./ArtistAvatar";
 import { FollowButton } from "./FollowButton";
 // Thẻ nghệ sĩ trên Home.

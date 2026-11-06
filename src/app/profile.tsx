@@ -1,9 +1,9 @@
-import Guard from "../components/Guard";
-import ProfileScreen from "../components/ProfileScreen";
+import RequireAuth from "../components/RequireAuth";
+import ProfileScreen from "../screens/ProfileScreen";
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <ProfileScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

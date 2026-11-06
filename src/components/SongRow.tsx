@@ -24,7 +24,7 @@ import {
   MediaTitle,
   MediaSubtitle,
   SearchField,
-} from "./UI";
+} from "./ui/index";
 import { ModalPanel } from "./ui/ModalPanel";
 
 export default function SongRow({

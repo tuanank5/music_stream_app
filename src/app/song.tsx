@@ -1,13 +1,13 @@
 import { useLocalSearchParams } from "expo-router";
-import Guard from "../components/Guard";
-import SongScreen from "../components/SongScreen";
-import { BackButton } from "../components/discovery/BackButton";
-import { ErrorText, Page } from "../components/UI";
+import RequireAuth from "../components/RequireAuth";
+import SongScreen from "../screens/SongScreen";
+import { BackButton } from "../components/ui/BackButton";
+import { ErrorText, Page } from "../components/ui/index";
 export default function Route() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   return (
-    <Guard>
+    <RequireAuth>
       {id ? (
         <SongScreen key={id} id={id} />
       ) : (
@@ -15,6 +15,6 @@ export default function Route() {
           <ErrorText message="Thiếu ID bài hát." />
         </Page>
       )}
-    </Guard>
+    </RequireAuth>
   );
 }

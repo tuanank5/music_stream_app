@@ -1,4 +1,10 @@
-import { Redirect } from "expo-router";
+import RequireAuth from "../components/RequireAuth";
+import MyUploadsScreen from "../screens/MyUploadsScreen";
+
 export default function Route() {
-  return <Redirect href="/uploads" />;
+  return (
+    <RequireAuth>
+      <MyUploadsScreen />
+    </RequireAuth>
+  );
 }

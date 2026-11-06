@@ -1,6 +1,6 @@
 import React from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
-import { ScrollView, YStack, styled, type GetProps } from "tamagui";
+import { ScrollView, YStack, styled } from "tamagui";
 import { ScreenHeader } from "./ScreenHeader";
 const KeyboardFrame = styled(KeyboardAvoidingView, {
   displayName: "KeyboardFrame",
@@ -75,4 +75,3 @@ export function Page({
     </YStack>
   );
 }
-export type PageContentProps = GetProps<typeof PageContent>;

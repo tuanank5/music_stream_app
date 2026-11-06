@@ -3,7 +3,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider } from "tamagui";
 import { tamaguiConfig } from "../../tamagui.config";
 import { AppFrame } from "../components/AppFrame";
-import { AppText, Page } from "../components/UI";
+import { AppText, Page } from "../components/ui/index";
 import { AuthProvider } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
 import { PlayerProvider } from "../contexts/PlayerContext";

@@ -163,7 +163,7 @@ Module._load = function (request, parent, isMain) {
     };
   if (request === "tamagui")
     return { YStack: ({ children }) => h("div", null, children) };
-  if (request === "../UI")
+  if (request === "../ui/index")
     return {
       Action: ({ children, onPress, disabled, "aria-label": label }) =>
         h(
@@ -231,7 +231,6 @@ function dataTree(extra) {
     null,
     h(Capture, { name: "catalog", hook: Data.useCatalogData }),
     h(Capture, { name: "library", hook: Data.useLibraryData }),
-    h(Capture, { name: "history", hook: Data.useHistoryData }),
     extra,
   );
 }
@@ -243,22 +242,27 @@ async function readyData() {
     emit("favorites:alice", []);
     emit("following:alice", []);
     emit("playlists:alice", []);
-    emit("history:alice", []);
   });
 }
 
-test("history and library updates do not render catalog consumers or rebuild the song array", async () => {
+test("library updates do not render catalog consumers and the provider does not preload unused history", async () => {
   await mount(dataTree());
   await readyData();
   const rendered = counts.catalog,
     beforeSongs = seen.catalog.songs;
+  assert.equal(
+    registrations.some((item) => item.name.startsWith("history:")),
+    false,
+  );
   for (let i = 0; i < 10; i++)
     await act(async () =>
-      emit("history:alice", [{ songId: "public", progressSeconds: i }]),
+      emit("playlists:alice", [
+        { id: "p", name: `Playlist ${i}`, songIds: ["public"] },
+      ]),
     );
   assert.equal(counts.catalog, rendered);
   assert.equal(seen.catalog.songs, beforeSongs);
-  assert.ok(counts.history > 10);
+  assert.ok(counts.library > 10);
   await act(async () =>
     emit("playlists:alice", [{ id: "p", songIds: ["public"] }]),
   );

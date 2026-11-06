@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import type { MusicChart } from "../../types/discovery";
-import { Action, MediaSubtitle } from "../UI";
+import { Action, MediaSubtitle } from "../ui/index";
 import { ChartCover } from "./ChartCover";
 // Thẻ chart trên Home và trang Charts.
 export function ChartCard({

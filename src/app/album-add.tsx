@@ -1,11 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
-import Guard from "../components/Guard";
-import AlbumAddSongsScreen from "../components/AlbumAddSongsScreen";
-import { ErrorText, Page } from "../components/UI";
+import RequireAuth from "../components/RequireAuth";
+import AlbumAddSongsScreen from "../screens/AlbumAddSongsScreen";
+import { ErrorText, Page } from "../components/ui/index";
 export default function Route() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   return (
-    <Guard>
+    <RequireAuth>
       {id ? (
         <AlbumAddSongsScreen key={id} id={id} />
       ) : (
@@ -13,6 +13,6 @@ export default function Route() {
           <ErrorText message="Thiếu ID album." />
         </Page>
       )}
-    </Guard>
+    </RequireAuth>
   );
 }

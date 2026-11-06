@@ -1,0 +1,114 @@
+name: Project checks
+
+on:
+  push:
+    branches: [main, "ci/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "1"
+  EXPO_NO_DOTENV: "1"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.12.0"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix tools --no-audit --no-fund
+      - run: npm run lint -- --no-cache
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run backend:check-package
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.12.0"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci
+      - run: npm ci --prefix tools --no-audit --no-fund
+      - name: Firebase Rules and Auth SDK persistence (Web and React Native)
+        shell: bash
+        run: |
+          mkdir -p ci-results
+          set -o pipefail
+          npm run test:local:isolated 2>&1 | tee ci-results/integration.log
+      - name: Save integration output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: firebase-integration-output
+          path: ci-results/integration.log
+          retention-days: 7
+
+  bundles:
+    name: Bundle and Auth resolution (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [web, android]
+    env:
+      EXPO_PUBLIC_FIREBASE_MODE: emulator
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID: demo-music-stream
+      EXPO_PUBLIC_EMULATOR_HOST: "127.0.0.1"
+      EXPO_PUBLIC_AUTH_EMULATOR_PORT: "9099"
+      EXPO_PUBLIC_FIRESTORE_EMULATOR_PORT: "8080"
+      EXPO_PUBLIC_BACKEND_URL: http://127.0.0.1:8787
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.12.0"
+          cache: npm
+      - run: npm ci
+      - name: Export bundle with source maps
+        run: node node_modules/expo/bin/cli export --platform ${{ matrix.platform }} --source-maps --max-workers 2 --output-dir ci-results/${{ matrix.platform }}
+      - name: Verify actual app and Firebase SDK modules
+        run: node scripts/check-auth-bundle.cjs ${{ matrix.platform }} ci-results/${{ matrix.platform }}
+      - name: Save bundle and module report
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundle-${{ matrix.platform }}
+          path: ci-results/${{ matrix.platform }}/
+          retention-days: 7
+          if-no-files-found: error
+
+  backend-container:
+    uses: ./.github/workflows/backend-container.yml

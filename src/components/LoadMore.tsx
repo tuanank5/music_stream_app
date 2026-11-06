@@ -1,4 +1,4 @@
-import { Button, ErrorText, Loading } from "./UI";
+import { Button, ErrorText, Loading } from "./ui/index";
 export default function LoadMore({
   loading,
   error,

@@ -3,6 +3,7 @@ node_modules/
 package-lock.json
 .expo/
 .local/
+data/local/auth.json
 dist/
 web-build/
 *.apk

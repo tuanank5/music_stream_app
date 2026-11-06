@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useLibraryData } from "../../contexts/DataContext";
 import { useAction } from "../../hooks/useAction";
 import { setFollow } from "../../services/libraryService";
-import { Action, AppText, ErrorText } from "../UI";
+import { Action, AppText, ErrorText } from "../ui/index";
 // Theo dõi/bỏ theo dõi nghệ sĩ.
 export function FollowButton({
   artistId,

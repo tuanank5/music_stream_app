@@ -1,15 +1,5 @@
 import { FirebaseApp, getApps, initializeApp } from "firebase/app";
-import { Platform } from "react-native";
 import { resolveFirebaseRuntime } from "./runtime";
-
-export type FirebaseClientConfig = {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-};
 
 export function getFirebaseRuntime() {
   // Expo only inlines direct process.env.EXPO_PUBLIC_* access.
@@ -62,8 +52,4 @@ export function getFirebaseApp(): FirebaseApp {
     return existing;
   }
   return initializeApp(config, name);
-}
-
-export function getFirebaseRuntimePlatform(): "web" | "native" {
-  return Platform.OS === "web" ? "web" : "native";
 }

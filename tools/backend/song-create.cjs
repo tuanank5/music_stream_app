@@ -1,6 +1,7 @@
 const { FieldValue } = require("firebase-admin/firestore");
 const { validateGenres } = require("../../src/utils/genres.ts");
 const { imageUrl, localMediaPath, ownedMedia } = require("./local-media.cjs");
+const { prepareImage, stageImageChange } = require("./image-assets.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function validateSongInput(value, { uid, mode } = {}) {
   if (
@@ -95,6 +96,11 @@ async function createOwnedSong(db, uid, input, audio, { local = false } = {}) {
     throw fail(400, "Metadata audio không hợp lệ.");
   const ref = db.doc(`songs/${input.requestId}`),
     userRef = db.doc(`users/${uid}`);
+  const prepared = await prepareImage(
+    uid,
+    input.coverUrl,
+    local ? "emulator" : "cloud",
+  );
   return db.runTransaction(async (tx) => {
     const [user, existing] = await Promise.all([tx.get(userRef), tx.get(ref)]);
     if (!user.exists || user.data().active === false)
@@ -138,10 +144,12 @@ async function createOwnedSong(db, uid, input, audio, { local = false } = {}) {
     if (!Number.isFinite(used) || used + audio.duration > 10800)
       throw fail(409, "Bạn đã dùng hết hạn mức tải lên 180 phút.");
     const { requestId, ...fields } = input;
+    const imageChange = await stageImageChange(tx, db, uid, ref.path, prepared);
+    imageChange.write();
     tx.create(ref, {
       ...fields,
       artistId: uid,
-      coverPublicId: null,
+      coverPublicId: imageChange.publicId,
       audioUrl: audio.url,
       durationSeconds: audio.duration,
       active: true,

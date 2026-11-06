@@ -1,10 +1,10 @@
 /**
  * Run from the music_stream_app project root:
  *   set LOCAL_AUTH_PASSWORD=YourLocalTestPassword123!
- *   node create-local-auth.cjs
+ *   node scripts/create-local-auth.cjs
  *
  * Creates data/local/auth.json for use with Firebase Auth Emulator.
- * This does NOT import users into the emulator; your Auth seed must read auth.json.
+ * Then run npm run data:auth while the local Emulator is running to import it.
  */
 const fs = require('node:fs');
 const path = require('node:path');

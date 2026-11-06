@@ -17,7 +17,7 @@ import { useAuth } from "./AuthContext";
 import { errorMessage } from "../utils/feedback";
 import { usePlaybackHistory } from "../hooks/usePlaybackHistory";
 import { getFirebaseRuntime } from "../services/firebase/config";
-import { audioSourceUri, isLocalDemoAudio } from "../utils/audioSource";
+import { audioSourceUri } from "../utils/audioSource";
 type PlayerState = {
   current: Song | null;
   playing: boolean;
@@ -254,8 +254,4 @@ export function usePlayerProgress() {
   const value = useContext(ProgressContext);
   if (!value) throw new Error("Thiếu PlayerProvider");
   return value;
-}
-// Compatibility only. New consumers subscribe to the narrow hook they need.
-export function usePlayer() {
-  return { ...usePlayerActions(), ...usePlayerState(), ...usePlayerProgress() };
 }

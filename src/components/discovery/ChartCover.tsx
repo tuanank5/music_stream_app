@@ -2,7 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { YStack, styled } from "tamagui";
 import type { ChartTheme, MusicChart } from "../../types/discovery";
-import { AppImage, AppText } from "../UI";
+import { AppImage, AppText } from "../ui/index";
 const CoverGradient = styled(LinearGradient, {
   displayName: "CoverGradient",
   flex: 1,

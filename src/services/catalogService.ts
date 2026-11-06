@@ -1,4 +1,3 @@
-//Update Date 10/30/2026
 import { collection, doc } from "firebase/firestore";
 
 import { getFirebaseAuth, getFirebaseDb } from "./firebase";
@@ -8,34 +7,6 @@ import { Artist, Album, Song } from "../types/domain";
 import { cleanText, httpsUrl } from "../utils/validation";
 import { isLocalMedia } from "../utils/audioSource";
 import { getFirebaseRuntime } from "./firebase/config";
-
-export function mapSong(id: string, x: Record<string, unknown>): Song {
-  const names = Array.isArray(x.artistNames)
-    ? x.artistNames.map(String)
-    : [String(x.artist ?? "")];
-
-  return {
-    id,
-    title: String(x.title ?? ""),
-    artist: names.join(", "),
-    artistNames: names,
-    artistId: String(x.artistId ?? ""),
-    albumId: x.albumId ? String(x.albumId) : null,
-    album: String(x.album ?? ""),
-    cover: String(x.coverUrl ?? ""),
-    audioUrl: String(x.audioUrl ?? ""),
-    durationSeconds: Number(x.durationSeconds ?? 0),
-    lyrics: String(x.lyric ?? x.lyrics ?? ""),
-    genre: Array.isArray(x.genre)
-      ? x.genre.map(String)
-      : typeof x.genre === "string"
-        ? [x.genre]
-        : [],
-    playCount: Number(x.playCount ?? 0),
-    isPublic: x.isPublic === true,
-    active: x.active !== false,
-  };
-}
 
 function subscribeCatalog<T extends { id: string }>(
   path: string,

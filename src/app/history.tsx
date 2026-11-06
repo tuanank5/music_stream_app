@@ -1,10 +1,10 @@
-import Guard from "../components/Guard";
-import HistoryScreen from "../components/HistoryScreen";
+import RequireAuth from "../components/RequireAuth";
+import HistoryScreen from "../screens/HistoryScreen";
 
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <HistoryScreen />
-    </Guard>
+    </RequireAuth>
   );
 }

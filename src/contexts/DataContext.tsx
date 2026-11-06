@@ -20,15 +20,8 @@ import {
   watchPlaylists,
   watchFavorites,
   watchFollowing,
-  watchHistory,
 } from "../services/libraryService";
-import type {
-  Album,
-  Artist,
-  HistoryEntry,
-  Playlist,
-  Song,
-} from "../types/domain";
+import type { Album, Artist, Playlist, Song } from "../types/domain";
 import { errorMessage } from "../utils/feedback";
 import { mergeCatalogSongs } from "../utils/catalog";
 import {
@@ -51,10 +44,8 @@ type LibraryData = {
   followingIds: string[];
   loading: boolean;
 };
-type HistoryData = { history: HistoryEntry[]; loading: boolean; error: string };
 const CatalogContext = createContext<CatalogData | null>(null);
 const LibraryContext = createContext<LibraryData | null>(null);
-const HistoryContext = createContext<HistoryData | null>(null);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -76,7 +67,6 @@ function DataSession({
   const [songs, setSongs] = useState<Song[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [favoriteIds, setFavorites] = useState<string[]>([]);
   const [followingIds, setFollowing] = useState<string[]>([]);
@@ -88,7 +78,6 @@ function DataSession({
     songs: !uid,
     artists: !uid,
     albums: !uid,
-    history: !uid,
     playlists: !uid,
     favorites: !uid,
     following: !uid,
@@ -246,11 +235,6 @@ function DataSession({
         guarded(success("albums", "Albums", setAlbums)),
         guarded(failure("albums", "Albums")),
       ),
-      watchHistory(
-        uid,
-        guarded(success("history", "History", setHistory)),
-        guarded(failure("history", "History")),
-      ),
       watchPlaylists(
         uid,
         guarded(success("playlists", "Playlist", setPlaylists)),
@@ -351,19 +335,10 @@ function DataSession({
     () => ({ playlists, favoriteIds, followingIds, loading: libraryLoading }),
     [playlists, favoriteIds, followingIds, libraryLoading],
   );
-  const historyError = errors
-    .filter((item) => item.startsWith("History:"))
-    .join("\n");
-  const historyValue = useMemo(
-    () => ({ history, loading: !ready.history, error: historyError }),
-    [history, ready.history, historyError],
-  );
   return (
     <CatalogContext.Provider value={catalogValue}>
       <LibraryContext.Provider value={libraryValue}>
-        <HistoryContext.Provider value={historyValue}>
-          {children}
-        </HistoryContext.Provider>
+        {children}
       </LibraryContext.Provider>
     </CatalogContext.Provider>
   );
@@ -379,13 +354,7 @@ export function useLibraryData() {
   if (!value) throw new Error("Thiếu DataProvider");
   return value;
 }
-export function useHistoryData() {
-  const value = useContext(HistoryContext);
-  if (!value) throw new Error("Thiếu DataProvider");
-  return value;
-}
-// Existing mixed screens keep this facade, without subscribing to playback
-// history. Screens needing history must opt into useHistoryData explicitly.
+// Mixed screens combine catalog and library; History loads via useHistoryPage.
 export function useData() {
   const catalog = useCatalogData();
   const library = useLibraryData();

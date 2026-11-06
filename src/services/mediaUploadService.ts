@@ -3,6 +3,7 @@ import { getFirebaseRuntime } from "./firebase/config";
 import { assertExternalUploadsAllowed } from "./firebase/runtime";
 import { backendGet } from "./backendService";
 import { getFirebaseAuth } from "./firebase";
+import { prepareImageUpload } from "./prepareImageUpload";
 
 export type PickedMedia = {
   uri: string;
@@ -20,32 +21,24 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
     throw new Error(
       "File local phải được chọn từ thiết bị, không phải URL bên ngoài.",
     );
-  const user = local ? getFirebaseAuth().currentUser : null;
-  if (local && (!user || !runtime.backendUrl))
-    throw new Error("Cần đăng nhập và cấu hình backend local.");
-  const token = user ? await user.getIdToken() : null;
-  if (local && getFirebaseAuth().currentUser !== user)
+  const user = getFirebaseAuth().currentUser;
+  if (!user || !runtime.backendUrl)
+    throw new Error("Cần đăng nhập và cấu hình backend.");
+  const token = local ? await user.getIdToken() : null;
+  if (getFirebaseAuth().currentUser !== user)
     throw new Error("Phiên đăng nhập đã thay đổi.");
-  const signed =
-    !local && kind === "video"
-      ? await backendGet<{
-          cloud: string;
-          apiKey: string;
-          publicId: string;
-          timestamp: number;
-          signature: string;
-        }>("/audio-upload-config")
-      : null;
-  const cloud = signed?.cloud || process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
-  const preset =
-    kind === "image"
-      ? process.env.EXPO_PUBLIC_CLOUDINARY_IMAGE_PRESET
-      : process.env.EXPO_PUBLIC_CLOUDINARY_AUDIO_PRESET;
-
-  if (!local && (!cloud || (!signed && !preset))) {
-    throw new Error("Chưa cấu hình Cloudinary cloud name / upload preset.");
-  }
+  const signed = !local
+    ? await backendGet<{
+        cloud: string;
+        apiKey: string;
+        publicId: string;
+        timestamp: number;
+        signature: string;
+        overwrite?: string;
+        allowedFormats?: string;
+      }>(kind === "image" ? "/image-upload-config" : "/audio-upload-config")
+    : null;
+  const cloud = signed?.cloud;
 
   const max = kind === "image" ? 5 * 1024 * 1024 : 30 * 1024 * 1024;
 
@@ -55,21 +48,24 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
     );
   }
 
+  const prepared = kind === "image" ? await prepareImageUpload(asset) : asset;
+  if (getFirebaseAuth().currentUser !== user)
+    throw new Error("Phiên đăng nhập đã thay đổi.");
   const form = new FormData();
 
   if (Platform.OS === "web") {
-    const blob = asset.file ?? (await (await fetch(asset.uri)).blob());
+    const blob = prepared.file ?? (await (await fetch(prepared.uri)).blob());
 
     if (blob.size > max) {
       throw new Error("File vượt giới hạn dung lượng.");
     }
 
-    form.append("file", blob, asset.name);
+    form.append("file", blob, prepared.name);
   } else {
     form.append("file", {
-      uri: asset.uri,
-      name: asset.name,
-      type: asset.mimeType,
+      uri: prepared.uri,
+      name: prepared.name,
+      type: prepared.mimeType,
     } as unknown as Blob);
   }
 
@@ -78,7 +74,10 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
     form.append("timestamp", String(signed.timestamp));
     form.append("signature", signed.signature);
     form.append("public_id", signed.publicId);
-  } else if (!local) form.append("upload_preset", preset!);
+    if (signed.overwrite) form.append("overwrite", signed.overwrite);
+    if (signed.allowedFormats)
+      form.append("allowed_formats", signed.allowedFormats);
+  }
 
   const abort = new AbortController();
 
@@ -107,7 +106,7 @@ export async function uploadMedia(asset: PickedMedia, kind: "image" | "video") {
       );
     }
 
-    if (local && getFirebaseAuth().currentUser !== user)
+    if (getFirebaseAuth().currentUser !== user)
       throw new Error("Phiên đăng nhập đã thay đổi.");
     return {
       url: String(local ? value.url : value.secure_url),

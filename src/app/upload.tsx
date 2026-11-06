@@ -1,11 +1,10 @@
-import React from "react";
-import Guard from "../components/Guard";
-import UploadSongScreen from "../components/UploadSongScreen";
+import RequireAuth from "../components/RequireAuth";
+import UploadSongScreen from "../screens/UploadSongScreen";
 
 export default function Route() {
   return (
-    <Guard>
+    <RequireAuth>
       <UploadSongScreen />
-    </Guard>
+    </RequireAuth>
   );
 }
