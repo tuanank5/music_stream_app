@@ -2,6 +2,82 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { createRequestCache } = require("../src/utils/createRequest.ts");
 const { createRequestId } = require("../tools/backend/create-request.cjs");
+const { runTransaction } = require("../tools/backend/transaction.cjs");
+
+test("closed transaction retry starts fresh and rechecks quota instead of reusing stale results", async () => {
+  let calls = 0,
+    used = 10700;
+  const reads = [];
+  const db = {
+    runTransaction: async (work) => {
+      const attempt = ++calls;
+      const value = await work({
+        get: async () => {
+          reads.push(attempt);
+          return used;
+        },
+      });
+      if (attempt === 1) {
+        used = 10800; // Another writer wins while our first transaction aborts.
+        throw Object.assign(
+          Error("3 INVALID_ARGUMENT: Transaction is invalid or closed."),
+          { code: 3 },
+        );
+      }
+      return value;
+    },
+  };
+  await assert.rejects(
+    runTransaction(db, async (tx) => {
+      if ((await tx.get()) + 100 > 10800)
+        throw Object.assign(Error("quota exceeded"), { status: 409 });
+      return "candidate";
+    }),
+    { status: 409 },
+  );
+  assert.equal(calls, 2);
+  assert.deepEqual(reads, [1, 2]);
+});
+
+test("transaction retries are bounded and do not retry business, permission or other argument errors", async () => {
+  for (const error of [
+    Object.assign(Error("bad argument"), { code: 3 }),
+    Object.assign(Error("permission denied"), { code: 7 }),
+    Object.assign(Error("quota exceeded"), { status: 409 }),
+  ]) {
+    let calls = 0;
+    await assert.rejects(
+      runTransaction(
+        {
+          runTransaction: async () => {
+            calls++;
+            throw error;
+          },
+        },
+        () => {},
+      ),
+      (actual) => actual === error,
+    );
+    assert.equal(calls, 1);
+  }
+  let calls = 0;
+  const error = Object.assign(Error("Transaction is invalid or closed."), {
+    code: 3,
+  });
+  await assert.rejects(
+    runTransaction(
+      {
+        runTransaction: async () => {
+          calls++;
+          throw error;
+        },
+      },
+      () => {},
+    ),
+    (actual) => actual === error,
+  );
+  assert.equal(calls, 3);
+});
 
 test("cloud song saving allows audio inspection time without extending other request timeouts", async () => {
   const Module = require("node:module");

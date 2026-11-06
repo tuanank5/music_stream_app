@@ -2,6 +2,7 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { validateGenres } = require("../../src/utils/genres.ts");
 const { imageUrl, localMediaPath, ownedMedia } = require("./local-media.cjs");
 const { prepareImage, stageImageChange } = require("./image-assets.cjs");
+const { runTransaction } = require("./transaction.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function validateSongInput(value, { uid, mode } = {}) {
   if (
@@ -101,8 +102,8 @@ async function createOwnedSong(db, uid, input, audio, { local = false } = {}) {
     input.coverUrl,
     local ? "emulator" : "cloud",
   );
-  return db.runTransaction(async (tx) => {
-    const [user, existing] = await Promise.all([tx.get(userRef), tx.get(ref)]);
+  return runTransaction(db, async (tx) => {
+    const [user, existing] = await tx.getAll(userRef, ref);
     if (!user.exists || user.data().active === false)
       throw fail(403, "Tài khoản không hoạt động.");
     if (existing.exists) {

@@ -267,6 +267,11 @@ function finishHttpApp(app) {
   app.use((req, res) => res.status(404).json({ error: "Not found" }));
   app.use((error, req, res, next) => {
     if (res.headersSent) return next(error);
+    if (!error.status)
+      console.error("Backend request failed:", req.method, req.path, {
+        code: error.code,
+        message: error.message,
+      });
     res.status(error.status || 500).json({
       error: error.status
         ? error.message

@@ -1,5 +1,6 @@
 const express = require("express");
 const { FieldValue, FieldPath } = require("firebase-admin/firestore");
+const { runTransaction } = require("./transaction.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function validId(id) {
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw fail(400, "ID không hợp lệ.");
@@ -66,12 +67,23 @@ function createSocialRouter({ db }) {
       target = validId(req.params.id);
     if (uid === target) throw fail(400, "Không thể tự theo dõi.");
     const ref = db.doc(`users/${uid}/following/${target}`);
-    const counters = await db.runTransaction(async (tx) => {
-      const [relation, account, ownProfile] = await Promise.all([
-        tx.get(ref),
-        tx.get(db.doc(`users/${target}`)),
-        tx.get(db.doc(`users/${uid}`)),
-      ]);
+    const ownRef = db.doc(`users/${uid}`);
+    const targetRef = db.doc(`users/${target}`);
+    const reads = [ref, ownRef, targetRef].sort((a, b) =>
+      a.path < b.path ? -1 : 1,
+    );
+    const counters = await runTransaction(db, async (tx) => {
+      // One transactional read RPC avoids overlapping reads against a
+      // transaction that may be aborted under concurrent follow/unfollow.
+      const snapshots = new Map(
+        (await tx.getAll(...reads)).map((snapshot) => [
+          snapshot.ref.path,
+          snapshot,
+        ]),
+      );
+      const relation = snapshots.get(ref.path);
+      const account = snapshots.get(targetRef.path);
+      const ownProfile = snapshots.get(ownRef.path);
       if (!ownProfile.exists || ownProfile.data().active === false)
         throw fail(403, "Tài khoản không hoạt động.");
       if (add && !account.exists) throw fail(404, "Không tìm thấy nghệ sĩ.");
@@ -94,10 +106,10 @@ function createSocialRouter({ db }) {
             followedAt: FieldValue.serverTimestamp(),
           });
         else tx.delete(ref);
-        tx.update(db.doc(`users/${uid}`), {
+        tx.update(ownRef, {
           followingCount: ownCount + delta,
         });
-        tx.update(db.doc(`users/${target}`), {
+        tx.update(targetRef, {
           followerCount: targetCount + delta,
         });
       }

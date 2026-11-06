@@ -8,6 +8,88 @@ const {
 } = require("../tools/backend/http-app.cjs");
 const { demoAudio } = require("../tools/local/demo-audio.cjs");
 
+test("follow transactions batch-read relation and counters before idempotent writes", async () => {
+  const rows = new Map([
+    ["users/alice", { active: true, followingCount: 0, followerCount: 0 }],
+    ["users/bob", { active: true, followingCount: 0, followerCount: 0 }],
+  ]);
+  const reads = [];
+  const snapshot = (ref) => ({
+    ref,
+    exists: rows.has(ref.path),
+    data: () => ({ ...rows.get(ref.path) }),
+  });
+  const db = {
+    doc: (path) => ({ path, get: async () => snapshot({ path }) }),
+    runTransaction: async (work) => {
+      let batchReads = 0;
+      const writes = [];
+      const value = await work({
+        get: () => {
+          throw Error("Follow must use one batched transactional read");
+        },
+        getAll: async (...refs) => {
+          assert.equal(batchReads++, 0);
+          assert.equal(writes.length, 0);
+          reads.push(refs.map((ref) => ref.path));
+          return refs.map(snapshot);
+        },
+        create: (ref, data) =>
+          writes.push(() => {
+            assert.ok(!rows.has(ref.path));
+            rows.set(ref.path, data);
+          }),
+        update: (ref, data) =>
+          writes.push(() =>
+            rows.set(ref.path, { ...rows.get(ref.path), ...data }),
+          ),
+        delete: (ref) => writes.push(() => rows.delete(ref.path)),
+      });
+      writes.forEach((write) => write());
+      return value;
+    },
+  };
+  const app = createHttpApp({
+    db,
+    auth: { verifyIdToken: async () => ({ uid: "alice" }) },
+    origins: [],
+    mode: "cloud",
+    projectId: "test",
+    isHealthy: () => true,
+  });
+  finishHttpApp(app);
+  const server = createServer(app);
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  try {
+    const url = `http://127.0.0.1:${server.address().port}/following/bob`;
+    for (const [method, count] of [
+      ["PUT", 1],
+      ["PUT", 1],
+      ["DELETE", 0],
+      ["DELETE", 0],
+    ]) {
+      const response = await fetch(url, {
+        method,
+        headers: { Authorization: "Bearer token" },
+      });
+      assert.equal(response.status, 200, JSON.stringify(await response.json()));
+      assert.equal(rows.get("users/alice").followingCount, count);
+      assert.equal(rows.get("users/bob").followerCount, count);
+    }
+    assert.equal(reads.length, 4);
+    for (const paths of reads)
+      assert.deepEqual(paths, [
+        "users/alice",
+        "users/alice/following/bob",
+        "users/bob",
+      ]);
+  } finally {
+    server.closeAllConnections();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("local demo WAV supports streaming ranges and HEAD without exposing files or enabling cloud media", async () => {
   for (const mode of ["emulator", "cloud"]) {
     const app = createHttpApp({

@@ -440,6 +440,20 @@ Kiểm chứng: bộ verifier mới chạy trên bytes MP3 thật, cả fixture 
 
 Nguồn: [Cloudinary Admin resource metadata](https://cloudinary.com/documentation/admin_api), [Audio resource type](https://cloudinary.com/documentation/audio_transformations).
 
+### CI: Follow/Unfollow đồng thời
+
+Lượt GitHub Actions 42276359516 của commit 1a0ba6b: integration 40/41, thất bại tại assert removals.every(status===200) của test follow API serializes concurrent clients. Quality, hai bundles và Docker đạt; test cloud image/song save mới cũng đạt. Log cũ chưa ghi response body/mã lỗi transaction ở lần thất bại nên không kết luận chính xác gRPC code chỉ từ assertion.
+
+social-routes.cjs nay đọc relation, hồ sơ người theo dõi và target trong một tx.getAll, với refs được sắp theo path nhất quán; không còn ba tx.get chạy song song trong transaction follow. Tất cả kiểm tra active/counters và ghi relation/hai counters vẫn cùng transaction. Test unit bắt buộc batch read trước writes, kiểm tra PUT/DELETE lặp không đổi counters thêm lần nữa. Integration vẫn gửi 5 PUT và 4 DELETE song song, vẫn yêu cầu tất cả trả 200 và counters cuối đúng; đọc response JSON để assertion sau này có chẩn đoán. Không bỏ test, giảm concurrency hay đổi lỗi thành thành công.
+
+HTTP error handler ghi code/message của lỗi nội bộ vào log server cùng method/path (không log token/body), response client vẫn dùng thông báo chung.
+
+Lượt local đầu sau batch-read Follow đã qua test Follow nhưng tái hiện quota cũ với code 3, Transaction is invalid or closed. SDK Firestore 7.11.6 chỉ retry code 3 nếu message chứa transaction has expired, nên trường hợp này thoát thẳng. transaction.cjs bổ sung tối đa ba lần gọi runTransaction mới, backoff 50/100 ms, CHỈ khi code===3 và đúng message invalid or closed. Áp dụng cho follow và createOwnedSong; SDK tiếp tục xử lý retry contention thông thường. Không retry lỗi nghiệp vụ 409, permission hoặc INVALID_ARGUMENT khác; hết lượt vẫn ném lỗi gốc. Callback chỉ chứa đọc/ghi transaction, không gọi external API. createOwnedSong cũng đọc user/song cùng tx.getAll; quota và trạng thái idempotency được đọc lại trên mỗi transaction mới, không dùng kết quả lần thất bại.
+
+Test deterministic mô phỏng writer khác dùng hết quota trong lúc transaction đầu bị đóng: lần retry phải đọc lại và trả 409, không trả thành công từ kết quả cũ. Có kiểm tra giới hạn ba lần và không retry lỗi validation/permission. Không khẳng định mọi transaction khác trong hệ thống đã được xử lý; tiếp tục theo dõi log nếu phát sinh trường hợp ngoài hai luồng này.
+
+Kiểm chứng local sau bản sửa: unit 108/108, isolated integration 41/41 (.local/follow-ci-unit.log, .local/follow-ci-integration.log), lint/typecheck và source packaging smoke đạt. Kết quả GitHub phải xem [lượt mới nhất trên main](https://github.com/tuanank5/music_stream_app/actions?query=branch%3Amain), không dùng kết quả local để kết luận CI đã đạt.
+
 ### Luồng lưu bài
 
 1. Client gọi GET `/audio-upload-config` có Firebase ID token.

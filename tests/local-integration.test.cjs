@@ -1682,8 +1682,13 @@ test("follow API serializes concurrent clients, rejects inactive targets and per
   const headers = {
     Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
   };
-  const change = (method, id = "local-member") =>
-    fetch(`${base}/following/${id}?uid=local-artist-01`, { method, headers });
+  const change = async (method, id = "local-member") => {
+    const response = await fetch(
+      `${base}/following/${id}?uid=local-artist-01`,
+      { method, headers },
+    );
+    return { status: response.status, body: await response.json() };
+  };
   const ref = serverDb.doc("users/local-listener/following/local-member");
   try {
     assert.equal((await change("PUT", "local-listener")).status, 400);
@@ -1692,7 +1697,10 @@ test("follow API serializes concurrent clients, rejects inactive targets and per
     const responses = await Promise.all(
       Array.from({ length: 5 }, () => change("PUT")),
     );
-    assert.ok(responses.every((response) => response.status === 200));
+    assert.ok(
+      responses.every((response) => response.status === 200),
+      JSON.stringify(responses),
+    );
     assert.equal(
       (await own.get()).data().followingCount,
       ownBefore.followingCount + 1,
@@ -1709,7 +1717,10 @@ test("follow API serializes concurrent clients, rejects inactive targets and per
     const removals = await Promise.all(
       Array.from({ length: 4 }, () => change("DELETE")),
     );
-    assert.ok(removals.every((response) => response.status === 200));
+    assert.ok(
+      removals.every((response) => response.status === 200),
+      JSON.stringify(removals),
+    );
     assert.equal(
       (await own.get()).data().followingCount,
       ownBefore.followingCount,
