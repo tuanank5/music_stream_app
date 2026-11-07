@@ -174,7 +174,7 @@ test("Render startup indexing is optional, nonfatal and stoppable", async () => 
         throw Error("secret-provider-detail");
       },
     },
-    getSongs: () => [],
+    getSongs: () => [{ id: "failed-song", title: "Test" }],
     isClosed: () => false,
     report: (s) => logs.push(s),
   });
@@ -199,4 +199,137 @@ test("Render startup indexing is optional, nonfatal and stoppable", async () => 
   await ready.done;
   assert.equal(ready.state.status, "ready");
   assert.equal(ready.state.indexed, 1);
+});
+
+test("overlapping semantic searches do not lock each other and queries reuse user-scoped cache", async () => {
+  const f = fixture(),
+    song = { id: "a", title: "Mưa" };
+  const ai = createAiSearch(f);
+  await ai.index([song]);
+  const results = await Promise.all([
+    ai.rank("nhạc buồn", [], [song], "u"),
+    ai.rank("nhạc nhẹ", [], [song], "v"),
+  ]);
+  assert.ok(results.every((r) => r.fallbackReason === null));
+  assert.equal(f.calls(), 3);
+  await ai.rank("nhạc buồn", [], [song], "u");
+  assert.equal(f.calls(), 3);
+  await ai.rank("nhạc buồn", [], [song], "other-user");
+  assert.equal(f.calls(), 4);
+});
+
+test("newer query supersedes old work before it spends query embedding quota", async () => {
+  const f = fixture(),
+    song = { id: "a", title: "Mưa" };
+  const ai = createAiSearch(f);
+  await ai.index([song]);
+  const [old, fresh] = await Promise.all([
+    ai.rank("old", [], [song], "u"),
+    ai.rank("new", [], [song], "u"),
+  ]);
+  assert.equal(old.fallbackReason, "superseded");
+  assert.equal(fresh.fallbackReason, null);
+  assert.equal(f.calls(), 2);
+});
+
+test("live indexing handles upload, metadata changes, revocation and publication without embedding play counts", async () => {
+  const f = fixture();
+  let songs = [];
+  const index = startAiIndex({
+    ai: createAiSearch(f),
+    getSongs: () => songs,
+    isClosed: () => false,
+    report: () => {},
+  });
+  await index.done;
+  songs = [{ id: "new", title: "Bài mới", genre: ["Pop"] }];
+  index.refresh();
+  await index.flush();
+  assert.equal(f.calls(), 1);
+  songs = [{ ...songs[0], playCount: 999, cover: "new.jpg" }];
+  index.refresh();
+  await index.flush();
+  assert.equal(f.calls(), 1);
+  songs = [{ ...songs[0], title: "Tên mới" }];
+  index.refresh();
+  await index.flush();
+  assert.equal(f.calls(), 2);
+  // The service supplies only currently public songs; revoke removes pending
+  // work without deleting content-addressed vectors another song may share.
+  const publicSong = songs[0];
+  songs = [];
+  index.refresh();
+  await index.flush();
+  songs = [publicSong];
+  index.refresh();
+  await index.flush();
+  assert.equal(f.calls(), 2);
+  index.stop();
+});
+
+test("metadata edits during indexing coalesce and removed pending songs never reach provider", async () => {
+  let release, started;
+  const entered = new Promise((resolve) => {
+    started = resolve;
+  });
+  const wait = new Promise((resolve) => {
+    release = resolve;
+  });
+  let songs = [
+    { id: "a", title: "Old" },
+    { id: "b", title: "Will be private" },
+  ];
+  const calls = [];
+  const ai = {
+    enabled: true,
+    index: async (batch) => {
+      calls.push(batch[0].title);
+      if (calls.length === 1) {
+        started();
+        await wait;
+      }
+      return 1;
+    },
+  };
+  const index = startAiIndex({
+    ai,
+    getSongs: () => songs,
+    isClosed: () => false,
+    report: () => {},
+  });
+  await entered;
+  songs = [{ id: "a", title: "Latest" }];
+  index.refresh();
+  release();
+  await index.done;
+  assert.deepEqual(calls, ["Old", "Latest"]);
+  await index.flush();
+  assert.deepEqual(calls, ["Old", "Latest"]);
+  index.stop();
+});
+
+test("live indexing stops a failed pass instead of calling provider for the entire catalog", async () => {
+  let attempts = 0;
+  const index = startAiIndex({
+    ai: {
+      enabled: true,
+      index: async () => {
+        attempts++;
+        throw Error("quota");
+      },
+    },
+    getSongs: () => [
+      { id: "a", title: "A" },
+      { id: "b", title: "B" },
+    ],
+    isClosed: () => false,
+    report: () => {},
+  });
+  await index.done;
+  assert.equal(attempts, 1);
+  index.refresh();
+  await index.flush();
+  assert.equal(attempts, 1);
+  assert.equal(index.state.status, "unavailable");
+  index.stop();
 });

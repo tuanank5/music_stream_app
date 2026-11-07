@@ -39,6 +39,7 @@ async function createBackend({
     snapshots = new Map();
   let healthy = true,
     closed = false;
+  let aiIndexer;
   const indexSong = (id, value) => {
     index.remove("song", id);
     if (publicSong(value) && profiles.get(value.artistId)?.active === true)
@@ -133,6 +134,7 @@ async function createBackend({
           if (changed.has(value.artistId)) indexSong(id, value);
         for (const [id, value] of albums)
           if (changed.has(value.artistId)) indexAlbum(id, value);
+        aiIndexer?.refresh();
       }),
       watch(
         db.collectionGroup("following").limit(FOLLOW_GRAPH_CAPACITY + 1),
@@ -186,6 +188,7 @@ async function createBackend({
           if (change.type !== "removed") indexSong(id, value);
         }
         if (changedArtists.size) reindexProfiles(changedArtists);
+        aiIndexer?.refresh();
       }),
     ]);
   } catch (error) {
@@ -584,7 +587,7 @@ async function createBackend({
   // survive restarts; provider failure must never fail health or keyword search.
   server.once("listening", () => {
     if (mode !== "cloud") return;
-    server.aiIndex = startAiIndex({
+    server.aiIndex = aiIndexer = startAiIndex({
       ai: aiSearch,
       getSongs: () => all().songs,
       isClosed: () => closed,
@@ -592,6 +595,7 @@ async function createBackend({
   });
   server.on("close", () => {
     closed = true;
+    aiIndexer?.stop();
     stops.forEach((stop) => stop());
     worker.stop();
     index.close();

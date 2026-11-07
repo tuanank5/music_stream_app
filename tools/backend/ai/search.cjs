@@ -33,7 +33,8 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
     limit > 0;
   const version = `${model}:${dimensions}:metadata-v1`;
   const pending = new Map();
-  let busy = false;
+  const latest = new Map();
+  let activeRanks = 0;
   async function embed(text, task, uid) {
     const key = hash(`${version}:${task}:${text}`);
     const pendingKey = task === "query" ? `${uid}:${key}` : key;
@@ -49,7 +50,10 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
       if (
         cached.exists &&
         cached.data().version === version &&
-        (task !== "query" || cached.data().expiresAt?.toDate?.() > new Date())
+        (task !== "query" ||
+          (cached.data().expiresAt instanceof Date
+            ? cached.data().expiresAt
+            : cached.data().expiresAt?.toDate?.()) > new Date())
       )
         return vector(cached.data().values, dimensions);
       const day = new Date().toISOString().slice(0, 10);
@@ -126,8 +130,11 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
       if (!configured) return { keys: lexical, fallbackReason: "disabled" };
       if (catalog.length > 1000)
         return { keys: lexical, fallbackReason: "capacity" };
-      if (busy) return { keys: lexical, fallbackReason: "busy" };
-      busy = true;
+      if (activeRanks >= 16) return { keys: lexical, fallbackReason: "busy" };
+      activeRanks++;
+      const request = Symbol();
+      latest.set(uid, request);
+      const current = () => latest.get(uid) === request;
       try {
         const candidates = catalog;
         const ranked = [];
@@ -140,6 +147,8 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
             ),
           );
           const docs = await db.getAll(...refs);
+          if (!current())
+            return { keys: lexical, fallbackReason: "superseded" };
           docs.forEach((doc, n) => {
             if (!doc.exists || doc.data().version !== version) return;
             try {
@@ -155,6 +164,7 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
         }
         if (!ranked.length)
           return { keys: lexical, fallbackReason: "index_empty" };
+        if (!current()) return { keys: lexical, fallbackReason: "superseded" };
         const q = await embed(query, "query", uid);
         for (const row of ranked)
           row.score = row.values.reduce(
@@ -177,7 +187,8 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
       } catch {
         return { keys: lexical, fallbackReason: "unavailable" };
       } finally {
-        busy = false;
+        activeRanks--;
+        if (current()) latest.delete(uid);
       }
     },
     async index(songs, { shouldContinue = () => true } = {}) {

@@ -1,5 +1,18 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Cập nhật mới: tìm kiếm chồng nhau và index theo thay đổi Firestore
+
+- Bỏ khóa chỉ cho một lượt semantic search trên toàn backend. Cho phép tối đa 16 lượt đang xử lý; “busy” chỉ dùng khi đạt ngưỡng này. Query mới của cùng UID thay thế query cũ; dừng sớm query cũ sau đọc vector và trước gọi embedding nếu đã bị thay thế. Request provider đã gửi không bị hủy hồi tố; giới hạn ngày vẫn giữ nguyên.
+- Query cache đọc được cả Firestore Timestamp và Date; cùng UID/query dùng lại cache hợp lệ, không dùng cache query của UID khác.
+- Sau khi server listen, index worker tiếp tục nhận thay đổi từ snapshot songs/users. Thêm bài công khai hoặc sửa tên/nghệ sĩ/genre sẽ được đưa vào hàng chờ có debounce, gộp theo ID và chỉ giữ phiên bản mới nhất chưa xử lý.
+- Lượt nghe, ảnh bìa và follower count không đổi canonical input thì không gọi embedding lại. Input v1 vẫn chưa gồm Album/mô tả/lyric.
+- Bài chuyển riêng tư, inactive, bị xóa hoặc chủ tài khoản không còn active được bỏ khỏi nguồn public và hàng chờ. Kết quả tìm kiếm vẫn hydrate/kiểm tra quyền trước khi trả về. Cache vector theo content hash cũ có thể còn trong Firestore, không tự xóa vì có thể dùng chung; đây không phải cleanup vật lý.
+- Inference đã chạy khi bài đổi quyền có thể hoàn tất và lưu cache hash cũ; worker không đánh dấu bản mới là đã index. Hash cũ không thay thế vector của metadata mới.
+- Lỗi provider/quota dừng lượt index hiện tại và có cooldown 60 giây; chỉ thử lại khi có thay đổi tiếp theo hoặc restart, không lặp gọi liên tục. AI tắt không khởi tạo worker. Giới hạn catalog demo 1.000 bài và quota ngày không tăng.
+- Test regression bổ sung: tìm chồng nhau, hủy ý định query cũ trước inference, cache theo UID, thay đổi metadata lúc đang index, thu hồi pending work, và ngắt batch khi provider lỗi. Chưa nghiệm thu các thay đổi này trên Render; cần deploy bản mới để áp dụng. Chưa commit/push trong lượt này.
+- Kết quả sau cập nhật: 123/123 unit test đạt; lint, typecheck, kiểm tra đóng gói backend source và diff check đạt. Không gọi provider thật trong bộ test.
+
+
 Ghi nhận các thay đổi local trong đợt triển khai AI và bản sửa follow/unfollow ngay sau đó. Chưa commit/push hoặc deploy các thay đổi này. Các chỉnh sửa giao diện có từ trước vẫn nằm trong working tree, không được coi là phát sinh từ đợt này.
 
 ## 1. MVP tìm kiếm thông minh bằng embedding
