@@ -1,6 +1,7 @@
 {
   "name": "music_stream_app",
   "version": "1.0.0",
+  "packageManager": "npm@10.9.9",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

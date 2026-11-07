@@ -1,0 +1,34 @@
+# Dependencies, temporary output and local configuration
+node_modules/
+.git
+.expo/
+.local/
+.codex/
+.agents/
+dist/
+web-build/
+coverage/
+/tmp/
+/.tmp/
+/firebase-export-*/
+*.apk
+*.aab
+*.log
+.env
+.env.*
+
+# Backend credentials and local sample data never belong in the Android archive
+*service-account*.json
+*firebase-adminsdk*.json
+music-stream-admin.json
+music-stream-app.json
+/data/
+/assets/audio/
+/docs/
+/tests/
+/.github/
+/tools/*
+!/tools/metro-cache.cjs
+
+# Lockfile is required for reproducible installs even when gitignored locally
+!/package-lock.json

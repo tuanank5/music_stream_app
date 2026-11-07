@@ -126,6 +126,119 @@ test("cloud song saving allows audio inspection time without extending other req
   }
 });
 
+test("cloud reads survive Render startup, deduplicate subscribers and classify cancellation without hiding HTTP/session errors", async () => {
+  const Module = require("node:module");
+  const filename = require.resolve("../src/services/backendService.ts");
+  const mod = new Module(filename, module);
+  mod.filename = filename;
+  const user = { uid: "alice", getIdToken: async () => "token" };
+  const auth = { currentUser: user };
+  const runtime = {
+    mode: "cloud",
+    backendUrl: "https://backend.example.test",
+    config: { projectId: "test" },
+  };
+  mod.require = (request) => {
+    if (request === "./firebase") return { getFirebaseAuth: () => auth };
+    if (request === "./firebase/config")
+      return { getFirebaseRuntime: () => runtime };
+    if (request === "./backendEvents") return { notifyBackendWrite() {} };
+    throw Error(request);
+  };
+  mod._compile(
+    require("typescript").transpileModule(
+      require("node:fs").readFileSync(filename, "utf8"),
+      {
+        compilerOptions: { module: require("typescript").ModuleKind.CommonJS },
+      },
+    ).outputText,
+    filename,
+  );
+  const original = {
+    fetch: global.fetch,
+    setTimeout: global.setTimeout,
+    clearTimeout: global.clearTimeout,
+  };
+  const timers = new Map();
+  let calls = 0,
+    resolveFetch;
+  try {
+    global.setTimeout = (callback, ms) => {
+      const timer = { callback, ms };
+      timers.set(timer, timer);
+      return timer;
+    };
+    global.clearTimeout = (timer) => timers.delete(timer);
+    global.fetch = async () => {
+      calls++;
+      return new Promise((resolve) => {
+        resolveFetch = resolve;
+      });
+    };
+    const a = mod.exports.backendGet("/catalog/public-songs"),
+      b = mod.exports.backendGet("/catalog/public-songs");
+    await Promise.resolve();
+    assert.equal(calls, 1);
+    assert.deepEqual(
+      [...timers.values()].map((t) => t.ms),
+      [90000],
+    );
+    resolveFetch({ ok: true, json: async () => ({ items: [] }) });
+    assert.deepEqual(await a, { items: [] });
+    assert.deepEqual(await b, { items: [] });
+    assert.equal(timers.size, 0);
+
+    global.fetch = async (url, options) =>
+      new Promise((resolve, reject) => {
+        options.signal.addEventListener("abort", () =>
+          reject(Error("fetch failed: Fetch request has been canceled")),
+        );
+      });
+    const cancelled = mod.exports.backendGet("/catalog/public-songs");
+    const rejection = assert.rejects(cancelled, {
+      code: "BACKEND_TIMEOUT",
+      message: "Máy chủ phản hồi chậm. Vui lòng thử tải lại sau.",
+    });
+    await Promise.resolve();
+    [...timers.values()][0].callback();
+    await rejection;
+    assert.equal(timers.size, 0);
+
+    global.fetch = async () => {
+      throw new TypeError("Network request failed");
+    };
+    await assert.rejects(mod.exports.backendGet("/catalog/public-songs"), {
+      code: "BACKEND_NETWORK_ERROR",
+    });
+    global.fetch = async () => ({
+      ok: false,
+      status: 403,
+      json: async () => ({ error: "Permission denied" }),
+    });
+    await assert.rejects(mod.exports.backendGet("/catalog/public-songs"), {
+      status: 403,
+      message: "Permission denied",
+    });
+    global.fetch = async () => {
+      auth.currentUser = null;
+      return { ok: true, json: async () => ({ items: [] }) };
+    };
+    await assert.rejects(mod.exports.backendGet("/catalog/public-songs"), {
+      message: "Phiên đăng nhập đã thay đổi.",
+    });
+    auth.currentUser = user;
+    runtime.mode = "emulator";
+    global.fetch = async () => {
+      assert.equal([...timers.values()][0].ms, 15000);
+      return { ok: true, json: async () => ({ items: [] }) };
+    };
+    await mod.exports.backendGet("/catalog/public-songs");
+    assert.equal(timers.size, 0);
+  } finally {
+    Object.assign(global, original);
+  }
+});
+
 test("create request cache reuses failed submission key and isolates edits/accounts/form sessions", () => {
   let sequence = 0;
   const cache = createRequestCache(() => String(++sequence));

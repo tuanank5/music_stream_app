@@ -19,7 +19,7 @@ export function useHomeDiscovery() {
     artists: state.value?.artists ?? [],
     albums: state.value?.albums ?? [],
     loading: state.loading,
-    errors: state.error ? ["Songs: " + state.error] : [],
+    errors: state.error ? ["Bài hát: " + state.error] : [],
     refresh: () => setRefresh((value) => value + 1),
   };
 }

@@ -9,7 +9,23 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "node": "24.12.0",
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://music-stream-app-t7cu.onrender.com",
+        "EXPO_PUBLIC_FIREBASE_MODE": "cloud",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAYovTMTly6ksROpIPNAII81Q2ifbrsSPY",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "musicstreamapp-5a527.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "musicstreamapp-5a527",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "musicstreamapp-5a527.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "1066840535830",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1066840535830:web:bbf9085ab8b46196739637",
+        "EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME": "de8ldekt"
+      }
     },
     "production": {
       "autoIncrement": true

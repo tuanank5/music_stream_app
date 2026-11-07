@@ -2,6 +2,26 @@ import { getFirebaseAuth } from "./firebase";
 import { getFirebaseRuntime } from "./firebase/config";
 import { notifyBackendWrite } from "./backendEvents";
 const pending = new Map<string, Promise<unknown>>();
+function transportError(error: unknown, signal: AbortSignal): unknown {
+  if (signal.aborted)
+    return Object.assign(
+      new Error("Máy chủ phản hồi chậm. Vui lòng thử tải lại sau."),
+      { code: "BACKEND_TIMEOUT" },
+    );
+  if (
+    error instanceof Error &&
+    !(error as Error & { status?: number }).status &&
+    (error.name === "AbortError" ||
+      /fetch failed|failed to fetch|network request failed|fetch request has been cancel(?:l)?ed/i.test(
+        error.message,
+      ))
+  )
+    return Object.assign(
+      new Error("Không kết nối được máy chủ. Kiểm tra mạng và thử lại."),
+      { code: "BACKEND_NETWORK_ERROR" },
+    );
+  return error;
+}
 export async function backendPatch<T>(path: string, data: unknown): Promise<T> {
   return backendWrite<T>("PATCH", path, data);
 }
@@ -62,6 +82,8 @@ async function backendWrite<T>(
       throw new Error("Phiên đăng nhập đã thay đổi.");
     notifyBackendWrite(user.uid, path);
     return body as T;
+  } catch (error) {
+    throw transportError(error, controller.signal);
   } finally {
     clearTimeout(timer);
   }
@@ -84,7 +106,12 @@ export async function backendGet<T>(
     if (getFirebaseAuth().currentUser !== user)
       throw new Error("Phiên đăng nhập đã thay đổi.");
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
+    // Render Free can take about a minute to wake. Keep one deduplicated read
+    // alive through startup instead of aborting every subscriber after 15s.
+    const timer = setTimeout(
+      () => controller.abort(),
+      runtime.mode === "cloud" ? 90000 : 15000,
+    );
     try {
       const response = await fetch(`${runtime.backendUrl}${path}?${query}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -99,6 +126,8 @@ export async function backendGet<T>(
       if (getFirebaseAuth().currentUser !== user)
         throw new Error("Phiên đăng nhập đã thay đổi.");
       return body as T;
+    } catch (error) {
+      throw transportError(error, controller.signal);
     } finally {
       clearTimeout(timer);
     }

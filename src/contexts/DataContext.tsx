@@ -224,8 +224,8 @@ function DataSession({
       };
     const stops = [
       watchSongs(
-        guarded(success("songs", "Songs", setSongs)),
-        guarded(failure("songs", "Songs")),
+        guarded(success("songs", "Bài hát", setSongs)),
+        guarded(failure("songs", "Bài hát")),
       ),
       watchArtists(
         guarded(success("artists", "Artists", setArtists)),

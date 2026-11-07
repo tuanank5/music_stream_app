@@ -14,12 +14,14 @@ Khi tiếp tục với ChatGPT, yêu cầu đọc AGENTS.md và hai tài liệu 
 
 ## Cài đặt
 
-Node 24.12+ và Java/JDK cho Emulator; hiện dùng npm.
+Node 24.12.0 và npm 10.9.9; Java/JDK cho Emulator. Chạy lệnh tại gốc chứa `package.json`, `package-lock.json`, `eas.json`; `tools/` là bộ dependency backend riêng, không phải gốc Expo.
 
 ```cmd
-npm ci
+npx --yes npm@10.9.9 ci --include=dev
 npm ci --prefix tools --no-audit --no-fund
 ```
+
+Khi cần đồng bộ lockfile sau khi đổi dependency, dùng `npx --yes npm@10.9.9 install` rồi kiểm tra lại `npx --yes npm@10.9.9 ci --include=dev`. npm 11.6.2 trên Windows đã tái hiện việc loại optional peer `@emnapi/core`/`@emnapi/runtime` khỏi lockfile, khiến npm 10 trên EAS Linux báo EUSAGE. Không dùng `--legacy-peer-deps`, không sửa tay dependency và không bỏ kiểm tra lockfile. `packageManager` ghi phiên bản thống nhất nhưng không tự thay phiên bản lệnh `npm` đã cài toàn hệ thống. Commit lockfile cùng thay đổi dependency khi được yêu cầu.
 
 ## Chạy local
 

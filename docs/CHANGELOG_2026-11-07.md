@@ -1,5 +1,28 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Sửa lỗi request bị hủy khi mở Search/Bảng tin/Library
+
+- Người dùng báo `Songs: fetch failed: Fetch request has been canceled`. Rà soát thấy backendGet dùng AbortController tự hủy sau 15 giây, không có thao tác abort do chuyển tab. Catalog được dùng chung qua DataContext nên cùng lỗi xuất hiện ở nhiều màn hình. Render Free có thể cần khoảng một phút để thức dậy; cold start là nguyên nhân phù hợp với code, chưa có trace thời gian từ thiết bị để xác nhận toàn bộ lỗi thực tế.
+- Tăng timeout GET cloud lên 90 giây, giữ GET emulator 15 giây. Request trùng UID/project/path/query vẫn dùng chung một promise, xóa pending/timer sau khi hoàn tất hoặc lỗi. Không thêm vòng lặp retry hoặc tự gọi AI; không tăng timeout ghi dữ liệu ngoài các giá trị vốn có.
+- Chuẩn hóa lỗi do timeout thành BACKEND_TIMEOUT và câu tiếng Việt, lỗi mạng/native cancellation thành BACKEND_NETWORK_ERROR. Giữ nguyên lỗi HTTP và đổi phiên đăng nhập; không im lặng coi request hỏng là dữ liệu rỗng. Đổi nhãn lỗi Songs thành Bài hát ở catalog và Home.
+- Test mô phỏng request cloud chờ khởi động, dedupe, timeout với thông báo cancellation trên native, giải phóng timer/pending, retry mới, HTTP 403, đổi account và timeout emulator. APK đã phát hành trước đó chưa chứa bản sửa này; cần build/cài lại APK để áp dụng, không cần deploy Render chỉ vì sửa client. Chưa tự commit/push.
+- Kết quả kiểm tra sau sửa: 143/143 test đạt, lint/typecheck đạt. Chưa xác nhận lại trên thiết bị Android thật.
+
+## Build Android APK cho demo
+
+- Kết quả cuối: build `2d8846ab-4655-46bd-af25-37e5fa1671cd` trạng thái FINISHED, [APK tải trực tiếp](https://expo.dev/artifacts/eas/zBLEn42wzN7Rr0JB9mZS52iGjWAizvzHoIE_h5F7FmY.apk). EAS đã qua npm ci, Prebuild, Gradle/native C++, R8 và ký APK bằng keystore hiện có. Chưa nghiệm thu trên thiết bị thật; không thay thế việc thử đăng nhập, giữ phiên, upload và playback trên Android.
+
+- Rà soát EUSAGE theo yêu cầu: root Expo là thư mục repository chứa cả package.json/package-lock.json/eas.json; `tools` không phải workspace. Node local 24.12.0, npm hệ thống 11.6.2; không có yarn/pnpm/bun lockfile hoặc .npmrc trong nguồn dự án. `legacy-peer-deps=false`, `install-links=false`, `package-lock=true`.
+- Tái hiện `npm install` (npm 11.6.2 Windows) loại hai optional peer khỏi lockfile. Chạy `npx --yes npm@10.9.9 install --no-audit --no-fund` tại root khôi phục chúng, tiếp theo `npx --yes npm@10.9.9 ci --include=dev` thực tế đạt exit 0 (1064 package). Lệnh `npm ci --include=dev` bằng npm hệ thống cũng đạt exit 0 trước đó nhưng không kiểm chứng được yêu cầu của npm EAS nếu lockfile bị npm 11 ghi lại. Do đó chuẩn hóa npm 10.9.9 bằng packageManager và hướng dẫn README; không tự thay npm toàn máy.
+- Sau kiểm tra cuối: dependencies/devDependencies root khớp lockfile; bổ sung core/runtime 1.11.3, không đổi version package có sẵn. Lint/typecheck đạt. npm audit báo 22 lỗ hổng ở dependency tree; không chạy audit fix/force hoặc nâng cấp hàng loạt trong nhiệm vụ sửa lockfile.
+- Build mới `2d8846ab-4655-46bd-af25-37e5fa1671cd` có bằng chứng EAS `npm ci --include=dev` thành công: 1067 package, End phase INSTALL_DEPENDENCIES. Log lỗi lúc 08:39:55 thuộc build cũ `52e2818b…`; build mới vẫn tiếp tục Gradle tại thời điểm ghi nhận. Lockfile mới đang modified, chưa stage/commit/push theo quy tắc người dùng.
+
+- Profile EAS `preview` xuất APK cài trực tiếp, dùng environment preview và cấu hình Firebase Web công khai cùng backend Render từ cấu hình cloud đã kiểm tra trên máy. Gemini/Cloudinary secret/Firebase Admin key không được đưa vào ứng dụng.
+- Thêm `.easignore`: bỏ `.env*`, dữ liệu local, audio mẫu, backend tools, docs/tests và khóa riêng khỏi archive; giữ lockfile để cài dependency nhất quán và helper Metro cần thiết. Không chỉnh native directories bằng tay, không commit/push tự động.
+- Lint/typecheck đạt; Expo export Android thành công (4163 modules, Hermes bundle khoảng 8,8 MB). Máy có phiên EAS và keystore Android trên EAS; đã gửi yêu cầu build profile preview. Bundle JS thành công chưa thay thế cho kết quả compile native hoặc thử trên thiết bị.
+- Build đầu `52e2818b-2f3c-492d-b393-4f5a7b61bf55` dừng ở `npm ci` do thiếu peer dependency `@emnapi/core` và `@emnapi/runtime` trong lockfile. Đồng bộ lockfile bằng npm 10.9.9 trong thư mục riêng, bổ sung hai package mà không đổi version các package đã khóa; npm ci thực tế trên máy đã đạt. Đặt Node 24.12.0 cho profile preview.
+- Kiểm tra archive thực tế phát hiện Git shallow clone chiếm 514 MiB; sửa ignore `.git` (không có dấu `/` cuối), bỏ tmp/export Firebase. Archive kiểm tra còn khoảng 4 MiB và không có .git, secrets hoặc audio dataset. Lint/typecheck đã chạy lại sau khi khôi phục dependencies và đạt.
+
 ## Chẩn đoán phản hồi lyric chỉ có status/object được nhận diện
 
 - Log Render mới: parse_result/UNSUPPORTED_RESPONSE, 5 field chưa biết, status và object kiểu string. Theo kiểm tra parser, status ở cấp gốc đã qua kiểm tra completed; chưa thấy field text/steps/outputs/interaction hợp lệ. Chưa đủ bằng chứng để xác định payload hoặc kết luận model/quota/bản quyền.
