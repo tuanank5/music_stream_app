@@ -776,6 +776,15 @@ test("transcript parser reads REST schemas without exposing input or thoughts", 
   assert.equal(parseTranscript({ output_text: " Draft " }), "Draft");
   assert.equal(
     parseTranscript({
+      interaction: {
+        status: "completed",
+        outputs: [{ type: "text", text: " Draft " }],
+      },
+    }),
+    "Draft",
+  );
+  assert.equal(
+    parseTranscript({
       status: "completed",
       outputs: [
         { type: "text", text: "First" },
@@ -807,6 +816,14 @@ test("transcript parser reads REST schemas without exposing input or thoughts", 
   );
   for (const [response, reason] of [
     [null, "INVALID_RESPONSE"],
+    [
+      { interaction: { status: "failed", output_text: "partial" } },
+      "NOT_COMPLETED",
+    ],
+    [
+      { status: "failed", interaction: { output_text: "partial" } },
+      "NOT_COMPLETED",
+    ],
     [{ status: "failed", output_text: "partial" }, "NOT_COMPLETED"],
     [
       { status: "in_progress", outputs: [{ type: "text", text: "partial" }] },
@@ -828,11 +845,58 @@ test("transcript parser reads REST schemas without exposing input or thoughts", 
   }
 });
 
+test("lyric parser diagnostics log schema types without private values or unknown field names", async () => {
+  const { parseTranscript } = require("../tools/backend/ai/transcribe.cjs");
+  const logs = [];
+  const f = lyricFixture(async () => "unused");
+  const service = createLyricGenerator({
+    db: f.db,
+    env: f.env,
+    verify: async () => ({ duration: 10, url: "https://owned.test/audio.mp3" }),
+    transcribe: async () => {
+      try {
+        parseTranscript({
+          response: { transcript: "PRIVATE_LYRIC", id: "PRIVATE_ID" },
+          PRIVATE_FIELD_NAME: "PRIVATE_KEY",
+          candidates: [{ text: "PRIVATE_TEXT" }],
+        });
+      } catch (error) {
+        error.stage = "parse_result";
+        throw error;
+      }
+    },
+    report: (details) => logs.push(details),
+  });
+  await assert.rejects(service.generate("u", "musicstream/u/audio/a", true), {
+    status: 503,
+  });
+  assert.equal(logs[0].reason, "UNSUPPORTED_RESPONSE");
+  assert.deepEqual(logs[0].responseShape, {
+    type: "object",
+    unknownFieldCount: 1,
+    fields: {
+      response: {
+        type: "object",
+        unknownFieldCount: 0,
+        fields: { transcript: "string", id: "string" },
+      },
+      candidates: { type: "array", count: 1 },
+    },
+  });
+  assert.doesNotMatch(JSON.stringify(logs), /PRIVATE/);
+});
+
 test("transcription uploads only verified media, reads model output and cleans provider files on failure", async () => {
   const bytes = require("../tools/local/demo-audio.cjs").demoAudio(
     "/local-audio/sample-short.wav",
   );
-  for (const variant of ["steps", "outputs", "http_error", "parse_error"]) {
+  for (const variant of [
+    "steps",
+    "outputs",
+    "envelope",
+    "http_error",
+    "parse_error",
+  ]) {
     const calls = [];
     const request = async (url, options) => {
       calls.push([url, options]);
@@ -858,6 +922,7 @@ test("transcription uploads only verified media, reads model output and cleans p
         });
       }
       if (url.endsWith("/interactions")) {
+        assert.equal(JSON.parse(options.body).stream, false);
         assert.equal(
           JSON.parse(options.body).generation_config.transcription_config.mode
             .type,
@@ -865,21 +930,28 @@ test("transcription uploads only verified media, reads model output and cleans p
         );
         return variant === "http_error"
           ? new Response(null, { status: 403 })
-          : variant === "parse_error"
-            ? Response.json({ status: "completed", steps: [] })
-            : variant === "outputs"
-              ? Response.json({
-                  outputs: [{ type: "text", text: " Lời nháp " }],
-                })
-              : Response.json({
+          : variant === "envelope"
+            ? Response.json({
+                interaction: {
                   status: "completed",
-                  steps: [
-                    {
-                      type: "model_output",
-                      content: [{ type: "text", text: " Lời nháp " }],
-                    },
-                  ],
-                });
+                  outputs: [{ type: "text", text: " Lời nháp " }],
+                },
+              })
+            : variant === "parse_error"
+              ? Response.json({ status: "completed", steps: [] })
+              : variant === "outputs"
+                ? Response.json({
+                    outputs: [{ type: "text", text: " Lời nháp " }],
+                  })
+                : Response.json({
+                    status: "completed",
+                    steps: [
+                      {
+                        type: "model_output",
+                        content: [{ type: "text", text: " Lời nháp " }],
+                      },
+                    ],
+                  });
       }
       assert.equal(options.method, "DELETE");
       return new Response(null, { status: 200 });

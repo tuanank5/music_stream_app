@@ -1,5 +1,12 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Bổ sung chẩn đoán `UNSUPPORTED_RESPONSE` từ Render
+
+- Log mới xác nhận JSON không có `output_text`, `steps` hoặc `outputs` đúng kiểu ở cấp parser đang đọc. Bản sửa trước chưa giải quyết được phản hồi thực tế; chưa có cấu trúc JSON nên chưa xác định nguyên nhân cuối cùng.
+- Parser hỗ trợ thêm envelope `{interaction: ...}` với cùng kiểm tra trạng thái/nội dung, không dò text tùy ý trong object lồng nhau. Đây là hỗ trợ tương thích, chưa xác nhận Render đang nhận envelope này. Gửi rõ `stream: false` để yêu cầu kết quả một lần, giữ `store: false`.
+- Log lỗi parse có `responseShape`: kiểu dữ liệu, số phần tử array, các tên field nằm trong whitelist và số field chưa biết; không in giá trị text, ID, URL, key hoặc tên field lạ. Dữ liệu chẩn đoán được giữ bằng WeakMap nội bộ, không tin metadata tự gắn trên lỗi provider.
+- Thêm test envelope, trạng thái lỗi bên ngoài/bên trong, cleanup file khi parse lỗi và kiểm tra log không chứa dữ liệu riêng tư. 137/137 test và backend source packaging đạt; lint/typecheck được kiểm tra cùng đợt. Chưa gọi ASR thật, chưa commit/push/deploy. Sau deploy nếu còn lỗi, cần log gồm `responseShape` để sửa theo cấu trúc thực tế.
+
 ## Sửa parser lyric khi Render báo `parse_result`
 
 - Log thực tế `stage: parse_result, status: null, code: UNKNOWN` cho biết lỗi xảy ra sau khi đọc JSON phản hồi, chưa xác định được chính xác payload trên Render. Không đủ cơ sở kết luận lỗi key, quota hay bản quyền.

@@ -1,5 +1,8 @@
 const { verifyAudio } = require("../audio-assets.cjs");
-const { transcribeSong } = require("./transcribe.cjs");
+const {
+  transcribeSong,
+  transcriptionResponseShape,
+} = require("./transcribe.cjs");
 const fail = (status, message) => Object.assign(new Error(message), { status });
 function createLyricGenerator({
   db,
@@ -122,7 +125,12 @@ function createLyricGenerator({
             : "UNKNOWN",
           ...(error.stage === "parse_result" &&
           parseReasons.has(error.parseReason)
-            ? { reason: error.parseReason }
+            ? {
+                reason: error.parseReason,
+                ...(transcriptionResponseShape(error)
+                  ? { responseShape: transcriptionResponseShape(error) }
+                  : {}),
+              }
             : {}),
         });
         throw fail(

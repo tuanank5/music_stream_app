@@ -2,14 +2,70 @@ const { verifyAudio } = require("../audio-assets.cjs");
 const fail = (message, details = {}) =>
   Object.assign(new Error(message), details);
 const BASE = "https://generativelanguage.googleapis.com";
+const parseDiagnostics = new WeakMap();
+const transcriptionResponseShape = (error) => parseDiagnostics.get(error);
+// Only schema metadata is logged. Never include text, IDs, URLs or unknown keys.
+function responseShape(result) {
+  const fields = [
+    "interaction",
+    "response",
+    "result",
+    "data",
+    "error",
+    "status",
+    "output_text",
+    "outputText",
+    "outputs",
+    "steps",
+    "candidates",
+    "content",
+    "parts",
+    "text",
+    "transcript",
+    "object",
+    "id",
+  ];
+  const describe = (value, depth) => {
+    if (value === null) return "null";
+    if (Array.isArray(value)) return { type: "array", count: value.length };
+    if (typeof value !== "object") return typeof value;
+    const shape = { type: "object", unknownFieldCount: 0, fields: {} };
+    for (const key of Object.keys(value)) {
+      if (!fields.includes(key)) shape.unknownFieldCount++;
+      else
+        shape.fields[key] = depth
+          ? describe(value[key], depth - 1)
+          : Array.isArray(value[key])
+            ? "array"
+            : value[key] === null
+              ? "null"
+              : typeof value[key];
+    }
+    return shape;
+  };
+  return describe(result, 2);
+}
 function parseTranscript(result) {
+  const shape = responseShape(result);
   const invalid = (reason) => {
-    throw fail("Invalid transcription result", { parseReason: reason });
+    const error = fail("Invalid transcription result", { parseReason: reason });
+    parseDiagnostics.set(error, shape);
+    throw error;
   };
   if (!result || typeof result !== "object" || Array.isArray(result))
     invalid("INVALID_RESPONSE");
   if (result.status != null && result.status !== "completed")
     invalid("NOT_COMPLETED");
+  // Accept an explicitly named Interaction envelope, never arbitrary nested text.
+  if (
+    result.interaction &&
+    typeof result.interaction === "object" &&
+    !Array.isArray(result.interaction)
+  ) {
+    result = result.interaction;
+    if (result.status != null && result.status !== "completed")
+      invalid("NOT_COMPLETED");
+  }
   let parts;
   if (typeof result.output_text === "string" && result.output_text.trim()) {
     parts = [result.output_text];
@@ -177,6 +233,7 @@ async function runTranscription({
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: env.AI_TRANSCRIBE_MODEL,
+          stream: false,
           store: false,
           input: [{ type: "audio", uri: file.uri, mime_type: mime }],
           generation_config: {
@@ -206,4 +263,8 @@ async function transcribeSong(options) {
     throw error;
   }
 }
-module.exports = { transcribeSong, parseTranscript };
+module.exports = {
+  transcribeSong,
+  parseTranscript,
+  transcriptionResponseShape,
+};
