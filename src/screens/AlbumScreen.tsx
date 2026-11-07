@@ -13,7 +13,6 @@ import {
   EmptyState,
   ErrorText,
   ListPage,
-  Loading,
 } from "../components/ui/index";
 import Artwork from "../components/Artwork";
 import { YStack } from "tamagui";
@@ -112,10 +111,8 @@ export default function AlbumScreen({
       }
       footer={
         <>
-          <LoadMore {...data} />
-          {info.loading ? (
-            <Loading />
-          ) : !songs.length && !data.loading ? (
+          <LoadMore {...data} loading={data.loading || info.loading} />
+          {!info.loading && !songs.length && !data.loading ? (
             <EmptyState
               message={
                 owned

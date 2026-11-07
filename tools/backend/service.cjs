@@ -6,6 +6,7 @@ const {
   randomUUID,
 } = require("node:crypto");
 const { SearchIndex, normalize } = require("./search-index.cjs");
+const { createAiSearch } = require("./ai/search.cjs");
 const { assertProfilesReady, catalogProfile } = require("./profiles.cjs");
 const { FollowGraph } = require("./follow-graph.cjs");
 const { startRetention } = require("./retention.cjs");
@@ -32,6 +33,7 @@ async function createBackend({
     albums = new Map(),
     profiles = new Map(),
     followGraph = new FollowGraph(FOLLOW_GRAPH_CAPACITY);
+  const aiSearch = createAiSearch({ db });
   const stops = [],
     snapshots = new Map();
   let healthy = true,
@@ -395,15 +397,30 @@ async function createBackend({
         if (raw.length > 150 || !["", "song", "album", "artist"].includes(kind))
           throw error(400, "Truy vấn/filter không hợp lệ.");
         const q = normalize(raw);
-        return send(
-          200,
-          await page(
-            url,
-            token.uid,
-            `search:${q}:${kind}`,
-            q ? index.search(q, kind) : [],
-          ),
-        );
+        const searchMode = url.searchParams.get("mode") || "keyword";
+        if (!["keyword", "smart"].includes(searchMode))
+          throw error(400, "Chế độ tìm kiếm không hợp lệ.");
+        const scope = `search:${q}:${kind}:${searchMode}:${searchMode === "smart" ? `${aiSearch.version}:${raw}` : ""}`;
+        const lexical = q ? index.search(q, kind) : [];
+        // Reuse the signed result snapshot for subsequent pages, without AI calls.
+        const ranked =
+          searchMode === "smart" &&
+          q &&
+          !url.searchParams.get("cursor") &&
+          (!kind || kind === "song")
+            ? await aiSearch.rank(raw, lexical, all().songs, token.uid)
+            : {
+                keys: lexical,
+                fallbackReason:
+                  searchMode === "smart" && kind && kind !== "song"
+                    ? "unsupported_filter"
+                    : null,
+              };
+        return send(200, {
+          ...(await page(url, token.uid, scope, ranked.keys)),
+          searchMode,
+          fallbackReason: ranked.fallbackReason,
+        });
       }
       const catalog = all();
       if (url.pathname === "/album-info") {

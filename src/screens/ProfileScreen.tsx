@@ -39,8 +39,8 @@ export default function ProfileScreen() {
         </IconButton>
       </YStack>
       <AppText variant="muted">Địa chỉ email: {form.user?.email}</AppText>
-      <AppText variant="caption">
-        follower: {form.followerCount} · following: {form.followingCount}
+      <AppText variant="muted">
+        Follower: {form.followerCount} · Following: {form.followingCount}
       </AppText>
       <YStack marginTop="2">
         <Field

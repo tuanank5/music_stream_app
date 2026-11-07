@@ -61,7 +61,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs tests/m2.test.cjs tests/milestones.test.cjs tests/search-hooks.test.cjs tests/genres.test.cjs tests/uploads-queue.test.cjs tests/backend-http.test.cjs tests/related-artists.test.cjs tests/audio-assets.test.cjs tests/playback-policy.test.cjs tests/schema-audit.test.cjs tests/create-request.test.cjs tests/profile-migration.test.cjs tests/target-schema.test.cjs tests/editable-data.test.cjs tests/local-media.test.cjs tests/metro-auth.test.cjs tests/routing-screens.test.cjs tests/media-upload.test.cjs",
+    "test": "node --test tests/core.test.cjs tests/ui.test.cjs tests/local-environment.test.cjs tests/providers.test.cjs tests/m2.test.cjs tests/milestones.test.cjs tests/search-hooks.test.cjs tests/genres.test.cjs tests/uploads-queue.test.cjs tests/backend-http.test.cjs tests/related-artists.test.cjs tests/audio-assets.test.cjs tests/playback-policy.test.cjs tests/schema-audit.test.cjs tests/create-request.test.cjs tests/profile-migration.test.cjs tests/target-schema.test.cjs tests/editable-data.test.cjs tests/local-media.test.cjs tests/metro-auth.test.cjs tests/routing-screens.test.cjs tests/media-upload.test.cjs tests/ai-search.test.cjs tests/follow-subscriptions.test.cjs",
     "test:rules": "node --test tests/firestore.rules.test.cjs",
     "backend:cloud": "node tools/backend/main.cjs",
     "backend:check-package": "node tools/backend/check-container.cjs --source",
@@ -70,7 +70,9 @@
     "profiles:dry-run": "node tools/backend/backfill.cjs",
     "schema:audit": "node tools/audit-target-schema.cjs",
     "schema:migrate": "node tools/migrate-target-schema.cjs",
-    "data:auth": "node tools/local/auth.cjs"
+    "data:auth": "node tools/local/auth.cjs",
+    "ai:index": "node tools/backend/ai/index-public.cjs",
+    "ai:check": "node tools/backend/ai/preflight.cjs"
   },
   "private": true
 }

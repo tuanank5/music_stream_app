@@ -2,6 +2,7 @@ export type CursorPage<T> = {
   items: T[];
   nextCursor: string | null;
   hasMore: boolean;
+  fallbackReason?: string | null;
 };
 export function createPager<T>(
   fetchPage: (cursor: string | null, size: number) => Promise<CursorPage<T>>,
@@ -15,6 +16,7 @@ export function createPager<T>(
     error: "",
     hasMore: true,
     started: false,
+    fallbackReason: null as string | null,
   };
   let cursor: string | null = null,
     closed = false,
@@ -40,12 +42,21 @@ export function createPager<T>(
         error: "",
         hasMore: page.hasMore,
         started: true,
+        fallbackReason: state.started
+          ? state.fallbackReason
+          : (page.fallbackReason ?? null),
       };
     } catch (error) {
       if (closed || request !== generation) return;
       if (cursor && (error as { status?: number }).status === 400) {
         cursor = null;
-        state = { ...state, items: [], started: false, hasMore: true };
+        state = {
+          ...state,
+          items: [],
+          started: false,
+          hasMore: true,
+          fallbackReason: null,
+        };
       }
       state = {
         ...state,

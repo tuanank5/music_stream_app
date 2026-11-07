@@ -112,7 +112,19 @@ export function watchFollowedArtistSongs(
   return subscribeCatalog<Song>(
     `/catalog/followed-artist-songs/${encodeURIComponent(artistId)}`,
     next,
-    fail,
+    (error) => {
+      // Unfollow can revoke this derived list before /following refreshes.
+      // Treat that specific response as an empty list, not a terminal listener
+      // failure; a rapid follow again must still be able to refresh it.
+      if (
+        (error as Error & { status?: number }).status === 403 &&
+        error.message === "Không còn theo dõi nghệ sĩ."
+      ) {
+        next([]);
+        return;
+      }
+      fail(error);
+    },
   );
 }
 

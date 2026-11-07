@@ -18,6 +18,7 @@ let root,
   counts,
   loadSong,
   follow;
+let AlbumFavorites, albumGet, albumDelete;
 
 function subscribe(name, next, fail) {
   const entry = { name, next, fail, stopped: 0 };
@@ -128,6 +129,20 @@ const library = {
 };
 const load = Module._load;
 Module._load = function (request, parent, isMain) {
+  if (parent?.filename.endsWith("AlbumFavoritesContext.tsx")) {
+    if (request.endsWith("/backendService"))
+      return {
+        backendGet: (...args) => albumGet(...args),
+        backendDelete: (...args) => albumDelete(...args),
+        backendPut: async () => {
+          throw Error("Unexpected album PUT");
+        },
+      };
+    if (request.endsWith("/firebase"))
+      return {
+        getFirebaseAuth: () => ({ currentUser: { uid: "alice" } }),
+      };
+  }
   if (request.endsWith("/contexts/AuthContext") || request === "./AuthContext")
     return { useAuth: () => React.useContext(Auth) };
   if (request.endsWith("/services/catalogService")) return catalog;
@@ -185,6 +200,7 @@ before(async () => {
   global.document = window.document;
   global.IS_REACT_ACT_ENVIRONMENT = true;
   Data = require("../src/contexts/DataContext.tsx");
+  AlbumFavorites = require("../src/contexts/AlbumFavoritesContext.tsx");
   Player = require("../src/contexts/PlayerContext.tsx");
   ({ FollowButton } = require("../src/components/discovery/FollowButton.tsx"));
 });
@@ -214,6 +230,56 @@ after(async () => {
 const user = (uid) => ({
   user: uid ? { uid } : null,
   loading: false,
+});
+test("album favorites remain usable during refresh and ignore stale reads after a mutation", async () => {
+  const initial = deferred(),
+    refresh = deferred(),
+    deletion = deferred();
+  let reads = 0,
+    deletes = 0;
+  albumGet = () => (++reads === 1 ? initial.promise : refresh.promise);
+  albumDelete = () => {
+    deletes++;
+    return deletion.promise;
+  };
+  await mount(
+    h(
+      AlbumFavorites.AlbumFavoritesProvider,
+      null,
+      h(Capture, {
+        name: "albumFavorites",
+        hook: AlbumFavorites.useAlbumFavorites,
+      }),
+    ),
+  );
+  assert.equal(seen.albumFavorites.ready, false);
+  await act(async () =>
+    initial.resolve({ albums: [{ id: "a" }, { id: "b" }] }),
+  );
+  assert.equal(seen.albumFavorites.ready, true);
+  await act(async () => seen.albumFavorites.reload());
+  assert.equal(seen.albumFavorites.loading, true);
+  assert.equal(seen.albumFavorites.ready, true);
+  let mutation;
+  await act(async () => {
+    mutation = seen.albumFavorites.toggle("a");
+  });
+  assert.equal(deletes, 1);
+  await act(async () => seen.albumFavorites.toggle("a"));
+  assert.equal(deletes, 1);
+  await act(async () => {
+    deletion.resolve();
+    await mutation;
+  });
+  await act(async () =>
+    refresh.resolve({ albums: [{ id: "a" }, { id: "b" }] }),
+  );
+  assert.deepEqual(
+    seen.albumFavorites.albums.map((album) => album.id),
+    ["b"],
+  );
+  assert.equal(seen.albumFavorites.loading, false);
+  assert.equal(seen.albumFavorites.pending.size, 0);
 });
 async function mount(content, uid = "alice") {
   await act(async () =>

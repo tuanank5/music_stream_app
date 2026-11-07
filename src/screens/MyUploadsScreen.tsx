@@ -94,7 +94,9 @@ export default function MyUploadsScreen() {
                   aria-valuenow={Math.min(100, quota.value.percentUsed)}
                   height={8}
                   borderRadius={4}
-                  backgroundColor="surface"
+                  backgroundColor="artworkBackground"
+                  borderWidth={1}
+                  borderColor="borderColor"
                   overflow="hidden"
                 >
                   <YStack
@@ -132,11 +134,25 @@ export default function MyUploadsScreen() {
             </IconButton>
             <XStack gap="3" alignItems="center">
               <IconButton
-                aria-label="Phát vô hạn"
+                aria-label={
+                  playback.repeatAll
+                    ? "Tắt lặp lại danh sách"
+                    : "Phát lặp lại danh sách"
+                }
                 aria-pressed={playback.repeatAll}
+                disabled={action.busy || !songs.length}
                 onPress={() => {
-                  player.setRepeat(false);
-                  player.setRepeatAll(!playback.repeatAll);
+                  if (playback.repeatAll) {
+                    player.setRepeatAll(false);
+                    return;
+                  }
+                  void action.run(async () => {
+                    const queue = await loadUploadsQueue(() => live.current);
+                    if (!live.current || !queue.length) return;
+                    player.setRepeat(false);
+                    player.setRepeatAll(true);
+                    player.play(queue[0], queue);
+                  });
                 }}
               >
                 <AppIcon
@@ -174,12 +190,11 @@ export default function MyUploadsScreen() {
       }
       footer={
         <>
-          {uploads.loading ? (
-            <Loading />
-          ) : !songs.length &&
-            !uploads.error &&
-            !uploads.hasMore &&
-            !keyword ? (
+          {!uploads.loading &&
+          !songs.length &&
+          !uploads.error &&
+          !uploads.hasMore &&
+          !keyword ? (
             <YStack alignItems="center" gap="4" padding="5">
               <AppText textAlign="center" fontWeight="700">
                 Chỉ cần tải lên một file.
@@ -193,7 +208,11 @@ export default function MyUploadsScreen() {
                 onPress={() => router.push("/upload")}
               />
             </YStack>
-          ) : !songs.length && !uploads.error && !uploads.hasMore && keyword ? (
+          ) : !uploads.loading &&
+            !songs.length &&
+            !uploads.error &&
+            !uploads.hasMore &&
+            keyword ? (
             <EmptyState message="Không có bài hát đã đăng tải phù hợp." />
           ) : null}
           <LoadMore {...uploads} />

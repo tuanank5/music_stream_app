@@ -253,7 +253,7 @@ export default function FeedScreen() {
                   />
                 ))}
               <AppText variant="caption">
-                Hiển thị tối đa 20 kết quả. Nhập tên để tìm bài khác.
+                Hiển thị tối đa 20 kết quả. Nhập từ khóa để tìm bài khác.
               </AppText>
             </>
           )}

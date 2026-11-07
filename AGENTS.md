@@ -25,7 +25,7 @@ Run lint and typecheck before declaring any task done.
 
 ## Git workflow — user preference
 
-- Commit and push completed, verified work as part of the normal workflow, unless the user explicitly asks otherwise. Do not stop solely to ask for another commit/push confirmation within the authorized task.
+- Commit and push only when the user explicitly requests them. Continue implementation and verification without automatically staging, committing or pushing completed work.
 - Commit messages must use one of these prefixes, followed by a concise description:
   - `feat:` — add functionality.
   - `fix:` — fix a bug.

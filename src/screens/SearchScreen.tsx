@@ -26,6 +26,7 @@ import { useCatalogData } from "../contexts/DataContext";
 import type { SearchResult as Result } from "../types/search";
 import { useSearch } from "../hooks/useSearch";
 import LoadMore from "../components/LoadMore";
+import { searchStatusMessage } from "../utils/searchStatus";
 
 const filters = [
   { value: "tracks", label: "Bài hát" },
@@ -71,6 +72,7 @@ function SearchSession({
     };
   }, []);
   const [keyword, setKeyword] = useState("");
+  const [smart, setSmart] = useState(false);
   const [tab, setTab] = useState<Tab | null>(null);
   const searching = keyword.trim().length > 0;
   const covers = useMemo(
@@ -86,7 +88,7 @@ function SearchSession({
       ]),
     [data.songs, data.albums, data.artists],
   );
-  const search = useSearch(keyword, tab);
+  const search = useSearch(keyword, tab, smart);
   const results = search.items;
   const songs = results.flatMap((result) =>
     result.kind === "song" ? [result.item] : [],
@@ -197,7 +199,7 @@ function SearchSession({
               <Artwork
                 uri={covers.get(`${item.kind}:${item.id}`) ?? ""}
                 size={70}
-                radius={item.kind === "artist" ? 30 : 4}
+                radius={item.kind === "artist" ? 35 : 4}
               />
             }
             onPress={() => {
@@ -219,7 +221,7 @@ function SearchSession({
           history.loading ? (
             <Loading />
           ) : !history.items.length ? (
-            <EmptyState message="Chưa có tìm kiếm gần đây. Tìm và mở Bài hát, Album hoặc Nghệ sĩ để lưu tại đây." />
+            <EmptyState message="Chưa có tìm kiếm gần đây. Tìm và mở Bài hát, Album hoặc Nghệ sĩ để lưu lại." />
           ) : null
         }
       />
@@ -248,7 +250,17 @@ function SearchSession({
             value={tab}
             onChange={(value) => setTab(tab === value ? null : value)}
           />
+          <Button
+            title={smart ? "Tìm thông minh: Bật" : "Tìm thông minh: Tắt"}
+            variant={smart ? "primary" : "secondary"}
+            onPress={() => setSmart((value) => !value)}
+          />
           <ErrorText message={history.error} />
+          {smart && search.started && !search.error ? (
+            <AppText variant="caption" marginBottom="2">
+              {searchStatusMessage(search.fallbackReason)}
+            </AppText>
+          ) : null}
           <AppText variant="caption" marginBottom="3">
             {keyword
               ? `Đã tải ${results.length} kết quả cho “${keyword}”`
@@ -309,7 +321,7 @@ function SearchSession({
             search.started &&
             !results.length &&
             !search.error && (
-              <EmptyState message="Không có kết quả phù hợp. Hãy thử tên khác hoặc từ khóa ngắn hơn." />
+              <EmptyState message="Không có kết quả phù hợp. Hãy thử từ khóa khác hoặc ngắn hơn." />
             )}
           <LoadMore {...search} loadMore={search.loadMore} />
         </>

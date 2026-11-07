@@ -5,18 +5,22 @@ export default function LoadMore({
   hasMore,
   loadMore,
   started = true,
+  showLoading = true,
 }: {
   loading: boolean;
   error: string;
   hasMore: boolean;
   loadMore: () => Promise<void>;
   started?: boolean;
+  showLoading?: boolean;
 }) {
   return (
     <>
       <ErrorText message={error} />
       {loading || (!started && !error) ? (
-        <Loading />
+        showLoading ? (
+          <Loading />
+        ) : null
       ) : hasMore ? (
         <Button
           title={error ? "Thử lại" : "Tải thêm"}

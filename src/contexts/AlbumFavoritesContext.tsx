@@ -19,6 +19,7 @@ import { errorMessage } from "../utils/feedback";
 const Context = createContext<{
   albums: Album[];
   loading: boolean;
+  ready: boolean;
   error: string;
   pending: Set<string>;
   toggle: (id: string) => Promise<void>;
@@ -47,6 +48,8 @@ function Session({
     [loading, setLoading] = useState(!!uid);
   const [error, setError] = useState(""),
     [revision, setRevision] = useState(0);
+  const [ready, setReady] = useState(!uid);
+  const mutationVersion = useRef(0);
   const [pending, setPending] = useState(new Set<string>());
   const locks = useRef(new Set<string>()),
     live = useRef(true);
@@ -59,10 +62,16 @@ function Session({
   useEffect(() => {
     if (!uid) return;
     let current = true;
+    const version = mutationVersion.current;
     backendGet<{ albums: Album[] }>("/favorite-albums")
       .then((value) => {
-        if (current) {
+        if (
+          current &&
+          version === mutationVersion.current &&
+          !locks.current.size
+        ) {
           setAlbums(value.albums);
+          setReady(true);
           setError("");
         }
       })
@@ -81,11 +90,12 @@ function Session({
       !uid ||
       !live.current ||
       getFirebaseAuth().currentUser?.uid !== uid ||
-      loading ||
+      !ready ||
       locks.current.has(id)
     )
       return;
     locks.current.add(id);
+    mutationVersion.current++;
     setPending(new Set(locks.current));
     setError("");
     try {
@@ -106,6 +116,7 @@ function Session({
     } catch (failure) {
       if (live.current) setError(errorMessage(failure));
     } finally {
+      mutationVersion.current++;
       locks.current.delete(id);
       if (live.current) setPending(new Set(locks.current));
     }
@@ -119,6 +130,7 @@ function Session({
       value={{
         albums,
         loading,
+        ready,
         error,
         pending,
         toggle,

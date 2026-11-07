@@ -10,8 +10,9 @@ export default function RelatedArtistsSection({ id }: { id: string }) {
     "/related-artists",
     { id },
   );
+  if (!state.value?.artists.length && !state.error) return null;
   return (
-    <YStack gap="3" marginVertical="4">
+    <YStack gap="3">
       <ErrorText message={state.error} />
       {state.value?.artists.length ? (
         <>

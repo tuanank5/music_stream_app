@@ -7,6 +7,7 @@ import { AppText, Button, ErrorText } from "./ui/index";
 import { PlaylistRow } from "./PlaylistRow";
 export function PublicPlaylistsSection({ ownerId }: { ownerId: string }) {
   const state = useUserPlaylists(ownerId);
+  if (!state.items.length && !state.error) return null;
   return (
     <YStack gap="3">
       <ErrorText message={state.error} />

@@ -53,7 +53,7 @@ export function subscribePrivateList<T extends { id: string }>(
       } while (cursor);
       if (valid() && !dirty) next([...items.values()]);
     } catch (error) {
-      if (valid())
+      if (valid() && !dirty)
         fail(error instanceof Error ? error : new Error(String(error)));
     } finally {
       running = false;

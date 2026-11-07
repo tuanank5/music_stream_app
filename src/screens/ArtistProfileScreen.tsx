@@ -5,6 +5,7 @@ import AlbumFavoriteButton from "../components/AlbumFavoriteButton";
 import { PublicPlaylistsSection } from "../components/PlaylistsSection";
 import RelatedArtistsSection from "../components/RelatedArtistsSection";
 import { useCatalogData } from "../contexts/DataContext";
+import { useAuth } from "../contexts/AuthContext";
 import { XStack, YStack } from "tamagui";
 import { usePublicProfile } from "../hooks/usePublicProfile";
 import { useCursorList } from "../hooks/useCursorList";
@@ -25,6 +26,8 @@ import SongRow from "../components/SongRow";
 import LoadMore from "../components/LoadMore";
 export default function ArtistProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
+  const ownProfile = user?.uid === id;
   const profile = usePublicProfile(id || "");
   const state = useCursorList("/collection", { artistId: id || "" }, !!id);
   const player = usePlayerActions();
@@ -54,9 +57,7 @@ export default function ArtistProfileScreen() {
             disabled={profile.loading}
             onPress={profile.refresh}
           />
-          {profile.loading ? (
-            <Loading />
-          ) : profile.profile ? (
+          {profile.profile ? (
             <>
               <YStack alignItems="center" gap="3">
                 <ArtistAvatar artist={profile.profile} size={180} />
@@ -65,11 +66,13 @@ export default function ArtistProfileScreen() {
                   {profile.profile.followerCount ?? 0} người theo dõi
                 </AppText>
               </YStack>
-              <XStack gap="3" marginVertical="4" alignItems="center">
-                <YStack flex={1} alignItems="center">
-                  <FollowButton artistId={id} inline />
-                </YStack>
-                <YStack flex={1}>
+              <XStack gap="3" marginVertical="4" alignItems="flex-start">
+                {!ownProfile ? (
+                  <YStack flex={1} flexBasis={0} minWidth={0}>
+                    <FollowButton artistId={id} fullWidth />
+                  </YStack>
+                ) : null}
+                <YStack flex={1} flexBasis={0} minWidth={0}>
                   <Button
                     title="Phát bài hát"
                     disabled={!songs.length}
@@ -82,25 +85,32 @@ export default function ArtistProfileScreen() {
               <AppText variant="muted">
                 {profile.profile.biography || "Chưa có giới thiệu."}
               </AppText>
-              <AppText fontWeight="700" marginVertical="3">
-                Bài hát
-              </AppText>
             </>
-          ) : (
+          ) : !profile.loading ? (
             <EmptyState message="Hồ sơ không còn khả dụng." />
-          )}
+          ) : null}
+          {profile.loading ||
+          state.loading ||
+          (!state.started && !state.error) ? (
+            <Loading />
+          ) : null}
+          <AppText fontWeight="700" marginVertical="3">
+            Bài hát
+          </AppText>
         </>
       }
       footer={
         <YStack gap="4" marginTop="4">
-          <LoadMore {...state} />
-          <PublicPlaylistsSection ownerId={id || ""} />
-          {id ? <RelatedArtistsSection id={id} /> : null}
+          <LoadMore
+            {...state}
+            loading={state.loading || profile.loading}
+            showLoading={false}
+          />
           {!state.loading && state.started && !songs.length && (
             <EmptyState message="Chưa có bài hát công khai." />
           )}
           {!!albums.length && (
-            <>
+            <YStack gap="2">
               <AppText fontWeight="700">Album</AppText>
               {albums.map((album) => (
                 <MediaRow
@@ -119,8 +129,10 @@ export default function ArtistProfileScreen() {
                   }
                 />
               ))}
-            </>
+            </YStack>
           )}
+          <PublicPlaylistsSection ownerId={id || ""} />
+          {id ? <RelatedArtistsSection id={id} /> : null}
         </YStack>
       }
     />

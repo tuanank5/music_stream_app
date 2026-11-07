@@ -19,7 +19,7 @@ export function errorMessage(error: unknown): string {
 }
 export function notify(message: string) {
   if (Platform.OS === "web") window.alert(message);
-  else Alert.alert("Music Stream", message);
+  else Alert.alert("Thông báo", message);
 }
 export function confirmDelete(
   message: string,

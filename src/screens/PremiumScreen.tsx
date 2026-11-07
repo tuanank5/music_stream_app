@@ -4,10 +4,9 @@ import { AppText, Button, Page } from "../components/ui/index";
 
 export function PremiumScreen() {
   return (
-    <Page title="Premium — giao diện giới thiệu">
+    <Page title="Premium">
       <AppText variant="muted">
-        Phiên bản học tập này không có thanh toán, gói thuê bao hoặc tải
-        offline. Bạn không cần mua Premium để sử dụng các chức năng MVP.
+        Premium là tính năng dự kiến phát triển trong tương lai và chưa được hỗ trợ trong phiên bản hiện tại. Bạn vẫn có thể trải nghiệm các chức năng của ứng dụng hoàn toàn miễn phí.
       </AppText>
       <Button
         title="Tiếp tục nghe nhạc"

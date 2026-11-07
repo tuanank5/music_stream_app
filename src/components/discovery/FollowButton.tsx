@@ -3,19 +3,37 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useLibraryData } from "../../contexts/DataContext";
 import { useAction } from "../../hooks/useAction";
 import { setFollow } from "../../services/libraryService";
-import { Action, AppText, ErrorText } from "../ui/index";
+import { Action, AppText, Button, ErrorText } from "../ui/index";
 // Theo dõi/bỏ theo dõi nghệ sĩ.
 export function FollowButton({
   artistId,
   inline = false,
+  fullWidth = false,
 }: {
   artistId: string;
   inline?: boolean;
+  fullWidth?: boolean;
 }) {
   const { user } = useAuth();
   const { followingIds } = useLibraryData();
   const action = useAction();
   const following = followingIds.includes(artistId);
+  if (fullWidth)
+    return (
+      <YStack>
+        <Button
+          title={following ? "Unfollow" : "Follow"}
+          variant={following ? "secondary" : "primary"}
+          disabled={!user || user.uid === artistId}
+          loading={action.busy}
+          onPress={() => {
+            if (user)
+              void action.run(() => setFollow(user.uid, artistId, !following));
+          }}
+        />
+        <ErrorText message={action.error} />
+      </YStack>
+    );
   return (
     <YStack alignItems="center">
       <Action

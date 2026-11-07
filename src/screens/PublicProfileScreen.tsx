@@ -1,4 +1,5 @@
 import { usePublicProfile } from "../hooks/usePublicProfile";
+import { useAuth } from "../contexts/AuthContext";
 import { PublicPlaylistsSection } from "../components/PlaylistsSection";
 import RelatedArtistsSection from "../components/RelatedArtistsSection";
 import Artwork from "../components/Artwork";
@@ -15,11 +16,9 @@ import { FollowButton } from "../components/discovery/FollowButton";
 import { YStack } from "tamagui";
 export default function PublicProfileScreen({ id }: { id: string }) {
   const state = usePublicProfile(id);
+  const { user } = useAuth();
   return (
-    <Page
-      title="Hồ sơ người dùng"
-      titleLeading={<BackButton inline />}
-    >
+    <Page title="Hồ sơ người dùng" titleLeading={<BackButton inline />}>
       <ErrorText message={state.error} />
       <Button
         title="Làm mới hồ sơ"
@@ -37,7 +36,7 @@ export default function PublicProfileScreen({ id }: { id: string }) {
             Người dùng · {state.profile.followerCount} người theo dõi
           </AppText>
           <AppText>{state.profile.biography || "Chưa có giới thiệu."}</AppText>
-          <FollowButton artistId={id} />
+          {user?.uid !== id ? <FollowButton artistId={id} /> : null}
           <PublicPlaylistsSection ownerId={id} />
           <RelatedArtistsSection id={id} />
         </YStack>
