@@ -15,6 +15,7 @@ import { GENRES, validateGenres } from "../utils/genres";
 import { createRequestCache } from "../utils/createRequest";
 import { ModalPanel } from "../components/ui/ModalPanel";
 import { BackButton } from "../components/ui/BackButton";
+import UploadLyricDraft from "../components/UploadLyricDraft";
 import {
   Action,
   AppImage,
@@ -50,6 +51,7 @@ export default function UploadSongScreen() {
   const action = useAction();
   const albumRequest = useRef(createRequestCache(newSongId));
   const [audio, setAudio] = useState<PickedMedia | null>(null);
+  const [audioSelection, setAudioSelection] = useState(0);
   const [image, setImage] = useState<PickedMedia | null>(null);
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState<string[]>([]);
@@ -85,6 +87,9 @@ export default function UploadSongScreen() {
     });
     if (result.canceled) return;
     const asset = result.assets[0];
+    setAudioSelection((value) => value + 1);
+    cache.current.audioUri = undefined;
+    cache.current.audioPublicId = undefined;
     setAudio({
       uri: asset.uri,
       name: asset.name,
@@ -114,6 +119,27 @@ export default function UploadSongScreen() {
       size: asset.fileSize,
       file: asset.file,
     });
+  }
+  async function prepareLyricAudio() {
+    const owner = getFirebaseAuth().currentUser;
+    if (!owner || !audio)
+      throw new Error("Chọn audio và đăng nhập trước khi tạo lời.");
+    let publicId = "";
+    const ok = await action.run(async () => {
+      const saved = cache.current;
+      if (saved.audioUri !== audio.uri || !saved.audioPublicId) {
+        const uploaded = await uploadMedia(audio, "video");
+        if (getFirebaseAuth().currentUser !== owner)
+          throw new Error("Phiên đăng nhập đã thay đổi.");
+        saved.audioUri = audio.uri;
+        saved.audioUrl = uploaded.url;
+        saved.duration = uploaded.duration;
+        saved.audioPublicId = uploaded.publicId;
+      }
+      publicId = saved.audioPublicId!;
+    });
+    if (!ok) throw new Error("Chưa chuẩn bị được audio để tạo lời nháp.");
+    return publicId;
   }
   async function save() {
     const sessionUser = getFirebaseAuth().currentUser;
@@ -165,9 +191,6 @@ export default function UploadSongScreen() {
       saved.coverUrl = (await uploadMedia(image, "image")).url;
       saved.imageUri = image.uri;
       checkSession();
-    }
-    if (!saved.duration || saved.duration <= 0) {
-      throw new Error("Máy chủ chưa trả về thời lượng âm thanh hợp lệ.");
     }
     let selectedAlbum = albumId;
     checkSession();
@@ -397,6 +420,15 @@ export default function UploadSongScreen() {
         disabled={action.busy}
       />
 
+      {audio ? (
+        <UploadLyricDraft
+          key={`${user?.uid}:${audioSelection}:${audio.uri}`}
+          busy={action.busy}
+          prepareAudio={prepareLyricAudio}
+          onText={setLyric}
+          lyric={lyric}
+        />
+      ) : null}
       <Field
         label="Lời bài hát"
         value={lyric}

@@ -5,6 +5,7 @@ import { useCatalogData } from "../contexts/DataContext";
 import { usePlayerActions } from "../contexts/PlayerContext";
 import { formatDuration } from "../utils/validation";
 import Artwork from "../components/Artwork";
+import SimilarSongsSection from "../components/SimilarSongsSection";
 import { BackButton } from "../components/ui/BackButton";
 import {
   AppText,
@@ -83,6 +84,9 @@ function SongDetails({ id }: { id: string }) {
           router.push({ pathname: "/lyrics", params: { id: song.id } })
         }
       />
+      {song.isPublic ? (
+        <SimilarSongsSection key={song.id} songId={song.id} />
+      ) : null}
     </Page>
   );
 }

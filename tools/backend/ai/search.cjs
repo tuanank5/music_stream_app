@@ -1,4 +1,5 @@
 const { createHash } = require("node:crypto");
+const { recommendSimilar, personalizeSuggestions } = require("./similar.cjs");
 const hash = (text) => createHash("sha256").update(text).digest("hex");
 function vector(values, dimensions) {
   if (
@@ -123,9 +124,51 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
       pending.delete(pendingKey);
     }
   }
+  async function readVectors(songs) {
+    const result = new Map();
+    for (let i = 0; i < songs.length; i += 100) {
+      const batch = songs.slice(i, i + 100);
+      const docs = await db.getAll(
+        ...batch.map((s) =>
+          db.doc(
+            `songEmbeddings/${hash(`${version}:document:${documentText(s)}`)}`,
+          ),
+        ),
+      );
+      docs.forEach((doc, n) => {
+        if (!doc.exists || doc.data().version !== version) return;
+        try {
+          result.set(batch[n].id, vector(doc.data().values, dimensions));
+        } catch {
+          /* Ignore invalid or incompatible cached vectors. */
+        }
+      });
+    }
+    return result;
+  }
   return {
     enabled: configured,
     version,
+    async suggest(catalog, baseline, history, favorites, following) {
+      return personalizeSuggestions({
+        catalog,
+        baseline,
+        history,
+        favorites,
+        following,
+        readVectors,
+        enabled: configured,
+      });
+    },
+    async similar(source, catalog, limit = 8) {
+      return recommendSimilar({
+        source,
+        catalog,
+        limit,
+        enabled: configured,
+        readVectors,
+      });
+    },
     async rank(query, lexical, catalog, uid) {
       if (!configured) return { keys: lexical, fallbackReason: "disabled" };
       if (catalog.length > 1000)

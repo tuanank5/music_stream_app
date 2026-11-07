@@ -12,6 +12,7 @@ const { createHistoryReadRouter } = require("./history-read.cjs");
 const { createPlaybackRouter } = require("./playback-routes.cjs");
 const { createSongReadRouter } = require("./song-read.cjs");
 const { createCatalogReadRouter } = require("./catalog-read.cjs");
+const { createLyricRouter } = require("./ai/lyric-routes.cjs");
 const {
   mountLocalMediaFiles,
   createLocalMediaRouter,
@@ -104,6 +105,7 @@ function createHttpApp({
       ) &&
       !(req.method === "DELETE" && /^\/songs\/[^/]+$/.test(req.path)) &&
       !(req.method === "PATCH" && /^\/songs\/[^/]+\/cover$/.test(req.path)) &&
+      !(req.method === "POST" && req.path === "/audio-lyric-job") &&
       !(req.method === "POST" && req.path === "/playlists") &&
       !(
         ["PATCH", "DELETE"].includes(req.method) &&
@@ -253,6 +255,7 @@ function createHttpApp({
   app.use(createFavoriteAlbumsRouter({ db }));
   app.use(createPlaylistRouter({ db }));
   app.use(createSongOwnerRouter({ db, mode }));
+  app.use(createLyricRouter({ db, mode }));
   app.use(createSongUploadRouter({ db, mode }));
   app.use(createSocialRouter({ db }));
   app.use(createFeedRouter({ db }));

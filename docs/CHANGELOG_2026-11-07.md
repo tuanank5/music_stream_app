@@ -1,5 +1,48 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Điều chỉnh lyric AI: chỉ tạo trong lúc Đăng tải bài hát
+
+- Thay luồng tạo lời sau đăng bằng `UploadLyricDraft` trong UploadSongScreen, ngay phía trên ô Lời bài hát. Chọn audio → tạo draft → kiểm tra/điền → sửa → Lưu bài.
+- Upload audio một lần và dùng lại publicId/cache khi Lưu. Gỡ client guard đòi duration upload phải có ngay; backend vẫn xác minh duration từ Cloudinary/bytes khi lưu bài.
+- Backend mới dùng `/audio-lyric-config` và GET/POST `/audio-lyric-job`; xác minh audioPublicId thuộc UID, nguồn upload riêng ở `lyricUploadSources`, không tạo document songs trước khi đăng. Quota/consent/idempotency/lease và kiểm tra account vẫn giữ.
+- Gỡ LyricDraftEditor, endpoint `/songs/:id/lyric-job` và PATCH `/songs/:id/lyrics`. LyricsScreen vẫn fetch theo ID để mở trực tiếp được, nhưng chỉ đọc.
+- Callback cũ không điền lyric sau khi đổi file/unmount; không ghi đè phần đang gõ nếu request trả về muộn. Có nút áp dụng draft chủ động. Chọn lại cùng URI cũng làm mất cache audio cũ để tránh dùng sai file.
+- Kiểm thử cả trường hợp chưa có bất kỳ document songs, không cho UID khác đọc draft, thiếu consent/quota, tài khoản bị khóa giữa job, HTTP loại bỏ endpoint cũ, UI giữ text đang gõ và chặn late callback. Bộ AI hiện 23 test đạt; toàn bộ test 135/135 đạt. Chưa gọi Gemini thật hoặc deploy trong đợt chỉnh flow.
+- Mục workflow lyric sau khi đăng trong các đoạn changelog cũ là lịch sử, không còn là implementation hiện hành. Cần TTL/retention cho cả lyricUploadSources và lyricJobs (expiresAt 7 ngày); hiện chưa tự cấu hình TTL ở cloud.
+
+## AI: tạo lyric nháp, sửa và duyệt
+
+- Thêm `lyric-jobs.cjs`, `lyric-routes.cjs`, `transcribe.cjs` và `LyricDraftEditor.tsx`. LyricsScreen tải bài theo ID qua backend nên mở trực tiếp không còn phụ thuộc bài đã có trong catalog cache.
+- Chủ bài có thể nhập/sửa/lưu lyric thủ công dù AI tắt. PATCH `/songs/:id/lyrics` kiểm tra owner/account active và `expectedLyrics`, trả 409 nếu lyric đã đổi ở thiết bị khác. Lưu vào field `songs.lyric`, DTO vẫn dùng `lyrics`.
+- POST `/songs/:id/lyric-job` yêu cầu consent gửi audio tới Gemini; GET cùng đường dẫn chỉ trả trạng thái/draft cho owner. Tối đa một job chạy trong mỗi process, chặn gửi trùng; job lưu bền ở `lyricJobs`, keyed theo UID/song, có ID phiên riêng và hash nguồn audio.
+- Quota audio/ngày dùng transaction trong `aiUsage/lyrics_{day}`; reserve số giây trước xử lý, không hoàn quota tự động khi lỗi. Tối đa 5 phút/bài và 30 MiB. Mặc định AI lyric tắt và quota 0, không tự dùng quota embedding hay bật trả phí.
+- Backend xác minh audio sở hữu qua Cloudinary, tải bytes có giới hạn, upload qua Gemini Files API, gọi `gemini-3.5-transcribe` ở mode verbatim để giữ câu lặp. Không nhận URL do client đưa vào. Xóa file provider best-effort sau tác vụ; Files API có retention riêng nếu cleanup thất bại.
+- Kết quả chỉ là draft, không tự ghi lyric công khai. Người dùng bấm đưa draft vào ô sửa, kiểm tra rồi Lưu. Recheck owner/account/source khi hoàn tất và khi duyệt; audio đổi hoặc account bị khóa không được ghi kết quả cũ.
+- Job có lease 10 phút; restart Render có thể ngắt công việc. Hết lease hiển thị interrupted và cho yêu cầu lại, không tự retry inference/mất kiểm soát quota. MVP dùng nút “Kiểm tra tiến độ / tải lại bản nháp”, chưa tự polling và chưa có worker/queue luôn hoạt động. Draft có expiresAt 7 ngày; cần cấu hình Firestore TTL để dọn vật lý, không tự cài TTL trong đợt này.
+- Biến backend mới (chỉ bật sau khi kiểm tra Free Tier/quyền model): `AI_LYRICS_ENABLED=true`, `AI_TRANSCRIBE_MODEL=gemini-3.5-transcribe`, `AI_DAILY_AUDIO_SECONDS=600` cho demo 10 phút/ngày. Dùng cùng GEMINI_API_KEY; AI_ENABLED vẫn phải true. Bảng giá công khai có Free Tier cho model nhưng chưa xác minh inference/region/quota của project cho ASR, chưa bật hoặc gọi model thật trong đợt này.
+- Canonical embedding v1 chưa gồm lyric, nên duyệt lyric không tự tạo lại vector metadata. Chưa tạo audio embedding hoặc lời đồng bộ timestamp.
+- Kiểm tra: 134/134 unit test đạt; typecheck/backend source packaging đạt; lint kiểm tra cùng đợt. Test gồm chống duplicate, ownership, quota, publish có duyệt, xung đột lyric, thay audio/khóa tài khoản giữa job, upload/cleanup provider giả lập và HTTP auth/manual edit. Chưa QA Android/Web, chưa gọi ASR thật, chưa commit/push/deploy.
+- Nguồn API đối chiếu: [Transcription](https://ai.google.dev/gemini-api/docs/transcribe), [Files API](https://ai.google.dev/api/files), [Interactions migration](https://ai.google.dev/gemini-api/docs/interactions-breaking-changes-may-2026), [Pricing](https://ai.google.dev/gemini-api/docs/pricing).
+
+## AI: gợi ý vector trong Suggestions for you và chi tiết bài hát
+
+- `/discovery` tiếp tục dùng `suggestSongs` cũ làm baseline từ lịch sử nghe, favorite, genre và following. Thêm lớp vector cá nhân hóa vào chính danh sách `suggestions` mà Home đang hiển thị trong “Suggestions for you”; không tạo một rail Home thứ hai.
+- Preference vector được tính trong bộ nhớ mỗi request từ vector công khai đã lưu: favorite có trọng số 3; nghe hết 3, nghe một phần theo tỷ lệ với trần 2, giảm dần theo độ cũ trong lịch sử. Seed riêng tư/inactive không được dùng; không lưu vector sở thích người dùng vào collection public hoặc cache chung.
+- Trộn thứ hạng metadata và cosine bằng RRF, tăng nhẹ điểm cho nghệ sĩ đang follow. Phân bổ mục tiêu tối đa 6 bài quen/yêu thích, 8 bài liên quan chưa nghe, 6 khám phá; loại trùng, bù khi thiếu dữ liệu và hạn chế lặp nghệ sĩ. Đây là phân bổ mềm, không cam kết chính xác 6/8/6 với catalog ít bài.
+- Khi không có history/favorite, AI tắt, vượt giới hạn, thiếu vector hoặc lỗi đọc kho vector, giữ nguyên kết quả baseline đã có. Không bịa sở thích khi chưa có dữ liệu.
+- Thêm `/similar-songs?id=...` và `SimilarSongsSection` dưới SongScreen cho bài công khai: tối đa 8 bài khác, phối hợp metadata/vector và đa dạng nghệ sĩ; kiểm tra nguồn/đích lại qua hydrate trước response, không trả vector/score hoặc thông tin riêng tư về client.
+- Các luồng gợi ý chỉ đọc vector đã lưu; không gọi embedding API hoặc LLM khi mở/refresh gợi ý. Có đọc Firestore, vẫn cần theo dõi hạn mức Firestore. Tương tự ở đây dựa trên tên/nghệ sĩ/genre, chưa phân tích giai điệu/audio.
+- Kiểm thử: 129/129 unit test đạt (bao gồm test M4A đang ở working tree), typecheck và backend source packaging đạt; lint được kiểm tra cùng đợt. Chưa QA Android/Web hoặc deploy phần gợi ý; chưa commit/push.
+- File mới: `tools/backend/ai/similar.cjs`, `src/components/SimilarSongsSection.tsx`. File thay đổi: `tools/backend/ai/search.cjs`, `tools/backend/service.cjs`, `src/screens/SongScreen.tsx`, `tests/ai-search.test.cjs`, tài liệu AI/changelog. Giữ các thay đổi M4A độc lập về code.
+
+## Sửa Lưu M4A bị từ chối ở bước xác minh backend
+
+- Người dùng báo M4A khoảng 20 MB/3 phút upload được nhưng nhấn Lưu nhận lỗi “Không đọc được audio hợp lệ hoặc file chứa video…”.
+- Phát hiện bộ kiểm tra chỉ cho ext m4a, trong khi file-type nhận ISO BMFF major brand isom/mp42 thành mp4/video MIME, kể cả khi chỉ có audio. Bộ kiểm tra chặn trước bước đọc track thực tế.
+- `tools/backend/inspect-audio.cjs` cho container mp4 đi tiếp qua music-metadata; vẫn từ chối hasVideo/track video, hasAudio=false, thiếu sample rate/channels, duration không hợp lệ, quá 180 phút hoặc quá 30 MiB. Không tin phần mở rộng tên file để kết luận có video.
+- Thêm fixture ISO BMFF tổng hợp trong `tests/helpers/mp4-audio.cjs` (metadata kiểm thử, không phải bản nhạc phát được). Test container 20 MiB/180 giây đã thất bại với đúng thông báo trước bản sửa và đạt sau bản sửa. Có test audio M4A brand truyền thống, container có video dù mang brand M4A, thời lượng 0 và vượt giới hạn.
+- 125/125 unit test đạt; lint/typecheck và backend source packaging đạt. Chưa thử trực tiếp bytes file của người dùng, chưa gọi Cloudinary thật; chưa commit/push/deploy bản sửa này. Cần deploy backend mới để thử lại thao tác Lưu trên Render.
+
 ## Cập nhật mới: tìm kiếm chồng nhau và index theo thay đổi Firestore
 
 - Bỏ khóa chỉ cho một lượt semantic search trên toàn backend. Cho phép tối đa 16 lượt đang xử lý; “busy” chỉ dùng khi đạt ngưỡng này. Query mới của cùng UID thay thế query cũ; dừng sớm query cũ sau đọc vector và trước gọi embedding nếu đã bị thay thế. Request provider đã gửi không bị hủy hồi tố; giới hạn ngày vẫn giữ nguyên.

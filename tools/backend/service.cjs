@@ -379,6 +379,7 @@ async function createBackend({
       "/charts",
       "/collection",
       "/discovery",
+      "/similar-songs",
     ],
     async (request, response) => {
       const send = (status, body) => response.status(status).json(body);
@@ -427,6 +428,22 @@ async function createBackend({
         });
       }
       const catalog = all();
+      if (url.pathname === "/similar-songs") {
+        const id = url.searchParams.get("id") || "";
+        if (!/^[A-Za-z0-9_-]{1,128}$/.test(id))
+          throw error(400, "ID bài hát không hợp lệ.");
+        const source = (await hydrate([`song:${id}`]))[0]?.item;
+        if (!source) throw error(404, "Bài hát không còn khả dụng.");
+        const ranked = await aiSearch.similar(source, catalog.songs, 8);
+        // Recheck source and targets after vector reads; cached index is not an ACL.
+        if (!(await hydrate([`song:${id}`])).length)
+          throw error(404, "Bài hát không còn khả dụng.");
+        return send(200, {
+          songs: (await hydrate(ranked.keys)).map((row) => row.item),
+          mode: ranked.fallbackReason ? "metadata" : "hybrid",
+          fallbackReason: ranked.fallbackReason,
+        });
+      }
       if (url.pathname === "/album-info") {
         const id = url.searchParams.get("id") || "";
         const live = await hydrate([`album:${id}`]);
@@ -528,7 +545,7 @@ async function createBackend({
           id: doc.id,
           ...doc.data(),
         }));
-        const suggestions = recommendations.suggestSongs(
+        const baselineSuggestions = recommendations.suggestSongs(
           catalog.songs,
           entries,
           20,
@@ -536,6 +553,20 @@ async function createBackend({
           following.docs.map((doc) => doc.id),
           seed,
         );
+        const suggestionRanking = await aiSearch.suggest(
+          catalog.songs,
+          baselineSuggestions,
+          entries,
+          favorites.docs.map((doc) => doc.id),
+          following.docs.map((doc) => doc.id),
+        );
+        const suggestionMap = new Map(
+          catalog.songs.map((song) => [song.id, song]),
+        );
+        const suggestions = suggestionRanking.keys.flatMap((key) => {
+          const song = suggestionMap.get(key.slice(5));
+          return song ? [song] : [];
+        });
         const homeSongs = recommendations
           .seeded(catalog.songs, seed + "songs")
           .slice(0, 20);
@@ -559,6 +590,9 @@ async function createBackend({
           liveSongs.map((result) => [result.item.id, result.item]),
         );
         return send(200, {
+          suggestionMode: suggestionRanking.fallbackReason
+            ? "metadata"
+            : "hybrid",
           suggestions: suggestions.flatMap((song) =>
             live.has(song.id) ? [live.get(song.id)] : [],
           ),

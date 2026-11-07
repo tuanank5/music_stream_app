@@ -1,5 +1,6 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
+const { mp4Audio } = require("./helpers/mp4-audio.cjs");
 const {
   audioUploadConfig,
   verifyAudio,
@@ -11,6 +12,54 @@ const {
   prepareImage,
   signature,
 } = require("../tools/backend/image-assets.cjs");
+
+test("M4A audio with generic MP4 branding accepts a 20 MiB three-minute container", async () => {
+  const { inspectAudio } = require("../tools/backend/inspect-audio.cjs");
+  const bytes = mp4Audio({
+    brand: "isom",
+    payloadBytes: 20 * 1024 * 1024 - 400,
+  });
+  const { fileTypeFromBuffer } =
+    await import("../tools/node_modules/file-type/source/index.js");
+  assert.equal((await fileTypeFromBuffer(bytes)).ext, "mp4");
+  assert.equal(
+    await inspectAudio(
+      "https://owned.test/audio.m4a",
+      bytes.length,
+      async () => new Response(bytes),
+    ),
+    180,
+  );
+});
+
+test("MP4 container support does not permit video tracks or invalid durations", async () => {
+  const { inspectAudio } = require("../tools/backend/inspect-audio.cjs");
+  for (const options of [
+    { brand: "isom", video: true },
+    { brand: "M4A ", video: true },
+    { duration: 0 },
+    { duration: 10801 },
+  ]) {
+    const bytes = mp4Audio(options);
+    await assert.rejects(
+      inspectAudio(
+        "https://owned.test/audio.m4a",
+        bytes.length,
+        async () => new Response(bytes),
+      ),
+      { status: 400 },
+    );
+  }
+  const bytes = mp4Audio({ brand: "M4A " });
+  assert.equal(
+    await inspectAudio(
+      "https://owned.test/audio.m4a",
+      bytes.length,
+      async () => new Response(bytes),
+    ),
+    180,
+  );
+});
 
 test("signed image tickets are persisted, prohibit overwrite, and verify server metadata in the owner's namespace", async () => {
   const keys = [

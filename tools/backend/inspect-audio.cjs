@@ -43,7 +43,10 @@ async function inspectAudio(url, expectedBytes, request = fetch) {
       const detected = await fileTypeFromBuffer(bytes);
       if (
         !detected ||
-        !["mp3", "wav", "flac", "ogg", "m4a"].includes(detected.ext)
+        // ISO BMFF audio can use a generic isom/mp42 brand. file-type then
+        // reports mp4/video MIME even when there are only AAC/ALAC audio tracks.
+        // Admit the container here, and reject actual video after parsing below.
+        !["mp3", "wav", "flac", "ogg", "m4a", "mp4"].includes(detected.ext)
       )
         throw Error("Unsupported audio format");
       const { parseBuffer, TrackType } = await import("music-metadata");
@@ -54,6 +57,7 @@ async function inspectAudio(url, expectedBytes, request = fetch) {
       );
       if (
         format.hasVideo ||
+        format.hasAudio === false ||
         format.trackInfo?.some((track) => track.type === TrackType.video) ||
         !(format.sampleRate > 0) ||
         !(format.numberOfChannels > 0) ||

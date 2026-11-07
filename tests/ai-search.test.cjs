@@ -6,6 +6,221 @@ const { searchStatusMessage } = require("../src/utils/searchStatus.ts");
 const { preflight } = require("../tools/backend/ai/preflight.cjs");
 const { startAiIndex } = require("../tools/backend/ai/bootstrap.cjs");
 const { createAiSearch, vector } = require("../tools/backend/ai/search.cjs");
+const { createLyricJobs } = require("../tools/backend/ai/lyric-jobs.cjs");
+const { transcribeSong } = require("../tools/backend/ai/transcribe.cjs");
+
+test("upload audio produces a private lyric draft before any song is published", async () => {
+  let release;
+  const pending = new Promise((r) => {
+    release = r;
+  });
+  let calls = 0;
+  const f = lyricFixture(async () => {
+    calls++;
+    return pending;
+  });
+  const id = "musicstream/u/audio/asset";
+  const first = await f.service.startUpload("u", id, true);
+  const second = await f.service.startUpload("u", id, true);
+  assert.equal(first.job.draftId, second.job.draftId);
+  release("Lời nháp trước khi đăng");
+  await f.service.settle();
+  assert.equal(calls, 1);
+  assert.equal(
+    (await f.service.readUpload("u", id)).job.text,
+    "Lời nháp trước khi đăng",
+  );
+  assert.equal(
+    [...f.data.keys()].filter((p) => p.startsWith("songs/")).length,
+    0,
+  );
+  await assert.rejects(f.service.readUpload("other", id), { status: 403 });
+});
+test("upload lyric generation requires consent, ownership and quota before inference", async () => {
+  let calls = 0;
+  const f = lyricFixture(async () => {
+      calls++;
+      return "text";
+    }, 100),
+    id = "musicstream/u/audio/asset";
+  await assert.rejects(f.service.startUpload("u", id, false), { status: 400 });
+  await assert.rejects(f.service.startUpload("u", id, true), { status: 429 });
+  await assert.rejects(
+    f.service.startUpload("u", "musicstream/other/audio/a", true),
+    { status: 403 },
+  );
+  assert.equal(calls, 0);
+});
+test("deactivation while upload ASR runs prevents draft completion", async () => {
+  let entered, release;
+  const started = new Promise((r) => {
+      entered = r;
+    }),
+    pending = new Promise((r) => {
+      release = r;
+    });
+  const f = lyricFixture(async () => {
+    entered();
+    return pending;
+  });
+  await f.service.startUpload("u", "musicstream/u/audio/asset", true);
+  await started;
+  f.data.get("users/u").active = false;
+  release("stale");
+  await f.service.settle();
+  assert.equal(
+    [...f.data].find(([p]) => p.startsWith("lyricJobs/"))[1].status,
+    "failed",
+  );
+});
+test("only the pre-upload lyric endpoint is exposed, post-publication edit routes are removed", async () => {
+  const { createServer } = require("node:http"),
+    { once } = require("node:events"),
+    { createHttpApp, finishHttpApp } = require("../tools/backend/http-app.cjs");
+  const f = lyricFixture(async () => "text"),
+    app = createHttpApp({
+      db: f.db,
+      auth: { verifyIdToken: async () => ({ uid: "u" }) },
+      origins: [],
+      mode: "cloud",
+      projectId: "test",
+      isHealthy: () => true,
+    });
+  finishHttpApp(app);
+  const server = createServer(app);
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    assert.equal(
+      (await fetch(base + "/audio-lyric-job?publicId=musicstream/u/audio/a"))
+        .status,
+      401,
+    );
+    assert.equal(
+      (
+        await fetch(base + "/audio-lyric-job?publicId=musicstream/u/audio/a", {
+          headers: { Authorization: "Bearer u" },
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await fetch(base + "/songs/s/lyrics", {
+          method: "PATCH",
+          headers: { Authorization: "Bearer u" },
+        })
+      ).status,
+      405,
+    );
+    assert.equal(
+      (
+        await fetch(base + "/songs/s/lyric-job", {
+          method: "POST",
+          headers: { Authorization: "Bearer u" },
+        })
+      ).status,
+      405,
+    );
+  } finally {
+    server.closeAllConnections();
+    await new Promise((r) => server.close(r));
+  }
+});
+
+test("upload lyric UI fills the form but never applies stale audio or overwrites typing while waiting", async () => {
+  const Module = require("node:module"),
+    React = require("react"),
+    { act } = React;
+  const { Window } = await import("happy-dom");
+  const window = new Window();
+  global.window = window;
+  global.document = window.document;
+  global.IS_REACT_ACT_ENVIRONMENT = true;
+  const load = Module._load;
+  let resolve;
+  const applied = [];
+  Module._load = function (request, parent, main) {
+    if (parent.filename.endsWith("UploadLyricDraft.tsx")) {
+      if (request === "tamagui")
+        return {
+          YStack: ({ children }) => React.createElement("div", null, children),
+        };
+      if (request === "./ui/index")
+        return {
+          AppText: ({ children }) =>
+            React.createElement("span", null, children),
+          ErrorText: ({ message }) =>
+            React.createElement("span", null, message),
+          Button: ({ title, onPress, disabled }) =>
+            React.createElement(
+              "button",
+              { onClick: onPress, disabled },
+              title,
+            ),
+        };
+      if (request === "../services/backendService")
+        return {
+          backendGet: async () => ({ enabled: true }),
+          backendPost: () =>
+            new Promise((r) => {
+              resolve = r;
+            }),
+        };
+    }
+    return load.call(this, request, parent, main);
+  };
+  const container = document.createElement("div");
+  document.body.append(container);
+  const root = require("react-dom/client").createRoot(container);
+  const Component = require("../src/components/UploadLyricDraft.tsx").default;
+  const render = (lyric) =>
+    root.render(
+      React.createElement(Component, {
+        lyric,
+        busy: false,
+        prepareAudio: async () => "musicstream/u/audio/a",
+        onText: (text) => applied.push(text),
+      }),
+    );
+  const completed = {
+    enabled: true,
+    job: { status: "completed", text: "Draft", error: "", draftId: "d" },
+  };
+  try {
+    await act(async () => render(""));
+    await act(async () => container.querySelector("button").click());
+    await act(async () => render("User typed"));
+    await act(async () => resolve(completed));
+    assert.deepEqual(applied, []);
+    assert.match(container.textContent, /Bạn đã sửa lời/);
+    await act(async () =>
+      [...container.querySelectorAll("button")]
+        .find((b) => b.textContent === "Điền bản nháp vào ô Lời bài hát")
+        .click(),
+    );
+    assert.deepEqual(applied, ["Draft"]);
+    await act(async () => root.render(null));
+    await act(async () => render(""));
+    await act(async () => container.querySelector("button").click());
+    await act(async () => root.render(null));
+    await act(async () => resolve(completed));
+    assert.deepEqual(applied, ["Draft"]);
+  } finally {
+    await act(async () => root.unmount());
+    Module._load = load;
+    container.remove();
+    await window.happyDOM.close();
+    delete global.window;
+    delete global.document;
+    delete global.IS_REACT_ACT_ENVIRONMENT;
+  }
+});
+const {
+  recommendSimilar,
+  personalizeSuggestions,
+} = require("../tools/backend/ai/similar.cjs");
 function fixture(limit = 10) {
   const data = new Map();
   const doc = (path) => ({
@@ -332,4 +547,296 @@ test("live indexing stops a failed pass instead of calling provider for the enti
   assert.equal(attempts, 1);
   assert.equal(index.state.status, "unavailable");
   index.stop();
+});
+
+test("similar songs use cached vectors without inference and do not return the seed or private songs", async () => {
+  const f = fixture();
+  const make = (id, title, artistId) => ({
+    id,
+    title,
+    artistId,
+    artist: artistId,
+    genre: ["Pop"],
+    active: true,
+    isPublic: true,
+  });
+  const source = make("seed", "Seed", "artist"),
+    a = make("a", "A", "one"),
+    b = make("b", "B", "two");
+  const ai = createAiSearch(f);
+  await ai.index([source, a, b]);
+  const before = f.calls();
+  const result = await ai.similar(source, [
+    source,
+    a,
+    b,
+    { ...make("private", "Private", "p"), isPublic: false },
+  ]);
+  assert.equal(result.fallbackReason, null);
+  assert.deepEqual(new Set(result.keys), new Set(["song:a", "song:b"]));
+  assert.equal(f.calls(), before);
+  a.title = "Changed metadata";
+  const changed = await ai.similar(source, [source, a]);
+  assert.equal(changed.fallbackReason, "index_empty");
+  assert.equal(f.calls(), before);
+});
+
+test("similar songs fall back on missing vectors/provider storage errors and diversify artists", async () => {
+  const source = {
+    id: "seed",
+    artistId: "a",
+    genre: ["Pop"],
+    active: true,
+    isPublic: true,
+  };
+  const catalog = [
+    source,
+    ...Array.from({ length: 5 }, (_, i) => ({
+      id: `p${i}`,
+      artistId: "a",
+      genre: ["Pop"],
+      playCount: 100 - i,
+      active: true,
+      isPublic: true,
+    })),
+    {
+      id: "other",
+      artistId: "b",
+      genre: ["Pop"],
+      active: true,
+      isPublic: true,
+    },
+  ];
+  const readVectors = async () => {
+    throw Error("storage");
+  };
+  const result = await recommendSimilar({
+    source,
+    catalog,
+    readVectors,
+    enabled: true,
+    limit: 4,
+  });
+  assert.equal(result.fallbackReason, "unavailable");
+  assert.equal(result.keys[1], "song:other");
+  let reads = 0;
+  const disabled = await recommendSimilar({
+    source,
+    catalog,
+    readVectors: async () => {
+      reads++;
+    },
+    enabled: false,
+  });
+  assert.equal(disabled.fallbackReason, "disabled");
+  assert.equal(reads, 0);
+  assert.equal(
+    (
+      await recommendSimilar({
+        source: { ...source, isPublic: false },
+        catalog,
+        readVectors,
+        enabled: true,
+      })
+    ).fallbackReason,
+    "source_unavailable",
+  );
+});
+
+test("Suggestions for you blend saved preferences with vectors and preserve the old fallback", async () => {
+  const make = (id, artistId) => ({
+    id,
+    artistId,
+    title: id,
+    genre: ["Pop"],
+    active: true,
+    isPublic: true,
+  });
+  const seed = make("seed", "s"),
+    base = make("z-base", "b"),
+    semantic = make("a-semantic", "c");
+  const args = {
+    catalog: [
+      seed,
+      base,
+      semantic,
+      { ...make("private", "p"), isPublic: false },
+    ],
+    baseline: [seed, base, semantic],
+    history: [{ songId: "seed", completed: true }],
+    favorites: ["seed"],
+    following: [],
+    enabled: true,
+    readVectors: async (songs) => {
+      assert.ok(!songs.some((s) => s.id === "private"));
+      return new Map([
+        ["seed", [1, 0]],
+        ["z-base", [0, 1]],
+        ["a-semantic", [1, 0]],
+      ]);
+    },
+  };
+  const ranked = await personalizeSuggestions(args);
+  assert.equal(ranked.fallbackReason, null);
+  assert.deepEqual(ranked.keys, [
+    "song:seed",
+    "song:a-semantic",
+    "song:z-base",
+  ]);
+  const cold = await personalizeSuggestions({
+    ...args,
+    history: [],
+    favorites: [],
+    readVectors: async () => {
+      throw Error("must not read");
+    },
+  });
+  assert.equal(cold.fallbackReason, "no_preferences");
+  assert.deepEqual(cold.keys, ["song:seed", "song:z-base", "song:a-semantic"]);
+  const failed = await personalizeSuggestions({
+    ...args,
+    readVectors: async () => {
+      throw Error("storage");
+    },
+  });
+  assert.equal(failed.fallbackReason, "unavailable");
+  assert.deepEqual(failed.keys, cold.keys);
+});
+
+test("personalized discovery uses no inference calls and never reuses another request's taste", async () => {
+  const f = fixture();
+  const make = (id) => ({
+    id,
+    title: id,
+    artistId: id,
+    genre: ["Pop"],
+    active: true,
+    isPublic: true,
+  });
+  const songs = [make("a"), make("b"), make("c")];
+  const ai = createAiSearch(f);
+  await ai.index(songs);
+  const calls = f.calls();
+  const first = await ai.suggest(songs, songs, [], ["a"], []);
+  assert.equal(first.fallbackReason, null);
+  assert.equal(f.calls(), calls);
+  const next = await ai.suggest(songs, songs, [], [], []);
+  assert.equal(next.fallbackReason, "no_preferences");
+  assert.equal(f.calls(), calls);
+});
+function lyricFixture(transcribe, seconds = 600) {
+  const data = new Map([["users/u", { active: true }]]);
+  const snapshot = (path) => ({
+    exists: data.has(path),
+    data: () => structuredClone(data.get(path)),
+  });
+  const doc = (path) => ({ path, get: async () => snapshot(path) });
+  let tail = Promise.resolve();
+  const db = {
+    doc,
+    runTransaction: (work) => {
+      const run = tail.then(async () => {
+        const writes = [];
+        const result = await work({
+          get: (ref) => ref.get(),
+          set: (ref, v) => writes.push(() => data.set(ref.path, v)),
+          update: (ref, v) =>
+            writes.push(() =>
+              data.set(ref.path, { ...data.get(ref.path), ...v }),
+            ),
+        });
+        writes.forEach((w) => w());
+        return result;
+      });
+      tail = run.catch(() => {});
+      return run;
+    },
+  };
+  const env = {
+    AI_ENABLED: "true",
+    AI_LYRICS_ENABLED: "true",
+    GEMINI_API_KEY: "test",
+    AI_TRANSCRIBE_MODEL: "gemini-3.5-transcribe",
+    AI_DAILY_AUDIO_SECONDS: String(seconds),
+  };
+  const verify = async (uid, publicId) => {
+    assert.ok(publicId.startsWith("musicstream/" + uid + "/audio/"));
+    return { url: "https://owned.test/audio.mp3", duration: 180 };
+  };
+  return {
+    data,
+    db,
+    env,
+    service: createLyricJobs({ db, env, transcribe, verify }),
+  };
+}
+
+test("transcription uploads only verified media, reads model output and cleans provider files on failure", async () => {
+  const bytes = require("../tools/local/demo-audio.cjs").demoAudio(
+    "/local-audio/sample-short.wav",
+  );
+  for (const bad of [false, true]) {
+    const calls = [];
+    const request = async (url, options) => {
+      calls.push([url, options]);
+      if (url === "https://owned.test/audio.wav") {
+        assert.equal(options.headers, undefined);
+        return new Response(bytes);
+      }
+      if (url.endsWith("/upload/v1beta/files"))
+        return new Response(null, {
+          headers: {
+            "x-goog-upload-url":
+              "https://generativelanguage.googleapis.com/upload/session",
+          },
+        });
+      if (url.endsWith("/upload/session")) {
+        assert.deepEqual(options.body, bytes);
+        return Response.json({
+          file: {
+            name: "files/test",
+            uri: "https://generativelanguage.googleapis.com/v1beta/files/test",
+            state: "ACTIVE",
+          },
+        });
+      }
+      if (url.endsWith("/interactions")) {
+        assert.equal(
+          JSON.parse(options.body).generation_config.transcription_config.mode
+            .type,
+          "verbatim",
+        );
+        return bad
+          ? new Response(null, { status: 403 })
+          : Response.json({
+              status: "completed",
+              steps: [
+                {
+                  type: "model_output",
+                  content: [{ type: "text", text: " Lời nháp " }],
+                },
+              ],
+            });
+      }
+      assert.equal(options.method, "DELETE");
+      return new Response(null, { status: 200 });
+    };
+    const input = {
+      uid: "u",
+      song: { audioPublicId: "musicstream/u/audio/a", durationSeconds: 12 },
+      env: {
+        GEMINI_API_KEY: "test",
+        AI_TRANSCRIBE_MODEL: "gemini-3.5-transcribe",
+      },
+      verify: async (uid, id) => {
+        assert.equal(uid, "u");
+        assert.equal(id, "musicstream/u/audio/a");
+        return { url: "https://owned.test/audio.wav", duration: 12 };
+      },
+      request,
+    };
+    if (bad) await assert.rejects(transcribeSong(input));
+    else assert.equal(await transcribeSong(input), "Lời nháp");
+    assert.equal(calls.at(-1)[1].method, "DELETE");
+  }
 });
