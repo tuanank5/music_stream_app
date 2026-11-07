@@ -4,6 +4,7 @@ require("./helpers/register-local.cjs");
 const { createPager } = require("../src/utils/pager.ts");
 const { searchStatusMessage } = require("../src/utils/searchStatus.ts");
 const { preflight } = require("../tools/backend/ai/preflight.cjs");
+const { startAiIndex } = require("../tools/backend/ai/bootstrap.cjs");
 const { createAiSearch, vector } = require("../tools/backend/ai/search.cjs");
 function fixture(limit = 10) {
   const data = new Map();
@@ -153,4 +154,49 @@ test("preflight requires a key and never makes an implicit inference call", asyn
   );
   assert.equal(f.calls(), 1);
   assert.equal(calls, 0);
+});
+
+test("Render startup indexing is optional, nonfatal and stoppable", async () => {
+  const disabled = startAiIndex({
+    ai: { enabled: false },
+    getSongs: () => {
+      throw Error();
+    },
+    isClosed: () => false,
+  });
+  await disabled.done;
+  assert.equal(disabled.state.status, "disabled");
+  const logs = [];
+  const failed = startAiIndex({
+    ai: {
+      enabled: true,
+      index: async () => {
+        throw Error("secret-provider-detail");
+      },
+    },
+    getSongs: () => [],
+    isClosed: () => false,
+    report: (s) => logs.push(s),
+  });
+  await failed.done;
+  assert.equal(failed.state.status, "unavailable");
+  assert.ok(!logs.join().includes("secret-provider-detail"));
+  const f = fixture();
+  const ai = createAiSearch(f);
+  assert.equal(
+    await ai.index([{ id: "a", title: "Test" }], {
+      shouldContinue: () => false,
+    }),
+    0,
+  );
+  assert.equal(f.calls(), 0);
+  const ready = startAiIndex({
+    ai,
+    getSongs: () => [{ id: "a", title: "Test" }],
+    isClosed: () => false,
+    report: () => {},
+  });
+  await ready.done;
+  assert.equal(ready.state.status, "ready");
+  assert.equal(ready.state.indexed, 1);
 });

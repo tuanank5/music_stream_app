@@ -97,3 +97,21 @@ Lỗi này trước đây được chuyển thành lỗi terminal của keyed su
 Các kết quả trên là kiểm thử local với provider giả lập và regression theo code. Chưa thay thế thao tác xác nhận trên Android/Web hoặc kiểm thử Google/Render thật. Cần tải lại app và thử follow/unfollow liên tiếp trên thiết bị để nghiệm thu giao diện.
 
 File nhật ký này chỉ ghi nhận công việc đã làm; không thay đổi trạng thái triển khai hoặc tự động commit/push.
+
+## 5. Nạp cấu hình AI khi chạy lệnh trên local
+
+- Sửa `ai:check` và `ai:index` để Node nạp file `.env.ai` nếu có. File này ở root, đã thuộc mẫu ignore `.env.*`; không đưa secret vào Git.
+- Thêm mẫu `tools/backend/ai/demo.env.example`, cần copy về `.env.ai` và tự điền key cùng đường dẫn credentials trên máy local. Không sử dụng đường dẫn Secret File của Render trên Windows.
+- Cải thiện thông báo thiếu cấu hình và lỗi HTTP model; không in API key hoặc phản hồi thô của provider.
+- Các biến nhập trên Render không tự truyền về terminal local. Lệnh smoke chỉ cần cấu hình Gemini; index cần thêm project Firebase thật và Application Default Credentials.
+- Kiểm tra: 7/7 test AI đạt; lint và typecheck đạt. Chưa gọi cloud, chưa commit/push.
+
+## 6. Chạy index hoàn toàn trên Render
+
+- Khi backend cloud đã listen HTTP và AI được cấu hình/bật, tự khởi chạy index công khai trong nền. Không cần `.env.ai` trên máy local hoặc Shell của Render Free.
+- Dùng credentials và Environment hiện có của Render; chỉ xử lý tối đa 1.000 bài, lưu vector theo hash vào Firestore. Cache hiện có được dùng lại sau restart; request mới vẫn chịu hạn mức ngày.
+- Lỗi model/quota chỉ báo log tổng quát, không làm health hoặc keyword search fail. Đóng server ngăn bắt đầu xử lý bài kế tiếp. Index đang chạy có thể bị gián đoạn khi service ngủ/restart; deploy lại sẽ dùng cache đã lưu.
+- Lần này chỉ index khi server bắt đầu listen, chưa tự index từng bài upload mới; cần restart/deploy lại sau khi đổi catalog để tạo vector mới.
+- Render log cần có `AI index: ready, ... public songs processed.`. Nếu báo unavailable, cần kiểm tra quota/model; không tự chuyển paid tier.
+- Kiểm tra local: 118/118 test, lint/typecheck và backend source packaging đạt. Chưa xác nhận inference thật trên Render.
+- Truy cập Dashboard tự động bị công cụ dừng vì không xác định được URL trình duyệt đủ chắc chắn; chưa bấm deploy qua UI.

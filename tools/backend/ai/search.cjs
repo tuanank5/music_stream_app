@@ -124,7 +124,8 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
     version,
     async rank(query, lexical, catalog, uid) {
       if (!configured) return { keys: lexical, fallbackReason: "disabled" };
-      if (catalog.length > 1000) return { keys: lexical, fallbackReason: "capacity" };
+      if (catalog.length > 1000)
+        return { keys: lexical, fallbackReason: "capacity" };
       if (busy) return { keys: lexical, fallbackReason: "busy" };
       busy = true;
       try {
@@ -179,14 +180,19 @@ function createAiSearch({ db, env = process.env, fetchImpl = fetch }) {
         busy = false;
       }
     },
-    async index(songs) {
+    async index(songs, { shouldContinue = () => true } = {}) {
       if (!configured)
         throw Error(
           "Configure AI_ENABLED, GEMINI_API_KEY and AI_DAILY_REQUEST_LIMIT first",
         );
       if (songs.length > 1000) throw Error("Index batch exceeds 1000 songs");
-      for (const song of songs) await embed(documentText(song), "document");
-      return songs.length;
+      let completed = 0;
+      for (const song of songs) {
+        if (!shouldContinue()) break;
+        await embed(documentText(song), "document");
+        completed++;
+      }
+      return completed;
     },
   };
 }

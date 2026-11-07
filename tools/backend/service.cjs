@@ -7,6 +7,7 @@ const {
 } = require("node:crypto");
 const { SearchIndex, normalize } = require("./search-index.cjs");
 const { createAiSearch } = require("./ai/search.cjs");
+const { startAiIndex } = require("./ai/bootstrap.cjs");
 const { assertProfilesReady, catalogProfile } = require("./profiles.cjs");
 const { FollowGraph } = require("./follow-graph.cjs");
 const { startRetention } = require("./retention.cjs");
@@ -579,6 +580,16 @@ async function createBackend({
   );
   finishHttpApp(app);
   const server = createServer(app);
+  // Build the demo index on Render after HTTP is listening. Firestore caches
+  // survive restarts; provider failure must never fail health or keyword search.
+  server.once("listening", () => {
+    if (mode !== "cloud") return;
+    server.aiIndex = startAiIndex({
+      ai: aiSearch,
+      getSongs: () => all().songs,
+      isClosed: () => closed,
+    });
+  });
   server.on("close", () => {
     closed = true;
     stops.forEach((stop) => stop());

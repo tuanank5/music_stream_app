@@ -71,8 +71,8 @@
     "schema:audit": "node tools/audit-target-schema.cjs",
     "schema:migrate": "node tools/migrate-target-schema.cjs",
     "data:auth": "node tools/local/auth.cjs",
-    "ai:index": "node tools/backend/ai/index-public.cjs",
-    "ai:check": "node tools/backend/ai/preflight.cjs"
+    "ai:index": "node --env-file-if-exists=.env.ai tools/backend/ai/index-public.cjs",
+    "ai:check": "node --env-file-if-exists=.env.ai tools/backend/ai/preflight.cjs"
   },
   "private": true
 }

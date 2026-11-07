@@ -7,7 +7,9 @@ async function main() {
     !process.env.GOOGLE_CLOUD_PROJECT ||
     process.env.GOOGLE_CLOUD_PROJECT.startsWith("demo-")
   )
-    throw Error("Use explicit cloud project and credentials");
+    throw Error(
+      "Cần GOOGLE_CLOUD_PROJECT thật trong .env.ai và phải tắt FIRESTORE_EMULATOR_HOST. Environment trên Render không tự áp dụng ở máy local.",
+    );
   const db = getFirestore(
     initializeApp({
       credential: applicationDefault(),

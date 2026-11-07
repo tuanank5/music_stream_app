@@ -6,9 +6,20 @@ async function preflight({
 } = {}) {
   const ready = createAiSearch({ db: null, env, fetchImpl });
   if (!ready.enabled)
-    throw Error(
-      "Chưa đủ cấu hình: cần AI_ENABLED=true, GEMINI_API_KEY, model/dimension hợp lệ và AI_DAILY_REQUEST_LIMIT > 0.",
-    );
+    throw Object.assign(new Error("AI configuration incomplete"), {
+      safeMessage:
+        "Thiếu hoặc sai cấu hình local: " +
+        [
+          env.AI_ENABLED !== "true" && "AI_ENABLED=true",
+          !env.GEMINI_API_KEY && "GEMINI_API_KEY",
+          !(Number(env.AI_DAILY_REQUEST_LIMIT) > 0) &&
+            "AI_DAILY_REQUEST_LIMIT > 0",
+          "kiểm tra AI_EMBEDDING_MODEL / AI_EMBEDDING_DIMENSIONS",
+        ]
+          .filter(Boolean)
+          .join(", ") +
+        ". Các biến trên Render không tự có ở máy local; cấu hình file .env.ai.",
+    });
   if (!smoke)
     return {
       configured: true,
@@ -45,8 +56,13 @@ async function preflight({
       },
     );
     if (!response.ok)
-      throw Error(
-        `Model chưa sẵn sàng (HTTP ${response.status}). Kiểm tra quyền, model và quota trong AI Studio.`,
+      throw Object.assign(
+        Error(
+          `Model chưa sẵn sàng (HTTP ${response.status}). Kiểm tra quyền, model và quota trong AI Studio.`,
+        ),
+        {
+          safeMessage: `Model chưa sẵn sàng (HTTP ${response.status}). Kiểm tra quyền, model và quota trong AI Studio.`,
+        },
       );
     const body = await response.json();
     vector(body.embedding?.values, dimensions);
@@ -68,9 +84,10 @@ if (require.main === module) {
   } else
     preflight({ smoke: args.includes("--smoke") })
       .then((result) => console.log(JSON.stringify(result)))
-      .catch(() => {
+      .catch((error) => {
         console.error(
-          "AI preflight chưa đạt. Kiểm tra cấu hình backend; --smoke cần key hợp lệ, quyền model và quota. Không gửi key vào chat.",
+          error.safeMessage ||
+            "AI preflight chưa đạt. Kiểm tra kết nối hoặc định dạng phản hồi model. Không gửi key vào chat.",
         );
         process.exitCode = 1;
       });
