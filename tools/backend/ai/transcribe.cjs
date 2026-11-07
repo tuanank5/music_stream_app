@@ -1,21 +1,25 @@
 const { verifyAudio } = require("../audio-assets.cjs");
-const fail = (message) => new Error(message);
+const fail = (message, details = {}) =>
+  Object.assign(new Error(message), details);
 const BASE = "https://generativelanguage.googleapis.com";
-async function transcribeSong({
+async function runTranscription({
   uid,
   song,
   env = process.env,
   request = fetch,
   verify = verifyAudio,
+  context,
 }) {
   if (
     env.AI_TRANSCRIBE_MODEL !== "gemini-3.5-transcribe" ||
     !env.GEMINI_API_KEY
   )
     throw fail("Transcription is not configured");
+  context.stage = "verify_audio";
   const verified = await verify(uid, song.audioPublicId, request);
   if (verified.duration > 300 || verified.duration > song.durationSeconds + 1)
     throw fail("Demo transcription supports up to 5 minutes");
+  context.stage = "download_audio";
   const audio = await request(verified.url, {
     redirect: "error",
     signal: AbortSignal.timeout(30000),
@@ -36,6 +40,7 @@ async function transcribeSong({
     await reader.cancel().catch(() => {});
   }
   const bytes = Buffer.concat(chunks, size);
+  context.stage = "detect_format";
   const { fileTypeFromBuffer } = await import("file-type");
   const detected = await fileTypeFromBuffer(bytes);
   if (
@@ -54,12 +59,30 @@ async function transcribeSong({
       redirect: "error",
       signal: AbortSignal.timeout(90000),
     });
-    if (!result.ok)
-      throw fail(`Transcription provider unavailable (${result.status})`);
+    if (!result.ok) {
+      const body = await result.json().catch(() => null);
+      const allowed = new Set([
+        "INVALID_ARGUMENT",
+        "UNAUTHENTICATED",
+        "PERMISSION_DENIED",
+        "NOT_FOUND",
+        "RESOURCE_EXHAUSTED",
+        "INTERNAL",
+        "UNAVAILABLE",
+        "DEADLINE_EXCEEDED",
+      ]);
+      throw fail("Transcription provider unavailable", {
+        status: result.status,
+        providerStatus: allowed.has(body?.error?.status)
+          ? body.error.status
+          : "UNKNOWN",
+      });
+    }
     return result;
   };
   let name;
   try {
+    context.stage = "start_upload";
     const start = await checked(`${BASE}/upload/v1beta/files`, {
       method: "POST",
       headers: {
@@ -80,6 +103,7 @@ async function transcribeSong({
       upload.password
     )
       throw fail("Invalid provider upload URL");
+    context.stage = "upload_audio";
     let file = (
       await (
         await checked(upload.href, {
@@ -96,6 +120,7 @@ async function transcribeSong({
     if (!/^files\/[a-z0-9-]{1,40}$/.test(file?.name))
       throw fail("Invalid provider file");
     name = file.name;
+    context.stage = "process_file";
     for (
       let attempt = 0;
       file.state === "PROCESSING" && attempt < 5;
@@ -108,6 +133,7 @@ async function transcribeSong({
     }
     if (file.state !== "ACTIVE" || file.uri !== `${BASE}/v1beta/${name}`)
       throw fail("Provider file not ready");
+    context.stage = "transcribe";
     const result = await (
       await checked(`${BASE}/v1beta/interactions`, {
         method: "POST",
@@ -122,6 +148,7 @@ async function transcribeSong({
         }),
       })
     ).json();
+    context.stage = "parse_result";
     if (
       (result.status && result.status !== "completed") ||
       (typeof result.output_text !== "string" && !Array.isArray(result.steps))
@@ -147,6 +174,15 @@ async function transcribeSong({
         redirect: "error",
         signal: AbortSignal.timeout(10000),
       }).catch(() => {});
+  }
+}
+async function transcribeSong(options) {
+  const context = { stage: "config" };
+  try {
+    return await runTranscription({ ...options, context });
+  } catch (error) {
+    error.stage = context.stage;
+    throw error;
   }
 }
 module.exports = { transcribeSong };

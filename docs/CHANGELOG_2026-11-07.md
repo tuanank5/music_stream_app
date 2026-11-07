@@ -1,5 +1,18 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Luồng lyric trực tiếp, không lưu draft vào Firebase
+
+- Theo yêu cầu mới: bỏ service lyric-jobs, endpoint audio-lyric-job, draft/source document và bước kiểm tra tiến độ. Thay bằng POST `/audio-lyric`, chờ kết quả AI rồi trả `{text}` trực tiếp cho form upload.
+- Text nháp chỉ tồn tại trong RAM request và state form; người dùng sửa và Lưu mới ghi `songs.lyric` qua POST songs hiện có. Không ghi lyricJobs/lyricUploadSources/songs khi chỉ tạo lời. Chưa tự xóa dữ liệu từ phiên bản job cũ nếu đã có trên cloud.
+- Chỉ giữ transaction quota `aiUsage/lyrics_{day}` để hạn chế sử dụng demo. Dedupe request đang chạy dùng RAM, không cache text trong database. Request trùng cùng audio/UID đang chạy dùng một lần inference; request mới sau khi xong là lượt tạo mới và tính quota lại.
+- Form không có nút kiểm tra tiến độ. Lưu tạm khóa khi đang tạo lời; timeout riêng cho POST audio-lyric là 6 phút. Không tự retry ASR khi lỗi/timeout; phần đang gõ và callback nguồn cũ vẫn được bảo vệ.
+- Bổ sung log chẩn đoán stage/status/code whitelist cho lỗi model/upload/đọc kết quả. Không in key, provider body thô, URL riêng tư hoặc lyric. Bản cũ che nguyên nhân bằng thông báo chung; cần log sau deploy để xác định lỗi cloud thực tế, chưa thể kết luận là quota/model.
+- Kiểm thử: 135/135 test đạt, backend source packaging và typecheck đạt; lint kiểm tra cùng đợt. Test khẳng định chỉ ghi user/quota, không tạo songs/draft/source; kiểm tra chống duplicate, lỗi quyền/quota, UI không ghi đè phần gõ, provider cleanup. Chưa gọi ASR thật, chưa commit/push/deploy trong lượt chỉnh này.
+
+## Chỉnh chữ trong form tạo lyric
+
+- Bỏ đoạn “Tùy chọn: gửi audio đã chọn tới Gemini…” khỏi form Đăng tải bài hát theo yêu cầu. Giữ nút tạo lời nháp và ô Lyric; không đổi luồng xử lý hay giới hạn backend.
+
 ## Điều chỉnh lyric AI: chỉ tạo trong lúc Đăng tải bài hát
 
 - Thay luồng tạo lời sau đăng bằng `UploadLyricDraft` trong UploadSongScreen, ngay phía trên ô Lời bài hát. Chọn audio → tạo draft → kiểm tra/điền → sửa → Lưu bài.
@@ -54,7 +67,6 @@
 - Lỗi provider/quota dừng lượt index hiện tại và có cooldown 60 giây; chỉ thử lại khi có thay đổi tiếp theo hoặc restart, không lặp gọi liên tục. AI tắt không khởi tạo worker. Giới hạn catalog demo 1.000 bài và quota ngày không tăng.
 - Test regression bổ sung: tìm chồng nhau, hủy ý định query cũ trước inference, cache theo UID, thay đổi metadata lúc đang index, thu hồi pending work, và ngắt batch khi provider lỗi. Chưa nghiệm thu các thay đổi này trên Render; cần deploy bản mới để áp dụng. Chưa commit/push trong lượt này.
 - Kết quả sau cập nhật: 123/123 unit test đạt; lint, typecheck, kiểm tra đóng gói backend source và diff check đạt. Không gọi provider thật trong bộ test.
-
 
 Ghi nhận các thay đổi local trong đợt triển khai AI và bản sửa follow/unfollow ngay sau đó. Chưa commit/push hoặc deploy các thay đổi này. Các chỉnh sửa giao diện có từ trước vẫn nằm trong working tree, không được coi là phát sinh từ đợt này.
 

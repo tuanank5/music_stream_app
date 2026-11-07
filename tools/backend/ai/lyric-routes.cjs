@@ -1,15 +1,16 @@
 const express = require("express");
-const { createLyricJobs } = require("./lyric-jobs.cjs");
-function createLyricRouter({ db, mode, service = createLyricJobs({ db }) }) {
+const { createLyricGenerator } = require("./lyric-generator.cjs");
+function createLyricRouter({
+  db,
+  mode,
+  service = createLyricGenerator({ db }),
+}) {
   const router = express.Router({ caseSensitive: true, strict: true });
   router.get("/audio-lyric-config", (req, res) =>
     res.json({ enabled: service.enabled, maxDurationSeconds: 300 }),
   );
-  router.get("/audio-lyric-job", async (req, res) =>
-    res.json(await service.readUpload(req.auth.uid, req.query.publicId)),
-  );
   router.post(
-    "/audio-lyric-job",
+    "/audio-lyric",
     express.json({ limit: "2kb" }),
     async (req, res) => {
       if (mode !== "cloud")
@@ -24,9 +25,9 @@ function createLyricRouter({ db, mode, service = createLyricJobs({ db }) }) {
       )
         return res.status(400).json({ error: "Yêu cầu tạo lời không hợp lệ." });
       res
-        .status(202)
+        .status(200)
         .json(
-          await service.startUpload(
+          await service.generate(
             req.auth.uid,
             req.body.audioPublicId,
             req.body.consent,

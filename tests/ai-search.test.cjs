@@ -6,52 +6,41 @@ const { searchStatusMessage } = require("../src/utils/searchStatus.ts");
 const { preflight } = require("../tools/backend/ai/preflight.cjs");
 const { startAiIndex } = require("../tools/backend/ai/bootstrap.cjs");
 const { createAiSearch, vector } = require("../tools/backend/ai/search.cjs");
-const { createLyricJobs } = require("../tools/backend/ai/lyric-jobs.cjs");
+const {
+  createLyricGenerator,
+} = require("../tools/backend/ai/lyric-generator.cjs");
 const { transcribeSong } = require("../tools/backend/ai/transcribe.cjs");
 
-test("upload audio produces a private lyric draft before any song is published", async () => {
-  let release;
+test("direct ASR returns lyric text without persisting drafts, sources or songs", async () => {
+  let release,
+    calls = 0;
   const pending = new Promise((r) => {
     release = r;
   });
-  let calls = 0;
   const f = lyricFixture(async () => {
     calls++;
     return pending;
   });
-  const id = "musicstream/u/audio/asset";
-  const first = await f.service.startUpload("u", id, true);
-  const second = await f.service.startUpload("u", id, true);
-  assert.equal(first.job.draftId, second.job.draftId);
-  release("Lời nháp trước khi đăng");
-  await f.service.settle();
+  const a = f.service.generate("u", "musicstream/u/audio/asset", true);
+  const b = f.service.generate("u", "musicstream/u/audio/asset", true);
+  release("Lời trả trực tiếp");
+  const result = await Promise.all([a, b]);
   assert.equal(calls, 1);
-  assert.equal(
-    (await f.service.readUpload("u", id)).job.text,
-    "Lời nháp trước khi đăng",
+  assert.deepEqual(result, [
+    { text: "Lời trả trực tiếp" },
+    { text: "Lời trả trực tiếp" },
+  ]);
+  assert.ok(
+    [...f.data.keys()].every(
+      (path) => path.startsWith("users/") || path.startsWith("aiUsage/"),
+    ),
   );
   assert.equal(
-    [...f.data.keys()].filter((p) => p.startsWith("songs/")).length,
-    0,
+    [...f.data].find(([path]) => path.startsWith("aiUsage/"))[1].seconds,
+    180,
   );
-  await assert.rejects(f.service.readUpload("other", id), { status: 403 });
 });
-test("upload lyric generation requires consent, ownership and quota before inference", async () => {
-  let calls = 0;
-  const f = lyricFixture(async () => {
-      calls++;
-      return "text";
-    }, 100),
-    id = "musicstream/u/audio/asset";
-  await assert.rejects(f.service.startUpload("u", id, false), { status: 400 });
-  await assert.rejects(f.service.startUpload("u", id, true), { status: 429 });
-  await assert.rejects(
-    f.service.startUpload("u", "musicstream/other/audio/a", true),
-    { status: 403 },
-  );
-  assert.equal(calls, 0);
-});
-test("deactivation while upload ASR runs prevents draft completion", async () => {
+test("direct ASR rejects a response if account is disabled while waiting", async () => {
   let entered, release;
   const started = new Promise((r) => {
       entered = r;
@@ -63,15 +52,31 @@ test("deactivation while upload ASR runs prevents draft completion", async () =>
     entered();
     return pending;
   });
-  await f.service.startUpload("u", "musicstream/u/audio/asset", true);
+  const response = f.service.generate("u", "musicstream/u/audio/asset", true);
   await started;
   f.data.get("users/u").active = false;
-  release("stale");
-  await f.service.settle();
-  assert.equal(
-    [...f.data].find(([p]) => p.startsWith("lyricJobs/"))[1].status,
-    "failed",
+  release("text");
+  await assert.rejects(response, { status: 503 });
+  assert.ok(
+    [...f.data.keys()].every(
+      (path) => path.startsWith("users/") || path.startsWith("aiUsage/"),
+    ),
   );
+});
+test("upload lyric generation requires consent, ownership and quota before inference", async () => {
+  let calls = 0;
+  const f = lyricFixture(async () => {
+      calls++;
+      return "text";
+    }, 100),
+    id = "musicstream/u/audio/asset";
+  await assert.rejects(f.service.generate("u", id, false), { status: 400 });
+  await assert.rejects(f.service.generate("u", id, true), { status: 429 });
+  await assert.rejects(
+    f.service.generate("u", "musicstream/other/audio/a", true),
+    { status: 403 },
+  );
+  assert.equal(calls, 0);
 });
 test("only the pre-upload lyric endpoint is exposed, post-publication edit routes are removed", async () => {
   const { createServer } = require("node:http"),
@@ -92,14 +97,10 @@ test("only the pre-upload lyric endpoint is exposed, post-publication edit route
   await once(server, "listening");
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
-    assert.equal(
-      (await fetch(base + "/audio-lyric-job?publicId=musicstream/u/audio/a"))
-        .status,
-      401,
-    );
+    assert.equal((await fetch(base + "/audio-lyric-config")).status, 401);
     assert.equal(
       (
-        await fetch(base + "/audio-lyric-job?publicId=musicstream/u/audio/a", {
+        await fetch(base + "/audio-lyric-config", {
           headers: { Authorization: "Bearer u" },
         })
       ).status,
@@ -185,8 +186,7 @@ test("upload lyric UI fills the form but never applies stale audio or overwrites
       }),
     );
   const completed = {
-    enabled: true,
-    job: { status: "completed", text: "Draft", error: "", draftId: "d" },
+    text: "Draft",
   };
   try {
     await act(async () => render(""));
@@ -767,7 +767,7 @@ function lyricFixture(transcribe, seconds = 600) {
     data,
     db,
     env,
-    service: createLyricJobs({ db, env, transcribe, verify }),
+    service: createLyricGenerator({ db, env, transcribe, verify }),
   };
 }
 

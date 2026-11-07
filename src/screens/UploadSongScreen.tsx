@@ -57,6 +57,7 @@ export default function UploadSongScreen() {
   const [genres, setGenres] = useState<string[]>([]);
   const [genreOpen, setGenreOpen] = useState(false);
   const [lyric, setLyric] = useState("");
+  const [generatingLyric, setGeneratingLyric] = useState(false);
   const [description, setDescription] = useState("");
   const [artists, setArtists] = useState(user?.displayName || "Music lover");
   const [albumId, setAlbumId] = useState("");
@@ -427,6 +428,7 @@ export default function UploadSongScreen() {
           prepareAudio={prepareLyricAudio}
           onText={setLyric}
           lyric={lyric}
+          onBusy={setGeneratingLyric}
         />
       ) : null}
       <Field
@@ -476,7 +478,7 @@ export default function UploadSongScreen() {
 
       <Button
         title={action.busy ? "Đang lưu..." : "Lưu"}
-        disabled={action.busy}
+        disabled={action.busy || generatingLyric}
         onPress={() => void action.run(save)}
       />
     </Page>

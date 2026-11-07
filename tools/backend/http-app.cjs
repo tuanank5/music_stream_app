@@ -105,7 +105,7 @@ function createHttpApp({
       ) &&
       !(req.method === "DELETE" && /^\/songs\/[^/]+$/.test(req.path)) &&
       !(req.method === "PATCH" && /^\/songs\/[^/]+\/cover$/.test(req.path)) &&
-      !(req.method === "POST" && req.path === "/audio-lyric-job") &&
+      !(req.method === "POST" && req.path === "/audio-lyric") &&
       !(req.method === "POST" && req.path === "/playlists") &&
       !(
         ["PATCH", "DELETE"].includes(req.method) &&

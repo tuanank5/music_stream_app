@@ -35,9 +35,11 @@ async function backendWrite<T>(
   const controller = new AbortController();
   // Saving a cloud song may inspect up to 30 MB of audio on the server.
   const timeout =
-    runtime.mode === "cloud" && method === "POST" && path === "/songs"
-      ? 60000
-      : 15000;
+    runtime.mode === "cloud" && method === "POST" && path === "/audio-lyric"
+      ? 360000
+      : runtime.mode === "cloud" && method === "POST" && path === "/songs"
+        ? 60000
+        : 15000;
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
     const response = await fetch(`${runtime.backendUrl}${path}`, {
