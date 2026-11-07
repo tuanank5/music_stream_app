@@ -23,7 +23,10 @@ const KINDS = [
 ];
 const id = (value) =>
   typeof value === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(value);
-async function loadEditableData(directory = ROOT) {
+async function loadEditableData(
+  directory = ROOT,
+  { retainMediaBytes = true } = {},
+) {
   const documents = [];
   const mediaFiles = [];
   const audioCache = new Map();
@@ -118,7 +121,9 @@ async function loadEditableData(directory = ROOT) {
         }
         mediaFiles.push({
           stored,
-          bytes,
+          ...(retainMediaBytes
+            ? { bytes }
+            : { filename, byteLength: bytes.length }),
           ownerId,
           url: fields[field],
           kind: field === "audioUrl" ? "audio" : "image",

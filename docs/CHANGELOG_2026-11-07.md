@@ -1,5 +1,20 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Chẩn đoán phản hồi lyric chỉ có status/object được nhận diện
+
+- Log Render mới: parse_result/UNSUPPORTED_RESPONSE, 5 field chưa biết, status và object kiểu string. Theo kiểm tra parser, status ở cấp gốc đã qua kiểm tra completed; chưa thấy field text/steps/outputs/interaction hợp lệ. Chưa đủ bằng chứng để xác định payload hoặc kết luận model/quota/bản quyền.
+- Log trước ẩn tên field chưa biết nên không đủ thông tin sửa schema. Bổ sung `responseShape.schemaFields` dạng đường dẫn field và kiểu dữ liệu, không ghi giá trị. Giới hạn 64 mục, sâu 6 cấp, một phần tử mẫu mỗi array; tên field không theo dạng tên API thông thường bị che. Dạng phẳng tránh console.error thu gọn phần lồng thành `[Object]`.
+- Đây là bổ sung chẩn đoán, chưa khẳng định đã sửa lỗi tạo lyric thật. Cần triển khai rồi lấy log có schemaFields để điều chỉnh parser theo phản hồi thực tế; không đổi model, key, hạn mức hoặc tự retry.
+- 26/26 test AI đạt, lint/typecheck đạt; thêm test giới hạn log, không chứa giá trị lyric/key, đọc được schema field mới. Chưa commit/push/deploy hoặc gọi AI thật.
+
+## Tự động nạp dữ liệu local lên cloud, không gọi AI
+
+- Thêm `tools/import-local-cloud.cjs`, mẫu cấu hình riêng và hướng dẫn `docs/LOCAL_DATA_TO_FIREBASE.md`; lệnh `data:cloud:check` lập kế hoạch offline, `data:cloud:apply` upload tuần tự và nhập Firestore. Người dùng xác nhận đã tắt AI trên Render và deploy xong. Không tự commit/push.
+- Đọc thực tế 394 document, 120 audio, khoảng 562 MiB. Giữ ID và tham chiếu; thay URL/public ID audio bằng kết quả Cloudinary, duration đo từ media local. Giữ nguyên JSON nguồn và ảnh HTTPS hiện tại. Thêm tùy chọn loader không giữ bytes trong bộ nhớ để tránh tích lũy toàn bộ audio.
+- Tiến độ nằm trong `.local/`, public ID theo hash chủ sở hữu/nội dung, overwrite=false; chặn file đổi sau lập kế hoạch, sai cloud/namespace và ID trùng dữ liệu khác. Firestore ghi create-only trong một transaction, không xóa/ghi đè. Không nhập auth.json, không tạo/sửa Auth account hoặc mật khẩu. Chỉ tạo hồ sơ mẫu để hiển thị.
+- Không gọi Gemini/embedding/ASR. Đã tạo `.env.import` riêng bị gitignore; hiện thiếu Firebase Admin credential path và Cloudinary API key/secret nên chưa thực hiện upload/ghi cloud. Cần điền trên máy, không gửi khóa vào chat.
+- Kiểm tra: 141/141 test đạt, lint và typecheck đạt. Bộ importer có 4 test cho signed upload, đổi URL/giữ ID, không giữ buffers, từ chối file đổi và collision trước khi ghi. Test CI dùng WAV tổng hợp riêng, không phụ thuộc audio cá nhân; lệnh offline đã kiểm tra toàn bộ dataset thật trên máy.
+
 ## Bổ sung chẩn đoán `UNSUPPORTED_RESPONSE` từ Render
 
 - Log mới xác nhận JSON không có `output_text`, `steps` hoặc `outputs` đúng kiểu ở cấp parser đang đọc. Bản sửa trước chưa giải quyết được phản hồi thực tế; chưa có cấu trúc JSON nên chưa xác định nguyên nhân cuối cùng.

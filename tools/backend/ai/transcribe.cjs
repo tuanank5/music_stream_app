@@ -4,7 +4,7 @@ const fail = (message, details = {}) =>
 const BASE = "https://generativelanguage.googleapis.com";
 const parseDiagnostics = new WeakMap();
 const transcriptionResponseShape = (error) => parseDiagnostics.get(error);
-// Only schema metadata is logged. Never include text, IDs, URLs or unknown keys.
+// Only schema metadata is logged. Never include string/number values or media.
 function responseShape(result) {
   const fields = [
     "interaction",
@@ -43,7 +43,35 @@ function responseShape(result) {
     }
     return shape;
   };
-  return describe(result, 2);
+  const shape = describe(result, 2);
+  // Flatten paths so console.error does not hide nested diagnostics as [Object].
+  // Inspect at most one item per array and cap depth/entries to keep logs bounded.
+  const schemaFields = [];
+  const walk = (value, location, depth) => {
+    if (schemaFields.length >= 64) return;
+    const type =
+      value === null
+        ? "null"
+        : Array.isArray(value)
+          ? `array(${value.length})`
+          : typeof value;
+    schemaFields.push(`${location}:${type}`);
+    if (!value || typeof value !== "object" || depth === 0) return;
+    if (Array.isArray(value)) {
+      if (value.length) walk(value[0], `${location}[0]`, depth - 1);
+    } else {
+      for (const key of Object.keys(value)) {
+        if (schemaFields.length >= 64) break;
+        // API field names only; redact unusual keys and never print their values.
+        const name = /^[a-z][A-Za-z0-9_]{0,47}$/.test(key) ? key : "<redacted>";
+        walk(value[key], `${location}.${name}`, depth - 1);
+      }
+    }
+  };
+  walk(result, "$", 6);
+  return shape && typeof shape === "object"
+    ? { ...shape, schemaFields }
+    : shape;
 }
 function parseTranscript(result) {
   const shape = responseShape(result);

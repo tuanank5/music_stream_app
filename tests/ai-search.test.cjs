@@ -882,8 +882,57 @@ test("lyric parser diagnostics log schema types without private values or unknow
       },
       candidates: { type: "array", count: 1 },
     },
+    schemaFields: [
+      "$:object",
+      "$.response:object",
+      "$.response.transcript:string",
+      "$.response.id:string",
+      "$.<redacted>:string",
+      "$.candidates:array(1)",
+      "$.candidates[0]:object",
+      "$.candidates[0].text:string",
+    ],
   });
   assert.doesNotMatch(JSON.stringify(logs), /PRIVATE/);
+});
+
+test("unknown lyric response diagnostics expose bounded field paths without content", () => {
+  const {
+    parseTranscript,
+    transcriptionResponseShape,
+  } = require("../tools/backend/ai/transcribe.cjs");
+  const result = {
+    status: "completed",
+    object: "interaction",
+    transcription: {
+      segments: [{ transcript: "PRIVATE_LYRIC", secret: "PRIVATE_KEY" }],
+    },
+  };
+  assert.throws(
+    () => parseTranscript(result),
+    (error) => {
+      const diagnostic = transcriptionResponseShape(error);
+      assert.ok(
+        diagnostic.schemaFields.includes(
+          "$.transcription.segments[0].transcript:string",
+        ),
+      );
+      assert.doesNotMatch(JSON.stringify(diagnostic), /PRIVATE/);
+      return true;
+    },
+  );
+  assert.throws(
+    () =>
+      parseTranscript(
+        Object.fromEntries(
+          Array.from({ length: 1000 }, (_, i) => [`field${i}`, "PRIVATE"]),
+        ),
+      ),
+    (error) => {
+      assert.ok(transcriptionResponseShape(error).schemaFields.length <= 64);
+      return true;
+    },
+  );
 });
 
 test("transcription uploads only verified media, reads model output and cleans provider files on failure", async () => {
