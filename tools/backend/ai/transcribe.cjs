@@ -2,6 +2,43 @@ const { verifyAudio } = require("../audio-assets.cjs");
 const fail = (message, details = {}) =>
   Object.assign(new Error(message), details);
 const BASE = "https://generativelanguage.googleapis.com";
+function parseTranscript(result) {
+  const invalid = (reason) => {
+    throw fail("Invalid transcription result", { parseReason: reason });
+  };
+  if (!result || typeof result !== "object" || Array.isArray(result))
+    invalid("INVALID_RESPONSE");
+  if (result.status != null && result.status !== "completed")
+    invalid("NOT_COMPLETED");
+  let parts;
+  if (typeof result.output_text === "string" && result.output_text.trim()) {
+    parts = [result.output_text];
+  } else if (Array.isArray(result.steps)) {
+    // Ignore user input, thoughts and tool results in the step timeline.
+    parts = result.steps
+      .filter((step) => step?.type === "model_output")
+      .flatMap((step) => (Array.isArray(step.content) ? step.content : []));
+  } else if (Array.isArray(result.outputs)) {
+    // REST responses using the earlier Interactions schema expose flat outputs.
+    parts = result.outputs;
+  } else if (typeof result.output_text === "string") {
+    parts = [];
+  } else {
+    invalid("UNSUPPORTED_RESPONSE");
+  }
+  const text = parts
+    .flatMap((part) => {
+      if (typeof part === "string") return [part];
+      return part?.type === "text" && typeof part.text === "string"
+        ? [part.text]
+        : [];
+    })
+    .join("\n")
+    .trim();
+  if (!text) invalid("EMPTY_TRANSCRIPT");
+  if (text.length > 12000) invalid("TRANSCRIPT_TOO_LONG");
+  return text;
+}
 async function runTranscription({
   uid,
   song,
@@ -149,23 +186,7 @@ async function runTranscription({
       })
     ).json();
     context.stage = "parse_result";
-    if (
-      (result.status && result.status !== "completed") ||
-      (typeof result.output_text !== "string" && !Array.isArray(result.steps))
-    )
-      throw fail("Invalid transcription response");
-    const text =
-      typeof result.output_text === "string"
-        ? result.output_text
-        : (result.steps || [])
-            .filter((s) => s.type === "model_output")
-            .flatMap((s) => s.content || [])
-            .filter((c) => c.type === "text" && typeof c.text === "string")
-            .map((c) => c.text)
-            .join("\n");
-    if (typeof text !== "string" || text.length > 12000)
-      throw fail("Invalid transcription result");
-    return text.trim();
+    return parseTranscript(result);
   } finally {
     if (name)
       await request(`${BASE}/v1beta/${name}`, {
@@ -185,4 +206,4 @@ async function transcribeSong(options) {
     throw error;
   }
 }
-module.exports = { transcribeSong };
+module.exports = { transcribeSong, parseTranscript };

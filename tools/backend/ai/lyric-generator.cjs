@@ -107,12 +107,23 @@ function createLyricGenerator({
           error.status <= 599
             ? error.status
             : null;
+        const parseReasons = new Set([
+          "INVALID_RESPONSE",
+          "NOT_COMPLETED",
+          "UNSUPPORTED_RESPONSE",
+          "EMPTY_TRANSCRIPT",
+          "TRANSCRIPT_TOO_LONG",
+        ]);
         report({
           stage: stages.has(error.stage) ? error.stage : "response",
           status,
           code: codes.has(error.providerStatus)
             ? error.providerStatus
             : "UNKNOWN",
+          ...(error.stage === "parse_result" &&
+          parseReasons.has(error.parseReason)
+            ? { reason: error.parseReason }
+            : {}),
         });
         throw fail(
           status === 429 ? 429 : 503,

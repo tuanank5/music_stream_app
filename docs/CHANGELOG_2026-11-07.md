@@ -1,5 +1,13 @@
 # Nhật ký thay đổi ngày 07/11/2026
 
+## Sửa parser lyric khi Render báo `parse_result`
+
+- Log thực tế `stage: parse_result, status: null, code: UNKNOWN` cho biết lỗi xảy ra sau khi đọc JSON phản hồi, chưa xác định được chính xác payload trên Render. Không đủ cơ sở kết luận lỗi key, quota hay bản quyền.
+- Tách parser để kiểm thử: đọc `output_text`, nội dung text của `steps[].model_output.content`, và `outputs[]` của schema Interactions trước đây. Không đọc nội dung user input/thought/tool vào lyric; kết quả chưa hoàn tất, rỗng hoặc quá 12.000 ký tự bị từ chối.
+- Log parser có thêm `reason` từ whitelist: INVALID_RESPONSE, NOT_COMPLETED, UNSUPPORTED_RESPONSE, EMPTY_TRANSCRIPT, TRANSCRIPT_TOO_LONG. Không ghi nguyên phản hồi, lời bài hát, URL hoặc khóa API. File Gemini vẫn được xóa best-effort kể cả khi parse lỗi.
+- Kiểm tra: 136/136 test đạt, lint, typecheck và backend source packaging đạt. Các phản hồi AI trong test là mô phỏng; chưa xác nhận bằng audio thật trên Render. Cần triển khai bản sửa rồi thử lại. Không thay model, quota hay cách lưu dữ liệu; không tự commit/push.
+- Tham chiếu: [schema Interactions](https://ai.google.dev/gemini-api/docs/interactions-breaking-changes-may-2026), [transcription](https://ai.google.dev/gemini-api/docs/transcribe).
+
 ## Luồng lyric trực tiếp, không lưu draft vào Firebase
 
 - Theo yêu cầu mới: bỏ service lyric-jobs, endpoint audio-lyric-job, draft/source document và bước kiểm tra tiến độ. Thay bằng POST `/audio-lyric`, chờ kết quả AI rồi trả `{text}` trực tiếp cho form upload.

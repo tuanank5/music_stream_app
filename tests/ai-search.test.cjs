@@ -771,11 +771,68 @@ function lyricFixture(transcribe, seconds = 600) {
   };
 }
 
+test("transcript parser reads REST schemas without exposing input or thoughts", () => {
+  const { parseTranscript } = require("../tools/backend/ai/transcribe.cjs");
+  assert.equal(parseTranscript({ output_text: " Draft " }), "Draft");
+  assert.equal(
+    parseTranscript({
+      status: "completed",
+      outputs: [
+        { type: "text", text: "First" },
+        { type: "text", text: "Second" },
+      ],
+    }),
+    "First\nSecond",
+  );
+  assert.equal(
+    parseTranscript({
+      output_text: "",
+      steps: [
+        null,
+        {
+          type: "user_input",
+          content: [{ type: "text", text: "private input" }],
+        },
+        {
+          type: "thought",
+          content: [{ type: "text", text: "private thought" }],
+        },
+        {
+          type: "model_output",
+          content: [null, { type: "text", text: "Draft" }],
+        },
+      ],
+    }),
+    "Draft",
+  );
+  for (const [response, reason] of [
+    [null, "INVALID_RESPONSE"],
+    [{ status: "failed", output_text: "partial" }, "NOT_COMPLETED"],
+    [
+      { status: "in_progress", outputs: [{ type: "text", text: "partial" }] },
+      "NOT_COMPLETED",
+    ],
+    [{ unknown: "private result" }, "UNSUPPORTED_RESPONSE"],
+    [{ steps: [{ type: "model_output", content: {} }] }, "EMPTY_TRANSCRIPT"],
+    [{ output_text: "  " }, "EMPTY_TRANSCRIPT"],
+    [{ output_text: "a".repeat(12001) }, "TRANSCRIPT_TOO_LONG"],
+  ]) {
+    assert.throws(
+      () => parseTranscript(response),
+      (error) => {
+        assert.equal(error.parseReason, reason);
+        assert.equal(error.message, "Invalid transcription result");
+        return true;
+      },
+    );
+  }
+});
+
 test("transcription uploads only verified media, reads model output and cleans provider files on failure", async () => {
   const bytes = require("../tools/local/demo-audio.cjs").demoAudio(
     "/local-audio/sample-short.wav",
   );
-  for (const bad of [false, true]) {
+  for (const variant of ["steps", "outputs", "http_error", "parse_error"]) {
     const calls = [];
     const request = async (url, options) => {
       calls.push([url, options]);
@@ -806,17 +863,23 @@ test("transcription uploads only verified media, reads model output and cleans p
             .type,
           "verbatim",
         );
-        return bad
+        return variant === "http_error"
           ? new Response(null, { status: 403 })
-          : Response.json({
-              status: "completed",
-              steps: [
-                {
-                  type: "model_output",
-                  content: [{ type: "text", text: " Lời nháp " }],
-                },
-              ],
-            });
+          : variant === "parse_error"
+            ? Response.json({ status: "completed", steps: [] })
+            : variant === "outputs"
+              ? Response.json({
+                  outputs: [{ type: "text", text: " Lời nháp " }],
+                })
+              : Response.json({
+                  status: "completed",
+                  steps: [
+                    {
+                      type: "model_output",
+                      content: [{ type: "text", text: " Lời nháp " }],
+                    },
+                  ],
+                });
       }
       assert.equal(options.method, "DELETE");
       return new Response(null, { status: 200 });
@@ -835,7 +898,13 @@ test("transcription uploads only verified media, reads model output and cleans p
       },
       request,
     };
-    if (bad) await assert.rejects(transcribeSong(input));
+    if (variant === "http_error") await assert.rejects(transcribeSong(input));
+    else if (variant === "parse_error")
+      await assert.rejects(transcribeSong(input), (error) => {
+        assert.equal(error.stage, "parse_result");
+        assert.equal(error.parseReason, "EMPTY_TRANSCRIPT");
+        return true;
+      });
     else assert.equal(await transcribeSong(input), "Lời nháp");
     assert.equal(calls.at(-1)[1].method, "DELETE");
   }
